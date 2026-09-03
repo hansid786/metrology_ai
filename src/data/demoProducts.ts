@@ -111,9 +111,9 @@ export const DEMO_PRESETS: DemoProductPreset[] = [
   {
     id: 'demo-potato-chips',
     title: 'Crunchy Supreme Potato Chips (250g)',
-    subtitle: 'Standard FMCG Pack (Rule 6 Fully Compliant)',
+    subtitle: 'Demo Benchmark — Synthetic Sample (Full Declaration Pass)',
     badge: '100% Compliant FMCG',
-    description: 'Packaged chips where MRP is ₹50 for 250g. Correctly declares Unit Sale Price as ₹0.20/g (₹50 ÷ 250g = ₹0.20/g).',
+    description: 'Synthetic benchmark sample where MRP is ₹50 for 250g. Correctly declares Unit Sale Price as ₹0.20/g (₹50 ÷ 250g = ₹0.20/g).',
     imageUrl: chipsSvg,
     mrp: 50,
     netQuantity: '250 g',
@@ -388,9 +388,9 @@ export const DEMO_PRESETS: DemoProductPreset[] = [
   {
     id: 'demo-coconut-oil',
     title: 'Cold Pressed Virgin Coconut Oil (500ml)',
-    subtitle: 'Missing Mandatory Unit Sale Price',
+    subtitle: 'Demo Benchmark — Synthetic Sample (Missing USP Violation)',
     badge: 'Missing USP Violation',
-    description: 'Packaged edible oil with MRP ₹220 (500ml), where Unit Sale Price is completely missing from the label surface.',
+    description: 'Synthetic benchmark sample of packaged edible oil with MRP ₹220 (500ml), where Unit Sale Price is completely missing from the label surface.',
     imageUrl: oilSvg,
     mrp: 220,
     netQuantity: '500 ml',
@@ -592,9 +592,9 @@ export const DEMO_PRESETS: DemoProductPreset[] = [
   {
     id: 'demo-whole-wheat-atta',
     title: 'Shakti Bhog 100% Whole Wheat Chakki Atta 5kg',
-    subtitle: '100% Compliant Sample • Staple Category',
+    subtitle: 'Demo Benchmark — Synthetic Sample (100% Compliant Staple)',
     badge: '100% Verified Pass',
-    description: 'Fully compliant 5kg chakki atta packaging with all 8 mandatory declarations present, accurate USP (₹55/kg = ₹275 ÷ 5kg = ₹0.055/g), and verified FSSAI/origin data.',
+    description: 'Synthetic benchmark sample of 5kg chakki atta packaging with all 8 mandatory declarations present, accurate USP (₹55/kg = ₹275 ÷ 5kg), and verified FSSAI/origin data.',
     imageUrl: attaSvg,
     mrp: 275,
     netQuantity: '5 kg',
@@ -798,9 +798,9 @@ export const DEMO_PRESETS: DemoProductPreset[] = [
   {
     id: 'demo-powerbank',
     title: 'VoltMax Power Core 20000mAh',
-    subtitle: 'Electronics Category • BIS Certified • USP Exempt',
+    subtitle: 'Demo Benchmark — Synthetic Sample (Electronics Exemption)',
     badge: '100% OK (Exempt USP)',
-    description: 'Electronics commodity package with Model, BIS R-number, Voltage rating, and legal exemption for USP.',
+    description: 'Synthetic benchmark sample of electronics commodity package with Model, BIS R-number, Voltage rating, and legal exemption for USP.',
     imageUrl: toSvgDataUri(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" width="100%" height="100%"><rect width="600" height="800" rx="28" fill="#0f172a"/><rect x="15" y="15" width="570" height="770" rx="20" fill="none" stroke="#64748b" stroke-width="2" stroke-opacity="0.3"/><rect x="60" y="60" width="480" height="75" rx="14" fill="#2563eb"/><text x="300" y="108" font-family="Arial, sans-serif" font-weight="900" font-size="28" fill="#ffffff" text-anchor="middle">VOLTMAX POWER CORE</text><rect x="100" y="148" width="400" height="34" rx="6" fill="#1e293b"/><text x="300" y="171" font-family="Arial, sans-serif" font-weight="700" font-size="14" fill="#93c5fd" text-anchor="middle">20,000 mAh FAST CHARGE POWER BANK</text><circle cx="300" cy="275" r="70" fill="#3b82f6" fill-opacity="0.2"/><text x="300" y="288" font-size="40" text-anchor="middle">⚡🔋</text><rect x="40" y="380" width="520" height="390" rx="12" fill="#ffffff"/><rect x="40" y="380" width="520" height="30" rx="6" fill="#0f172a"/><text x="300" y="400" font-family="Arial, sans-serif" font-weight="bold" font-size="12" fill="#ffffff" text-anchor="middle">STATUTORY ELECTRONICS DECLARATIONS</text><text x="60" y="445" font-family="Arial, sans-serif" font-size="11" fill="#64748b" font-weight="bold">NET QUANTITY:</text><text x="60" y="468" font-family="Arial, sans-serif" font-size="17" fill="#0f172a" font-weight="bold">1 Unit (Power Bank + Cable)</text><text x="320" y="445" font-family="Arial, sans-serif" font-size="11" fill="#64748b" font-weight="bold">MAX. RETAIL PRICE (MRP):</text><text x="320" y="468" font-family="Arial, sans-serif" font-size="17" fill="#0f172a" font-weight="bold">₹ 1,999.00 (Incl. Taxes)</text><line x1="60" y1="490" x2="540" y2="490" stroke="#e2e8f0" stroke-width="1.5"/><text x="60" y="515" font-family="Arial, sans-serif" font-size="11" fill="#64748b" font-weight="bold">MODEL &amp; TYPE:</text><text x="60" y="533" font-family="Arial, sans-serif" font-size="13" fill="#0f172a" font-weight="bold">VM-20K-PRO (Li-Polymer 3.7V)</text><text x="320" y="515" font-family="Arial, sans-serif" font-size="11" fill="#64748b" font-weight="bold">RATED INPUT / OUTPUT:</text><text x="320" y="533" font-family="Arial, sans-serif" font-size="13" fill="#0f172a" font-weight="bold">5V⎓3A / 9V⎓2.22A (22.5W Max)</text><line x1="60" y1="555" x2="540" y2="555" stroke="#e2e8f0" stroke-width="1.5"/><text x="60" y="580" font-family="Arial, sans-serif" font-size="11" fill="#64748b" font-weight="bold">BIS SAFETY REGISTRATION:</text><text x="60" y="598" font-family="Arial, sans-serif" font-size="13" fill="#16a34a" font-weight="bold">IS 13252 (Part 1) / R-84001928 [ISI MARK]</text><text x="360" y="580" font-family="Arial, sans-serif" font-size="11" fill="#64748b" font-weight="bold">MFG / IMPORT DATE:</text><text x="360" y="598" font-family="Arial, sans-serif" font-size="13" fill="#0f172a" font-weight="bold">MAY 2026</text><line x1="60" y1="620" x2="540" y2="620" stroke="#e2e8f0" stroke-width="1.5"/><text x="60" y="645" font-family="Arial, sans-serif" font-size="11" fill="#64748b" font-weight="bold">MANUFACTURED / IMPORTED BY:</text><text x="60" y="663" font-family="Arial, sans-serif" font-size="11" fill="#1e293b">VoltMax Tech India Pvt. Ltd., Electronic City Phase-1, Bengaluru 560100</text><line x1="60" y1="685" x2="540" y2="685" stroke="#e2e8f0" stroke-width="1.5"/><text x="60" y="710" font-family="Arial, sans-serif" font-size="11" fill="#64748b" font-weight="bold">COUNTRY OF ORIGIN: INDIA | WARRANTY &amp; HELPLINE:</text><text x="60" y="728" font-family="Arial, sans-serif" font-size="11" fill="#1e293b">1 Year Warranty | 1800-889-2233 | support@voltmaxindia.com</text></svg>`),
     mrp: 1999,
     netQuantity: '1 Unit',
@@ -1204,9 +1204,9 @@ export const DEMO_PRESETS: DemoProductPreset[] = [
   {
     id: 'demo-aykara-pharma',
     title: 'Aykara Pharma Ayurvedic Capsules 120 Caps',
-    subtitle: 'Pharma / FMCG Category • 100% Compliant • USP ₹18.75/nos',
+    subtitle: 'Demo Benchmark — Synthetic Sample (AYUSH Pharma Registration)',
     badge: '100% Compliant (8/8)',
-    description: 'Ayurvedic capsule bottle with all mandatory declarations including USP, batch/expiry, manufacturer PIN, and consumer care.',
+    description: 'Synthetic benchmark sample of ayurvedic capsule bottle with all mandatory declarations including USP, batch/expiry, manufacturer PIN, and consumer care.',
     imageUrl: toSvgDataUri(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" width="100%" height="100%">
   <rect width="600" height="800" rx="28" fill="#0c4a6e"/>
   <rect x="15" y="15" width="570" height="770" rx="20" fill="none" stroke="#38bdf8" stroke-width="2" stroke-opacity="0.3"/>

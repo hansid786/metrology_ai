@@ -83,11 +83,11 @@ export const persistenceService = {
     const all = loadAll();
     const today = new Date().toDateString();
     const passed = all.filter(i => i.result.overallStatus === 'COMPLIANT').length;
-    const withViolations = all.filter(i => i.result.overallStatus === 'CRITICAL_NON_COMPLIANT').length;
+    const withViolations = all.filter(i => i.result.overallStatus === 'CRITICAL_NON_COMPLIANT' || i.result.overallStatus === 'NON_COMPLIANT').length;
     const highSeverity = all.filter(i =>
       i.result.findings.some(f => f.severity === 'CRITICAL')
     ).length;
-    const pendingReview = all.filter(i => i.status === 'IN_REVIEW' || i.status === 'DRAFT').length;
+    const pendingReview = all.length - passed - withViolations;
     const avgCompliance = all.length
       ? Math.round(all.reduce((s, i) => s + i.result.compliancePercentage, 0) / all.length)
       : 0;
@@ -97,7 +97,7 @@ export const persistenceService = {
       passed,
       withViolations,
       highSeverity,
-      pendingReview,
+      pendingReview: Math.max(0, pendingReview),
       overallComplianceRate: avgCompliance,
     };
   },
