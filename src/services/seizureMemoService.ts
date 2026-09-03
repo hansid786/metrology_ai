@@ -20,27 +20,33 @@ export function generateSeizureMemoPDF(p: SeizureMemoPayload): void {
 
   // Header Banner
   doc.setFillColor(15, 23, 42); // Slate 900
-  doc.rect(0, 0, 210, 32, 'F');
+  doc.rect(0, 0, 210, 34, 'F');
 
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(13);
-  doc.text('GOVERNMENT OF INDIA • LEGAL METROLOGY ENFORCEMENT', 105, 12, { align: 'center' });
+  doc.text('GOVERNMENT OF INDIA • LEGAL METROLOGY ENFORCEMENT', 105, 11, { align: 'center' });
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
-  doc.text('FORM PC-2: STATUTORY SEIZURE MEMO & PANCHNAMA', 105, 19, { align: 'center' });
-  doc.setFontSize(8);
-  doc.text('Under Section 15 & Section 36(1) of the Legal Metrology Act, 2009', 105, 26, { align: 'center' });
+  doc.text('FORM PC-1 / PC-2: DRAFT SEIZURE MEMO & INSPECTION RECORD', 105, 18, { align: 'center' });
+  doc.setFontSize(7.5);
+  doc.setTextColor(253, 224, 71); // Yellow 300
+  doc.setFont('helvetica', 'bold');
+  doc.text('[ DRAFT — SUBJECT TO OFFICER REVIEW & VERIFICATION ]', 105, 25, { align: 'center' });
+  doc.setFontSize(7);
+  doc.setTextColor(203, 213, 225);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Under Section 15 & Section 36(1) of the Legal Metrology Act, 2009', 105, 31, { align: 'center' });
 
   // Docket Meta
   doc.setTextColor(30, 41, 59);
   doc.setFontSize(8.5);
   doc.setFont('helvetica', 'bold');
-  doc.text(`SEIZURE MEMO NO: ${p.memoNumber}`, 14, 40);
-  doc.text(`DATE & TIME: ${new Date(insp.savedAt).toLocaleString('en-IN')}`, 130, 40);
+  doc.text(`SEIZURE MEMO NO: ${p.memoNumber}`, 14, 42);
+  doc.text(`DATE & TIME: ${new Date(insp.savedAt).toLocaleString('en-IN')}`, 130, 42);
 
   doc.setDrawColor(203, 213, 225);
-  doc.line(14, 44, 196, 44);
+  doc.line(14, 46, 196, 46);
 
   // Section 1: Establishment & Officer Details
   doc.setFontSize(9);
