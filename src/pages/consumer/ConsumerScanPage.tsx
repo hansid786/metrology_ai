@@ -130,7 +130,6 @@ export const ConsumerScanPage: React.FC = () => {
 
       const finalName = customName.trim() || primaryResult.product.name || sanitizeProductName(capturedFileName, inspectionId);
       primaryResult.product.name = finalName;
-      primaryResult.product.category = categoryToUse;
 
       if (customMRP && parseFloat(customMRP) > 0) {
         const mrpNum = parseFloat(customMRP);
