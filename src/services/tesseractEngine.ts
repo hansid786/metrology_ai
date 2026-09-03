@@ -20,44 +20,58 @@ export interface TesseractOCRResult {
 }
 
 let workerInstance: any = null;
-let isInitializingWorker = false;
 let workerInitPromise: Promise<any> | null = null;
+
+function reportWorkerProgress(
+  message: any,
+  onProgress?: (percent: number, status: string) => void
+): void {
+  if (!onProgress) return;
+  const progress = Math.round((message.progress || 0) * 100);
+  const status = message.status || 'Preparing free OCR engine...';
+  const phaseProgress = status === 'recognizing text' ? 35 + Math.round(progress * 0.65) : Math.min(35, progress);
+  onProgress(phaseProgress, status === 'recognizing text' ? 'Recognizing packaging characters...' : `Preparing OCR engine: ${status}...`);
+}
+
+function createTesseractWorker(onProgress?: (percent: number, status: string) => void): Promise<any> {
+  return createWorker('eng', 1, {
+    logger: message => reportWorkerProgress(message, onProgress)
+  });
+}
 
 /**
  * Pre-warms the Tesseract worker singleton in the background.
  */
 export async function prewarmTesseractWorker(): Promise<void> {
-  if (workerInstance || isInitializingWorker) return;
+  if (workerInstance || workerInitPromise) return;
   try {
-    isInitializingWorker = true;
-    workerInitPromise = createWorker('eng', 1);
+    workerInitPromise = createTesseractWorker();
     workerInstance = await workerInitPromise;
   } catch (err) {
     console.warn('[MetrologyLens] Tesseract prewarm note:', err);
-  } finally {
-    isInitializingWorker = false;
+    workerInitPromise = null;
   }
 }
 
 async function getTesseractWorker(onProgress?: (percent: number, status: string) => void) {
   if (workerInstance) return workerInstance;
   if (workerInitPromise) {
-    workerInstance = await workerInitPromise;
-    return workerInstance;
+    try {
+      workerInstance = await workerInitPromise;
+      return workerInstance;
+    } catch {
+      workerInitPromise = null;
+    }
   }
 
   try {
-    const worker = await createWorker('eng', 1, {
-      logger: m => {
-        if (m.status === 'recognizing text' && onProgress) {
-          onProgress(Math.round((m.progress || 0) * 100), 'Recognizing packaging characters...');
-        }
-      }
-    });
+    workerInitPromise = createTesseractWorker(onProgress);
+    const worker = await workerInitPromise;
     workerInstance = worker;
     return worker;
   } catch (err) {
     console.warn('[MetrologyLens] Initializing standard Tesseract worker:', err);
+    workerInitPromise = null;
     const worker = await createWorker('eng');
     workerInstance = worker;
     return worker;
@@ -65,7 +79,7 @@ async function getTesseractWorker(onProgress?: (percent: number, status: string)
 }
 
 /**
- * Rapidly scales high-resolution camera images down to an optimal size (max 1280px)
+ * Rapidly scales high-resolution camera images down to an optimal size (max 1024px)
  * for 5x to 10x faster OCR recognition without sacrificing text legibility.
  */
 async function optimizeImageForSpeed(imageDataUrl: string): Promise<string> {
@@ -79,7 +93,7 @@ async function optimizeImageForSpeed(imageDataUrl: string): Promise<string> {
       try {
         const origW = img.naturalWidth || img.width;
         const origH = img.naturalHeight || img.height;
-        const maxDim = 1280;
+        const maxDim = 1024;
 
         if (origW <= maxDim && origH <= maxDim) {
           resolve(imageDataUrl);
@@ -132,6 +146,7 @@ export async function runTesseractOCR(
 
       // Step 2: Get or initialize worker
       const worker = await getTesseractWorker(onProgress);
+      if (onProgress) onProgress(38, 'OCR engine ready; reading package text...');
 
       // Step 3: Run recognition
       const result = await worker.recognize(optimizedImage);
@@ -180,7 +195,7 @@ export async function runTesseractOCR(
     }
   };
 
-  // Keep enough time for the first language-model download on mobile devices.
+  // Keep enough time for the first language-data download on mobile devices.
   const timeoutPromise = new Promise<TesseractOCRResult>((resolve) => {
     setTimeout(() => {
       resolve({
