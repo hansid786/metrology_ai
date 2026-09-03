@@ -1,0 +1,8 @@
+{
+  "appId": "com.metrologylens.ai",
+  "appName": "MetrologyLens AI",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}
