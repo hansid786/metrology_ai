@@ -428,50 +428,74 @@ Reported via MetrologyLens AI (Govt of India SIH Initiative)`;
           : isOvercharge
           ? 'bg-gradient-to-br from-rose-950 via-slate-900 to-red-950 border-rose-500/40 text-white'
           : isInsufficient
-          ? 'bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 border-indigo-500/40 text-white'
-          : 'bg-gradient-to-br from-amber-950 via-slate-900 to-yellow-950 border-amber-500/40 text-white'
+          ? 'bg-gradient-to-br from-amber-950 via-slate-900 to-orange-950 border-amber-500/40 text-white'
+          : 'bg-gradient-to-br from-rose-950 via-slate-900 to-red-950 border-rose-500/40 text-white'
       }`}>
-        <div className="flex items-start gap-4">
-          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-lg ${
-            isCompliant ? 'bg-emerald-500 text-white' :
-            isOvercharge ? 'bg-rose-500 text-white' :
-            isInsufficient ? 'bg-indigo-500 text-white' :
-            'bg-amber-500 text-white'
-          }`}>
-            {isCompliant && <CheckCircle2 className="w-8 h-8" />}
-            {isOvercharge && <AlertOctagon className="w-8 h-8" />}
-            {isInsufficient && <AlertCircle className="w-8 h-8" />}
-            {isWarning && !isInsufficient && <AlertTriangle className="w-8 h-8" />}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-start gap-4">
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-lg ${
+              isCompliant ? 'bg-emerald-500 text-white' :
+              isOvercharge ? 'bg-rose-500 text-white' :
+              isInsufficient ? 'bg-amber-500 text-slate-950' :
+              'bg-rose-500 text-white'
+            }`}>
+              {isCompliant && <CheckCircle2 className="w-8 h-8" />}
+              {isOvercharge && <AlertOctagon className="w-8 h-8" />}
+              {isInsufficient && <AlertCircle className="w-8 h-8" />}
+              {!isCompliant && !isOvercharge && !isInsufficient && <AlertTriangle className="w-8 h-8" />}
+            </div>
+
+            <div className="space-y-1">
+              <div className="text-xs font-black uppercase tracking-wider opacity-90 flex items-center gap-2">
+                {isCompliant ? (
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                    🟢 {t('stateCompliant')}
+                  </span>
+                ) : isInsufficient ? (
+                  <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                    🟡 {t('stateInsufficient')}
+                  </span>
+                ) : (
+                  <span className="px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40">
+                    🔴 {t('stateNonCompliant')}
+                  </span>
+                )}
+                <span className="text-[10px] text-slate-400 font-mono">SIH PS: 26034</span>
+              </div>
+
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+                {metadata.productName}
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-medium">
+                {isCompliant && t('stateCompliantDesc')}
+                {isInsufficient && t('stateInsufficientDesc')}
+                {!isCompliant && !isInsufficient && t('stateNonCompliantDesc')}
+              </p>
+            </div>
           </div>
 
-          <div className="space-y-1">
-            <div className="text-xs font-black uppercase tracking-wider opacity-80">
-              {isCompliant ? (lang === 'hi' ? '🟢 100% साक्ष्य-सत्यापित व वैध' : '✓ 100% Evidence-Backed & Compliant') :
-               isOvercharge ? (lang === 'hi' ? '🔴 अधिक मूल्य वसूली (Overcharging) दर्ज!' : '⚠️ Price Overcharging Detected!') :
-               isInsufficient ? (lang === 'hi' ? '🟣 अपर्याप्त साक्ष्य (Insufficient Evidence)' : 'ℹ️ Insufficient Packaging Evidence') :
-               (lang === 'hi' ? '🟡 आंशिक रूप से सत्यापित (Partially Verified)' : '⚠️ Partially Verified — Some Fields Missing')}
-            </div>
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight">
-              {metadata.productName}
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-medium">
-              {isCompliant && (lang === 'hi' ? 'पैकेजिंग पर सभी अनिवार्य घोषणाएं प्रत्यक्ष साक्ष्य के साथ सत्यापित हैं।' : 'All statutory declarations were read directly from the package with verified visual evidence.')}
-              {isOvercharge && (lang === 'hi' ? `छपा हुआ यूनिट सेल प्राइस कानूनी दर से ${result.pricing.differencePercentage}% अधिक है।` : `Printed Unit Sale Price exceeds the legal mathematical rate by ${result.pricing.differencePercentage}%.`)}
-              {isInsufficient && (lang === 'hi' ? 'फोटो से पर्याप्त पाठ नहीं पढ़ा जा सका। कृपया स्पष्ट फोटो या अन्य पक्ष अपलोड करें।' : 'Fewer than 3 declarations could be extracted from this photo. Please upload a clearer photo or additional sides.')}
-              {isPartial && (lang === 'hi' ? 'कुछ घोषणाएं इस सतह पर नहीं मिलीं। वे पैकेज के अन्य पक्षों पर हो सकती हैं।' : 'Some declarations were not visible on this photo angle. No fake data was generated.')}
-            </p>
-          </div>
+          {/* Action on Insufficient Evidence */}
+          {isInsufficient && (
+            <button
+              type="button"
+              onClick={() => navigate('/consumer/scan')}
+              className="px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-xl text-xs font-black shadow-md flex items-center gap-2 transition-all cursor-pointer shrink-0"
+            >
+              <Camera className="w-4 h-4" />
+              <span>{t('captureMoreEvidence')} ➔</span>
+            </button>
+          )}
         </div>
 
         {/* Quick Statutory Compliance Badges */}
         <div className="pt-2 border-t border-white/10 flex flex-wrap gap-2 text-[11px] font-mono">
           <span className="px-2.5 py-1 rounded-lg bg-white/10 border border-white/15 flex items-center gap-1.5">
-            <Ruler className="w-3.5 h-3.5 text-amber-300" />
-            <span>Font Readability: {result.fontReadabilitySummary?.overallFontCompliant !== false ? '✓ Rule 7(3) Pass (≥1mm)' : '⚠️ Font Warning'}</span>
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-300" />
+            <span>Evidence Grounding: {result.verifiedCount}/{result.totalCount} Declarations Backed</span>
           </span>
           <span className="px-2.5 py-1 rounded-lg bg-white/10 border border-white/15 flex items-center gap-1.5">
-            <LayoutGrid className="w-3.5 h-3.5 text-cyan-300" />
-            <span>PDP Placement: {result.pdpInfo?.packageShape || 'RECTANGULAR'} ({result.pdpInfo?.pdpAreaPercentage || 100}% Front Face)</span>
+            <Ruler className="w-3.5 h-3.5 text-amber-300" />
+            <span>Font Readability: {result.fontReadabilitySummary?.overallFontCompliant !== false ? '✓ Rule 7(3) Pass (≥1mm)' : '⚠️ Font Warning'}</span>
           </span>
         </div>
       </div>
@@ -542,73 +566,135 @@ Reported via MetrologyLens AI (Govt of India SIH Initiative)`;
       {/* TAB 1: CONSUMER SCORECARD */}
       {activeTab === 'scorecard' && (
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-extrabold text-slate-900">
-              {lang === 'hi' ? 'पैकेज सत्यापन सारांश (Zero Fake Data)' : 'Statutory Verification Summary'}
-            </h2>
-            <span className="text-[11px] font-bold text-slate-500">
-              {result.verifiedCount} / {result.totalCount} Declarations Verified
-            </span>
+          {/* Section 1: Extracted Information Summary */}
+          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                <FileText className="w-4 h-4 text-emerald-600" />
+                <span>Extracted Information</span>
+              </span>
+              <span className="text-[10px] text-slate-500 font-mono">
+                {result.verifiedCount} / {result.totalCount} Fields Grounded
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+              <div className="p-2.5 bg-white rounded-xl border border-slate-200/80">
+                <div className="text-[10px] text-slate-400 font-bold uppercase">Product Name</div>
+                <div className="font-bold text-slate-900 truncate">{metadata.productName}</div>
+              </div>
+              <div className="p-2.5 bg-white rounded-xl border border-slate-200/80">
+                <div className="text-[10px] text-slate-400 font-bold uppercase">Category</div>
+                <div className="font-bold text-emerald-700 truncate">{metadata.productCategory}</div>
+              </div>
+              <div className="p-2.5 bg-white rounded-xl border border-slate-200/80">
+                <div className="text-[10px] text-slate-400 font-bold uppercase">Printed MRP</div>
+                <div className="font-black text-slate-900">
+                  {result.pricing.mrpAmount > 0 ? `₹${result.pricing.mrpAmount.toFixed(2)}` : 'Not Detected'}
+                </div>
+              </div>
+              <div className="p-2.5 bg-white rounded-xl border border-slate-200/80">
+                <div className="text-[10px] text-slate-400 font-bold uppercase">Net Quantity</div>
+                <div className="font-black text-slate-900">
+                  {result.pricing.netQuantityValue > 0 ? `${result.pricing.netQuantityValue} ${result.pricing.netQuantityUnit}` : 'Not Detected'}
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-            {/* Price & USP Card */}
-            <div className={`p-4 rounded-2xl border space-y-1.5 ${
-              isOvercharge ? 'bg-rose-50/70 border-rose-200' :
-              result.pricing.mrpAmount === 0 ? 'bg-slate-50 border-slate-200' :
-              result.pricing.discrepancyType === 'MISSING_USP' ? 'bg-amber-50/70 border-amber-200' :
-              'bg-slate-50 border-slate-200'
-            }`}>
-              <div className="flex items-center justify-between">
-                <span className="font-extrabold text-slate-500 uppercase text-[10px]">
-                  1. {t('mrpPrinted')} &amp; USP
-                </span>
-                {getConfidenceBadge(
-                  result.declarations.find(d => d.key === 'mrp')?.confidence || 0,
-                  result.declarations.find(d => d.key === 'mrp')?.status || 'NOT_DETECTED'
-                )}
-              </div>
-              <div className="text-lg font-black text-slate-900">
-                {result.pricing.mrpAmount > 0 ? `₹ ${result.pricing.mrpAmount.toFixed(2)}` : 'Not Detected'}
-              </div>
-              <p className="text-slate-600 font-medium leading-relaxed">
-                {result.pricing.mrpAmount > 0 ? (
-                  result.pricing.calculatedUSPAmount > 0
-                    ? `Calculated USP: ₹${result.pricing.calculatedUSPAmount.toFixed(2)} / ${result.pricing.calculatedUSPUnit}`
-                    : 'USP calculation exempt or not applicable.'
-                ) : (
-                  <span className="text-slate-500 italic">MRP declaration not visible in this image.</span>
-                )}
-              </p>
-              {isOvercharge && (
-                <p className="text-rose-700 font-bold text-[11px] pt-1">
-                  ⚠️ Discrepancy: Legal price should be ₹{result.pricing.calculatedUSPAmount.toFixed(2)}/{result.pricing.calculatedUSPUnit} ({result.pricing.differencePercentage}% overcharge).
-                </p>
-              )}
+          {/* Section 2: Declaration Check Table */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">
+                Declaration Check Matrix
+              </h3>
+              <span className="text-[10px] font-bold text-slate-500">Legal Metrology (PC) Rules, 2011</span>
             </div>
 
-            {/* Net Quantity Card */}
-            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span className="font-extrabold text-slate-500 uppercase text-[10px]">
-                  2. Net Quantity / Weight
-                </span>
-                {getConfidenceBadge(
-                  result.declarations.find(d => d.key === 'net_quantity')?.confidence || 0,
-                  result.declarations.find(d => d.key === 'net_quantity')?.status || 'NOT_DETECTED'
-                )}
-              </div>
-              <div className="text-lg font-black text-slate-900">
-                {result.pricing.netQuantityValue > 0
-                  ? `${result.pricing.netQuantityValue} ${result.pricing.netQuantityUnit}`
-                  : 'Not Detected'}
-              </div>
-              <p className="text-slate-600 font-medium">
-                {result.pricing.netQuantityValue > 0
-                  ? 'Standard packaging unit verified under Rule 6(1)(b).'
-                  : 'Net quantity numeral was not readable on this packaging surface.'}
-              </p>
+            <div className="border border-slate-200 rounded-2xl overflow-hidden divide-y divide-slate-100 text-xs">
+              {result.declarations.map((decl) => {
+                const isPass = decl.status === 'PASS';
+                const isFail = decl.status === 'FAIL';
+                const isNotDet = decl.status === 'NOT_DETECTED' || decl.status === 'REVIEW_REQUIRED';
+
+                return (
+                  <div key={decl.id} className="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-slate-50/80 transition-colors">
+                    <div className="space-y-0.5">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-slate-900">{decl.name}</span>
+                        <span className="text-[10px] text-slate-400 font-mono">({decl.legalReference || 'Rule 6(1)'})</span>
+                      </div>
+                      <div className="text-[11px] font-mono text-slate-600">
+                        {decl.extractedValue}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      {isPass && (
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                          <span>Verified</span>
+                        </span>
+                      )}
+                      {isFail && (
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-300 flex items-center gap-1">
+                          <AlertOctagon className="w-3 h-3 text-rose-600" />
+                          <span>Violation</span>
+                        </span>
+                      )}
+                      {isNotDet && (
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1">
+                          <AlertCircle className="w-3 h-3 text-amber-600" />
+                          <span>Unable to verify</span>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
+          </div>
+
+          {/* Section 3: Unit Sale Price (USP) Mathematical Audit */}
+          <div className="p-5 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 text-white border border-slate-800 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                <Scale className="w-4 h-4" />
+                <span>Unit Sale Price (USP) Mathematical Verification</span>
+              </span>
+              <span className="text-[10px] font-mono text-slate-400">Rule 6(1)(e) Amendment 2021</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+              <div className="p-3 bg-white/5 rounded-xl border border-white/10 space-y-0.5">
+                <div className="text-[10px] text-slate-400 font-bold">Calculated USP (MRP ÷ Qty)</div>
+                <div className="text-base font-black text-emerald-300">
+                  {result.pricing.calculatedUSPAmount > 0 ? `₹${result.pricing.calculatedUSPAmount.toFixed(2)} / ${result.pricing.calculatedUSPUnit}` : 'N/A'}
+                </div>
+              </div>
+
+              <div className="p-3 bg-white/5 rounded-xl border border-white/10 space-y-0.5">
+                <div className="text-[10px] text-slate-400 font-bold">Declared / Printed USP</div>
+                <div className="text-base font-black text-white">
+                  {result.pricing.printedUSPAmount ? `₹${result.pricing.printedUSPAmount.toFixed(2)} / ${result.pricing.printedUSPUnit}` : (result.pricing.hasPrintedUSP ? 'Printed' : 'Not Declared')}
+                </div>
+              </div>
+
+              <div className={`p-3 rounded-xl border space-y-0.5 ${
+                result.pricing.isDiscrepancy 
+                  ? 'bg-rose-950/60 border-rose-500/50 text-rose-200' 
+                  : 'bg-emerald-950/60 border-emerald-500/50 text-emerald-200'
+              }`}>
+                <div className="text-[10px] font-bold">Audit Result</div>
+                <div className="text-xs font-black">
+                  {result.pricing.isDiscrepancy ? '⚠️ Discrepancy / Overcharging' : '✓ Verified Accurate Match'}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Dates & Manufacturer Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
 
             {/* Dates Card */}
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
@@ -979,14 +1065,21 @@ Reported via MetrologyLens AI (Govt of India SIH Initiative)`;
             {result.declarations.map((decl: MandatoryDeclaration) => {
               const isExpanded = expandedDeclId === decl.id;
               const isPassed = decl.status === 'PASS';
-              const isNotDetected = decl.status === 'NOT_DETECTED';
+              const isFail = decl.status === 'FAIL';
+              const isNotDetected = decl.status === 'NOT_DETECTED' || decl.status === 'REVIEW_REQUIRED';
+
+              const whyExplanation = isPassed
+                ? `✓ ${decl.name} was successfully verified from the packaging evidence in accordance with ${decl.legalReference || 'statutory provisions'}.`
+                : isFail
+                ? `✕ ${decl.name} failed verification. Detected value differs from the statutory requirement.`
+                : `⚠ ${decl.name} could not be reliably extracted from the uploaded image angle(s).`;
 
               return (
                 <div
                   key={decl.id}
                   className={`border rounded-2xl transition-all overflow-hidden ${
-                    isNotDetected ? 'border-slate-200 bg-slate-50/50' :
-                    !isPassed ? 'border-rose-200 bg-rose-50/20' : 'border-slate-200 bg-white'
+                    isNotDetected ? 'border-amber-200 bg-amber-50/20' :
+                    isFail ? 'border-rose-200 bg-rose-50/20' : 'border-emerald-200/80 bg-white'
                   }`}
                 >
                   <div
@@ -996,7 +1089,21 @@ Reported via MetrologyLens AI (Govt of India SIH Initiative)`;
                     <div className="space-y-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-black text-slate-900 truncate">{decl.name}</span>
-                        {getConfidenceBadge(decl.confidence, decl.status)}
+                        {isPassed && (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                            ✓ Verified Compliant
+                          </span>
+                        )}
+                        {isFail && (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-300">
+                            ✕ Verified Violation
+                          </span>
+                        )}
+                        {isNotDetected && (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                            ⚠ Unable to Verify
+                          </span>
+                        )}
                       </div>
                       <div className="text-[11px] font-mono text-slate-600 truncate">
                         "{decl.extractedValue}"
@@ -1008,24 +1115,34 @@ Reported via MetrologyLens AI (Govt of India SIH Initiative)`;
                     </div>
                   </div>
 
-                  {/* Expanded Evidence & Diagnostics */}
+                  {/* Expanded Evidence, Rule & Diagnostics */}
                   {isExpanded && (
                     <div className="p-4 bg-slate-50 border-t border-slate-200 text-xs space-y-3">
+                      {/* Why this result */}
+                      <div className="p-3 bg-white rounded-xl border border-slate-200 space-y-1">
+                        <span className="text-[10px] font-black text-slate-500 uppercase block">
+                          Why this result?
+                        </span>
+                        <p className="text-slate-800 font-medium leading-relaxed">
+                          {whyExplanation}
+                        </p>
+                      </div>
+
                       {/* Exact Supporting Text */}
                       <div className="p-3 bg-white rounded-xl border border-slate-200 space-y-1">
                         <span className="text-[10px] font-extrabold text-slate-400 uppercase block">
-                          Supporting OCR Text Evidence
+                          Detected Evidence
                         </span>
                         <div className="font-mono text-xs font-bold text-slate-900">
                           {decl.evidence?.sourceText || decl.extractedValue}
                         </div>
                       </div>
 
-                      {/* Legal Reference */}
+                      {/* Legal Reference & Validation */}
                       <div className="p-3 bg-blue-50/70 border border-blue-200 rounded-xl space-y-1 text-slate-800">
                         <div className="text-[11px] font-extrabold text-blue-950 flex items-center gap-1.5">
                           <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
-                          <span>Statutory Reference: {decl.legalReference}</span>
+                          <span>Applicable Legal Rule: {decl.legalReference || 'Legal Metrology (PC) Rules, 2011'}</span>
                         </div>
                         <p className="text-[11px] text-slate-700 leading-relaxed font-medium">
                           {decl.explanation}
@@ -1043,13 +1160,51 @@ Reported via MetrologyLens AI (Govt of India SIH Initiative)`;
       {/* TAB 4: VISUAL PACKAGE INSPECTOR */}
       {activeTab === 'visual' && (
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-5">
-          <div>
-            <h2 className="text-base font-black text-slate-900">
-              {lang === 'hi' ? 'पैकेज विजुअल एवं Bounding Boxes' : 'Visual Package Inspector & Optical Bounding Boxes'}
-            </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Visual coordinates of detected declarations overlaid on the uploaded packaging image.
-            </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h2 className="text-base font-black text-slate-900">
+                {lang === 'hi' ? 'दृश्य साक्ष्य एवं पैकेजिंग ओवरले (Visual Evidence Overlay)' : 'Visual Evidence Overlays & Coordinate Grounding'}
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Click any declaration to highlight its exact optical region on the physical package.
+              </p>
+            </div>
+
+            {selectedKey && (
+              <button
+                type="button"
+                onClick={() => setSelectedKey(null)}
+                className="text-xs text-blue-600 hover:underline font-bold self-start cursor-pointer"
+              >
+                Clear Selection
+              </button>
+            )}
+          </div>
+
+          {/* Clickable Declaration Selector Pills */}
+          <div className="flex flex-wrap gap-2">
+            {result.declarations.map((d) => {
+              const isSelected = selectedKey === d.key;
+              const hasBox = result.boundingBoxes.some(b => b.declarationKey === d.key);
+
+              return (
+                <button
+                  key={d.key}
+                  type="button"
+                  onClick={() => setSelectedKey(isSelected ? null : d.key)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 border ${
+                    isSelected
+                      ? 'bg-blue-600 text-white border-blue-600 shadow-md scale-105'
+                      : hasBox
+                      ? 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300'
+                      : 'bg-slate-50 text-slate-400 border-slate-200 opacity-60'
+                  }`}
+                >
+                  <span>{d.name}</span>
+                  {hasBox && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
+                </button>
+              );
+            })}
           </div>
 
           <div className="relative max-w-md mx-auto rounded-2xl overflow-hidden border border-slate-300 shadow-inner bg-slate-900 flex items-center justify-center min-h-[380px]">

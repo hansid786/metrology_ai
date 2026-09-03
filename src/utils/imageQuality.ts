@@ -168,12 +168,19 @@ export async function assessImageQuality(imageDataUrl: string): Promise<ImageQua
         if (sharpnessScore < 20) qualityScore -= 30;
         qualityScore = Math.max(10, Math.min(100, qualityScore));
 
-        const isAcceptable = qualityScore >= 40 && issues.length < 3;
-        const recommendation = !isAcceptable
-          ? 'Image quality insufficient for reliable verification. Please take a steady, well-lit photo of the packaging label.'
-          : issues.length > 0
-          ? 'Image quality is acceptable but some text may be difficult to read. Verify highlighted fields.'
-          : 'Image clarity is optimal for optical verification.';
+        const isAcceptable = qualityScore >= 35;
+        let recommendation = 'Image clarity is optimal for optical verification.';
+        if (sharpnessScore < 20) {
+          recommendation = 'Image is blurry. Retake the photo with steady focus.';
+        } else if (avgBrightness > 220) {
+          recommendation = 'Glare detected on packaging surface. Tilt the package slightly.';
+        } else if (avgBrightness < 50) {
+          recommendation = 'Image is too dark. Increase lighting or turn on flashlight.';
+        } else if (width < 450) {
+          recommendation = 'Low resolution. Move camera closer to the statutory declaration panel.';
+        } else if (!isAcceptable) {
+          recommendation = 'Image quality insufficient for reliable verification. Please retake photo.';
+        }
 
         safeResolve({
           isAcceptable,
@@ -219,4 +226,26 @@ export async function assessImageQuality(imageDataUrl: string): Promise<ImageQua
       img.onload(new Event('load'));
     }
   });
+}
+
+export function getImageQualityGuidance(quality?: ImageQualityInfo | null): { message: string; severity: 'GOOD' | 'WARNING' | 'CRITICAL' } {
+  if (!quality) {
+    return { message: 'Quality check ready', severity: 'GOOD' };
+  }
+  if (!quality.isAcceptable || quality.qualityScore < 40) {
+    return {
+      message: quality.recommendation || 'Image is blurry or low resolution. Retake photo for accurate reading.',
+      severity: 'CRITICAL'
+    };
+  }
+  if (quality.qualityScore < 70 || quality.issues.length > 0) {
+    return {
+      message: quality.recommendation || 'Minor lighting/contrast issue detected. Verify highlighted fields.',
+      severity: 'WARNING'
+    };
+  }
+  return {
+    message: 'Optimal image clarity — Ready for legal verification',
+    severity: 'GOOD'
+  };
 }

@@ -151,6 +151,109 @@ export const InspectionDetailPage: React.FC = () => {
           </div>
         </div>
 
+        {/* Officer Enforcement Decisions */}
+        <div className="p-5 bg-gradient-to-br from-slate-900 via-slate-800 to-blue-950 text-white rounded-3xl border border-blue-500/30 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-blue-400" />
+              <div>
+                <h3 className="text-sm font-black text-white">Officer Enforcement Action &amp; Statutory Authority</h3>
+                <span className="text-[10px] text-slate-400">Section 15 &amp; 36(1) Legal Metrology Act, 2009</span>
+              </div>
+            </div>
+            <span className="text-[10px] font-mono font-bold text-amber-300 bg-amber-950/80 border border-amber-500/40 px-2.5 py-1 rounded-full">
+              DRAFT — SUBJECT TO OFFICER REVIEW
+            </span>
+          </div>
+
+          <p className="text-xs text-slate-300 leading-relaxed">
+            AI findings serve as evidentiary assistance. The final legal authority to compound offenses, issue Form PC-1 seizure memos, or initiate prosecution rests solely with the designated Legal Metrology Officer.
+          </p>
+
+          <div className="flex flex-wrap gap-2 pt-2 border-t border-white/10">
+            <button
+              type="button"
+              onClick={() => {
+                const updated = {
+                  ...inspection,
+                  status: 'COMPLETED' as const,
+                  result: { ...inspection.result, overallStatus: 'COMPLIANT' as const },
+                  auditTrail: [
+                    ...inspection.auditTrail,
+                    {
+                      id: `ae-${Date.now()}`,
+                      type: 'OFFICER_OVERRIDE' as const,
+                      description: `Inspecting Officer ${metadata.inspectorName} approved statutory compliance.`,
+                      timestamp: new Date().toISOString(),
+                      actor: metadata.inspectorName
+                    }
+                  ]
+                };
+                persistenceService.save(updated);
+                setInspection(updated);
+              }}
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-md cursor-pointer flex items-center gap-1.5"
+            >
+              <Check className="w-3.5 h-3.5" />
+              <span>Approve Full Compliance</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                const updated = {
+                  ...inspection,
+                  status: 'IN_REVIEW' as const,
+                  result: { ...inspection.result, overallStatus: 'CRITICAL_NON_COMPLIANT' as const },
+                  auditTrail: [
+                    ...inspection.auditTrail,
+                    {
+                      id: `ae-${Date.now()}`,
+                      type: 'OFFICER_OVERRIDE' as const,
+                      description: `Inspecting Officer ${metadata.inspectorName} flagged statutory non-compliance. Form PC-1 draft initiated.`,
+                      timestamp: new Date().toISOString(),
+                      actor: metadata.inspectorName
+                    }
+                  ]
+                };
+                persistenceService.save(updated);
+                setInspection(updated);
+              }}
+              className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold shadow-md cursor-pointer flex items-center gap-1.5"
+            >
+              <ShieldAlert className="w-3.5 h-3.5" />
+              <span>Flag Violation &amp; Issue Notice</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                const updated = {
+                  ...inspection,
+                  status: 'IN_REVIEW' as const,
+                  result: { ...inspection.result, overallStatus: 'INSUFFICIENT_EVIDENCE' as const },
+                  auditTrail: [
+                    ...inspection.auditTrail,
+                    {
+                      id: `ae-${Date.now()}`,
+                      type: 'OFFICER_OVERRIDE' as const,
+                      description: `Inspecting Officer ${metadata.inspectorName} requested field re-inspection for insufficient evidence.`,
+                      timestamp: new Date().toISOString(),
+                      actor: metadata.inspectorName
+                    }
+                  ]
+                };
+                persistenceService.save(updated);
+                setInspection(updated);
+              }}
+              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold cursor-pointer flex items-center gap-1.5"
+            >
+              <Clock className="w-3.5 h-3.5" />
+              <span>Request Manual Re-Inspection</span>
+            </button>
+          </div>
+        </div>
+
         {/* Audit Trail Timeline */}
         <div className="space-y-3 pt-4 border-t border-slate-100">
           <h3 className="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">

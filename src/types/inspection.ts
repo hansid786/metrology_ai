@@ -352,7 +352,7 @@ export interface InspectorSettings {
 
 export interface AuditEntry {
   id: string;
-  type: 'INSPECTION_CREATED' | 'AI_ANALYSIS_COMPLETED' | 'FINDING_REVIEWED' | 'INSPECTION_SAVED' | 'PDF_EXPORTED' | 'STATUS_CHANGED';
+  type: 'INSPECTION_CREATED' | 'AI_ANALYSIS_COMPLETED' | 'FINDING_REVIEWED' | 'INSPECTION_SAVED' | 'PDF_EXPORTED' | 'STATUS_CHANGED' | 'OFFICER_OVERRIDE';
   description: string;
   timestamp: string;
   actor: string;

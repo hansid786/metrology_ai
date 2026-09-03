@@ -70,36 +70,60 @@ export const LoginPage: React.FC = () => {
             </div>
 
             {/* Idea / Product Name */}
-            <div className="space-y-1">
-              <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-white leading-none">
-                Metrology<span className="text-blue-400">Lens</span>
-                <span className="ml-2 text-2xl sm:text-3xl font-black bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">AI</span>
+            <div className="space-y-2">
+              <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white leading-tight">
+                {t('landingMainHeading')}
               </h1>
-              <p className="text-xs sm:text-sm text-blue-300 font-bold uppercase tracking-widest">
-                {lang === 'hi'
-                  ? 'एआई-संचालित वैधानिक पैकेजिंग सत्यापन'
-                  : 'AI-Powered Legal Metrology Packaging Verifier'}
+              <p className="text-xs sm:text-sm text-slate-300 font-medium max-w-xl mx-auto leading-relaxed">
+                {t('landingSubHeading')}
               </p>
+            </div>
+          </div>
+
+          {/* 5-Step Process Pipeline Pill */}
+          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 max-w-xl mx-auto shadow-lg">
+            <div className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest text-center mb-2">
+              {lang === 'hi' ? '5-चरणीय सत्यापन प्रक्रिया' : '5-Step Verification Process'}
+            </div>
+            <div className="flex items-center justify-between text-[11px] font-bold text-slate-200">
+              <span className="flex items-center gap-1 text-emerald-400">
+                <span className="w-4 h-4 rounded-full bg-emerald-500/20 flex items-center justify-center text-[10px]">1</span>
+                {t('flowCapture')}
+              </span>
+              <span className="text-slate-600">→</span>
+              <span className="flex items-center gap-1 text-blue-400">
+                <span className="w-4 h-4 rounded-full bg-blue-500/20 flex items-center justify-center text-[10px]">2</span>
+                {t('flowExtract')}
+              </span>
+              <span className="text-slate-600">→</span>
+              <span className="flex items-center gap-1 text-amber-400">
+                <span className="w-4 h-4 rounded-full bg-amber-500/20 flex items-center justify-center text-[10px]">3</span>
+                {t('flowVerify')}
+              </span>
+              <span className="text-slate-600">→</span>
+              <span className="flex items-center gap-1 text-purple-400">
+                <span className="w-4 h-4 rounded-full bg-purple-500/20 flex items-center justify-center text-[10px]">4</span>
+                {t('flowExplain')}
+              </span>
+              <span className="text-slate-600">→</span>
+              <span className="flex items-center gap-1 text-teal-400">
+                <span className="w-4 h-4 rounded-full bg-teal-500/20 flex items-center justify-center text-[10px]">5</span>
+                {t('flowReport')}
+              </span>
             </div>
           </div>
 
           {/* SIH Badge */}
           <div className="flex flex-wrap items-center justify-center gap-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-300 text-[11px] font-bold">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-300 text-[11px] font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
               <span>Smart India Hackathon 2026 • PS: 26034</span>
             </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[11px] font-bold">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[11px] font-bold">
               <span>🇮🇳</span>
               <span>{t('deptName')}</span>
             </div>
           </div>
-
-          <p className="text-[11px] sm:text-xs text-slate-400 font-medium max-w-md mx-auto leading-relaxed">
-            {lang === 'hi'
-              ? 'विधिक मापविज्ञान (पैक वस्तु) नियम 2011 के अंतर्गत पैकेजिंग अनुपालन की तत्काल जांच'
-              : 'Instant packaging compliance check under Legal Metrology (Packaged Commodities) Rules, 2011'}
-          </p>
         </div>
 
         {/* Profile Selection Gateway Box */}
@@ -143,9 +167,9 @@ export const LoginPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleCitizenProceed}
-                className="w-full mt-4 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-black shadow-lg shadow-emerald-900/40 flex items-center justify-center gap-2 transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
+                className="w-full mt-4 py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-black shadow-lg shadow-emerald-900/40 flex items-center justify-center gap-2 transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
               >
-                <span>{t('loginAsConsumer')}</span>
+                <span>{t('startVerification')}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>

@@ -104,7 +104,47 @@ export const dictionary: Translations = {
     hi: 'उपभोक्ता पोर्टल पर जाएं',
   },
 
-  // Login Gateway
+  // Login Gateway & Consumer Entry
+  landingMainHeading: {
+    en: 'Verify Packaged Products Before You Buy',
+    hi: 'खरीदने से पहले पैकेज्ड उत्पादों का सत्यापन करें',
+  },
+  landingSubHeading: {
+    en: 'Scan packaging to check declared price, quantity and applicable Legal Metrology requirements.',
+    hi: 'घोषित मूल्य, मात्रा और लागू विधिक मापविज्ञान नियमों की जांच के लिए पैकेजिंग को स्कैन करें।',
+  },
+  startVerification: {
+    en: 'Start Verification →',
+    hi: 'सत्यापन शुरू करें →',
+  },
+  continueAsConsumer: {
+    en: 'Continue as Consumer →',
+    hi: 'उपभोक्ता के रूप में आगे बढ़ें →',
+  },
+  howItWorks: {
+    en: 'How It Works',
+    hi: 'यह कैसे काम करता है',
+  },
+  flowCapture: {
+    en: 'Capture',
+    hi: 'फोटो लें',
+  },
+  flowExtract: {
+    en: 'Extract',
+    hi: 'डेटा निकालें',
+  },
+  flowVerify: {
+    en: 'Verify',
+    hi: 'सत्यापित करें',
+  },
+  flowExplain: {
+    en: 'Explain',
+    hi: 'कारण जानें',
+  },
+  flowReport: {
+    en: 'Report',
+    hi: 'रिपोर्ट / शिकायत',
+  },
   selectProfile: {
     en: 'Select Your Portal Entry',
     hi: 'अपना पोर्टल चुनें',
@@ -130,16 +170,78 @@ export const dictionary: Translations = {
     hi: 'LMO / नियंत्रक पोर्टल',
   },
   loginAsConsumer: {
-    en: 'Login as Consumer',
-    hi: 'उपभोक्ता के रूप में लॉगिन करें',
+    en: 'Start Verification →',
+    hi: 'सत्यापन शुरू करें →',
   },
   loginAsOfficer: {
-    en: 'Login as Officer',
-    hi: 'अधिकारी के रूप में लॉगिन करें',
+    en: 'Officer Enforcement Login →',
+    hi: 'अधिकारी पोर्टल लॉगिन →',
   },
   officerPasscodeLogin: {
     en: 'Official Passcode Login',
     hi: 'पासकोड से लॉगिन करें',
+  },
+
+  // 3-State Verification System
+  stateCompliant: {
+    en: 'COMPLIANT',
+    hi: 'नियम सम्मत (COMPLIANT)',
+  },
+  stateCompliantDesc: {
+    en: 'Evidence confirms compliance with the checked requirements.',
+    hi: 'साक्ष्य जांचे गए नियमों के पूर्ण अनुपालन की पुष्टि करते हैं।',
+  },
+  stateNonCompliant: {
+    en: 'NON-COMPLIANT',
+    hi: 'नियम उल्लंघन (NON-COMPLIANT)',
+  },
+  stateNonCompliantDesc: {
+    en: 'Evidence indicates a verified statutory violation.',
+    hi: 'साक्ष्य विधिक नियमों के उल्लंघन का संकेत देते हैं।',
+  },
+  stateInsufficient: {
+    en: 'INSUFFICIENT EVIDENCE',
+    hi: 'अपर्याप्त साक्ष्य (INSUFFICIENT EVIDENCE)',
+  },
+  stateInsufficientDesc: {
+    en: 'The available images/data are not sufficient to determine compliance.',
+    hi: 'उपलब्ध तस्वीरें या डेटा अनुपालन तय करने के लिए पर्याप्त नहीं हैं।',
+  },
+  captureMoreEvidence: {
+    en: 'Capture More Evidence',
+    hi: 'अतिरिक्त साक्ष्य / फोटो जोड़ें',
+  },
+  whyThisResult: {
+    en: 'Why this result?',
+    hi: 'यह परिणाम क्यों आया?',
+  },
+  evidenceCompleteness: {
+    en: 'Evidence Completeness',
+    hi: 'साक्ष्य पूर्णता',
+  },
+  visualEvidence: {
+    en: 'Visual Packaging Evidence',
+    hi: 'दृश्य साक्ष्य (पैकेजिंग ओवरले)',
+  },
+  legalVerification: {
+    en: 'Legal Verification',
+    hi: 'कानूनी सत्यापन',
+  },
+  calculatedUSP: {
+    en: 'Calculated USP',
+    hi: 'परिकलित इकाई मूल्य (Calculated USP)',
+  },
+  declaredUSP: {
+    en: 'Declared USP',
+    hi: 'घोषित इकाई मूल्य (Declared USP)',
+  },
+  match: {
+    en: 'Match (Verified)',
+    hi: 'सटीक मेल (सत्यापित)',
+  },
+  mismatch: {
+    en: 'Discrepancy Detected',
+    hi: 'अंतर / अधिक वसूली दर्ज',
   },
 
   // Consumer Scan Page

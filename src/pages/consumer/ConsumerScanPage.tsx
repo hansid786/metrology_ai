@@ -5,7 +5,7 @@ import {
   ShoppingBag, Zap, PhoneCall, ExternalLink,
   CheckCircle2, Edit3, ShieldAlert, ArrowRight, X, RefreshCw, Plus, Layers, Database
 } from 'lucide-react';
-import { ProductCategory, InspectionResult, SavedInspection, PackageSideTag } from '../../types/inspection';
+import { ProductCategory, InspectionResult, SavedInspection, PackageSideTag, ImageQualityInfo } from '../../types/inspection';
 import { DEMO_PRESETS } from '../../data/demoProducts';
 import { ocrService } from '../../services/ocrService';
 import { persistenceService } from '../../services/persistenceService';
@@ -557,67 +557,147 @@ export const ConsumerScanPage: React.FC = () => {
               )}
             </div>
 
-            {/* Multi-Side Packaging Queue Manager */}
-            <div className="p-4 bg-slate-50 border border-slate-200 rounded-3xl space-y-3">
-              <div className="flex items-center justify-between">
+            {/* Guided 4-Angle Stepper & Evidence Completeness Indicator */}
+            <div className="p-4 bg-slate-900 text-white rounded-3xl border border-slate-800 space-y-3.5 shadow-xl">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
                 <div className="flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-emerald-700" />
-                  <span className="text-xs font-black text-slate-900">
-                    {lang === 'hi' ? 'मल्टी-साइड पैकेजिंग निरीक्षण (Multi-Angle Scan)' : 'Multi-Angle Packaging Inspection'}
-                  </span>
+                  <Layers className="w-5 h-5 text-emerald-400" />
+                  <div>
+                    <span className="text-xs font-black tracking-tight text-white block">
+                      {lang === 'hi' ? 'गाइडेड मल्टी-एंगल पैकेजिंग स्कैनर' : 'Guided Multi-Angle Packaging Workflow'}
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-medium block">
+                      {lang === 'hi' ? 'सटीक कानूनी सत्यापन के लिए पैकेट की आवश्यक सतहें जोड़ें' : 'Capture required panels for 100% evidence-backed verification'}
+                    </span>
+                  </div>
                 </div>
-                <span className="text-[10px] font-bold text-slate-500">
-                  {queuedSides.length > 0 ? `${queuedSides.length} Additional Side(s) Ready` : 'Single or Multi-Side'}
-                </span>
+
+                {/* Evidence Completeness Pill */}
+                {(() => {
+                  const requiredViewsCount = selectedCategory === 'FOOD' ? 4 : selectedCategory === 'COSMETICS' ? 3 : 2;
+                  const capturedCount = (uploadedImage ? 1 : 0) + queuedSides.length;
+                  const isComplete = capturedCount >= requiredViewsCount;
+                  return (
+                    <div className={`px-3 py-1.5 rounded-full text-xs font-mono font-bold flex items-center gap-1.5 border shadow-sm ${
+                      isComplete 
+                        ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300' 
+                        : 'bg-amber-500/20 border-amber-500/40 text-amber-300'
+                    }`}>
+                      <span className={`w-2 h-2 rounded-full ${isComplete ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+                      <span>Evidence Completeness: {capturedCount}/{requiredViewsCount} views captured</span>
+                    </div>
+                  );
+                })()}
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {/* 4 Guided Steps */}
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
                 {[
-                  { tag: 'FRONT' as PackageSideTag, label: 'Front (Brand/Qty)', icon: '🏷️' },
-                  { tag: 'BACK' as PackageSideTag, label: 'Back (Mfg/FSSAI)', icon: '🏭' },
-                  { tag: 'TOP' as PackageSideTag, label: 'Top/MRP Crimp', icon: '💰' },
-                  { tag: 'SIDE_LEFT' as PackageSideTag, label: 'Side/Nutrition', icon: '📋' }
-                ].map(side => {
-                  const isCaptured = queuedSides.some(s => s.tag === side.tag);
+                  {
+                    step: '1/4',
+                    tag: 'FRONT' as PackageSideTag,
+                    title: 'FRONT',
+                    desc: 'Brand, name, net quantity',
+                    icon: '🏷️',
+                    isUploaded: Boolean(uploadedImage)
+                  },
+                  {
+                    step: '2/4',
+                    tag: 'BACK' as PackageSideTag,
+                    title: 'BACK',
+                    desc: 'Mfg / FSSAI / declarations',
+                    icon: '🏭',
+                    isUploaded: queuedSides.some(s => s.tag === 'BACK')
+                  },
+                  {
+                    step: '3/4',
+                    tag: 'TOP' as PackageSideTag,
+                    title: 'MRP & CRIMP',
+                    desc: 'MRP, USP & date stamping',
+                    icon: '💰',
+                    isUploaded: queuedSides.some(s => s.tag === 'TOP')
+                  },
+                  {
+                    step: '4/4',
+                    tag: 'SIDE_LEFT' as PackageSideTag,
+                    title: 'SIDE / NUTRITION',
+                    desc: 'Nutrition & ingredients',
+                    icon: '📋',
+                    isUploaded: queuedSides.some(s => s.tag === 'SIDE_LEFT' || s.tag === 'SIDE_RIGHT')
+                  }
+                ].map((item) => {
+                  const isCurrent = activeSideCapturing === item.tag;
                   return (
-                    <button
-                      key={side.tag}
-                      type="button"
-                      onClick={() => {
-                        setActiveSideCapturing(side.tag);
-                        sideFileInputRef.current?.click();
-                      }}
-                      className={`p-2.5 rounded-2xl border text-center transition-all cursor-pointer text-xs space-y-1 ${
-                        isCaptured
-                          ? 'border-emerald-500 bg-emerald-50 text-emerald-950 font-bold'
-                          : 'border-dashed border-slate-300 bg-white hover:bg-slate-50 text-slate-600'
+                    <div
+                      key={item.tag}
+                      className={`p-3 rounded-2xl border transition-all flex flex-col justify-between space-y-2 ${
+                        item.isUploaded
+                          ? 'border-emerald-500/60 bg-emerald-950/40 text-emerald-200'
+                          : isCurrent
+                          ? 'border-blue-500/60 bg-blue-950/40 text-blue-200'
+                          : 'border-slate-800 bg-slate-950/60 text-slate-400'
                       }`}
                     >
-                      <div className="text-base">{side.icon}</div>
-                      <div className="text-[11px] font-bold truncate">{side.label}</div>
-                      <div className="text-[9px] font-mono">
-                        {isCaptured ? '✓ Added' : '+ Add Side'}
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
+                          STEP {item.step}
+                        </span>
+                        <span className="text-sm">{item.icon}</span>
                       </div>
-                    </button>
+
+                      <div>
+                        <div className="text-xs font-black text-white">{item.title}</div>
+                        <div className="text-[10px] text-slate-400 leading-tight mt-0.5">{item.desc}</div>
+                      </div>
+
+                      <div className="pt-1 flex items-center justify-between">
+                        {item.isUploaded ? (
+                          <span className="text-[10px] font-bold text-emerald-400 flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5" /> Captured
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-bold text-slate-500">
+                            Required
+                          </span>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveSideCapturing(item.tag);
+                            setIsCameraOpen(true);
+                          }}
+                          className={`px-2 py-1 rounded-lg text-[10px] font-bold cursor-pointer transition-colors ${
+                            item.isUploaded
+                              ? 'bg-slate-800 hover:bg-slate-700 text-slate-200'
+                              : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                          }`}
+                        >
+                          {item.isUploaded ? 'Retake' : 'Capture'}
+                        </button>
+                      </div>
+                    </div>
                   );
                 })}
               </div>
 
-              {queuedSides.length > 0 && (
-                <div className="pt-2 flex justify-end gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setQueuedSides([])}
-                    className="px-3 py-1.5 text-xs text-rose-600 font-bold hover:underline cursor-pointer"
-                  >
-                    Clear Sides
-                  </button>
+              {/* Analyze Package CTA when views are captured */}
+              {(uploadedImage || queuedSides.length > 0) && (
+                <div className="pt-3 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <div className="text-xs text-slate-300 font-medium flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>
+                      {(uploadedImage ? 1 : 0) + queuedSides.length} view(s) ready for statutory rule verification
+                    </span>
+                  </div>
+
                   <button
                     type="button"
                     onClick={() => executeScan(selectedCategory, uploadedImage || undefined, fileName, undefined, queuedSides)}
-                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-xl shadow-md cursor-pointer flex items-center gap-1.5"
+                    className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 hover:from-emerald-500 hover:to-blue-500 text-white rounded-xl text-xs font-black shadow-lg shadow-emerald-950/40 flex items-center justify-center gap-2 transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
                   >
-                    <span>Verify All ({queuedSides.length + 1} Sides) ➔</span>
+                    <span>🔍 {lang === 'hi' ? 'पैकेज का विश्लेषण करें (Analyze Package)' : 'Analyze Package & Verify Rules'}</span>
+                    <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
               )}
