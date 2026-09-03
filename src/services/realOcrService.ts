@@ -77,9 +77,10 @@ Return ONLY a valid JSON object matching this schema:
 
   try {
     const directController = new AbortController();
-    const directTimeout = setTimeout(() => directController.abort(), 7000);
+    const directTimeout = setTimeout(() => directController.abort(), 15000);
 
-    const response = await fetch(
+    // Try gemini-1.5-flash
+    let response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
@@ -96,6 +97,27 @@ Return ONLY a valid JSON object matching this schema:
         })
       }
     );
+
+    // If 1.5-flash fails or returns 404, fallback to gemini-2.0-flash
+    if (!response.ok) {
+      response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          signal: directController.signal,
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                { text: prompt },
+                { inline_data: { mime_type: mimeType, data: base64Image } }
+              ]
+            }],
+            generationConfig: { temperature: 0.0, maxOutputTokens: 1024 }
+          })
+        }
+      );
+    }
     clearTimeout(directTimeout);
 
     if (!response.ok) return { data: null, durationMs: Date.now() - t0 };
