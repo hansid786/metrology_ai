@@ -19,6 +19,7 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
   const [isFlash, setIsFlash] = useState(false);
   const [torchOn, setTorchOn] = useState(false);
   const [hasTorch, setHasTorch] = useState(false);
+  const [detectedBarcode, setDetectedBarcode] = useState<string | null>(null);
 
   const stopCamera = () => {
     if (streamRef.current) {
@@ -28,10 +29,12 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
     setStream(null);
     setTorchOn(false);
     setHasTorch(false);
+    setDetectedBarcode(null);
   };
 
   const startCamera = async () => {
     setError(null);
+    setDetectedBarcode(null);
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         throw new Error('Camera API is not supported in this browser environment.');
@@ -65,6 +68,40 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
       );
     }
   };
+
+  // Real-time Barcode Detection Loop
+  useEffect(() => {
+    if (!stream || !('BarcodeDetector' in window)) return;
+
+    let isScanningBarcode = true;
+    const barcodeDetector = new (window as any).BarcodeDetector({
+      formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'qr_code', 'code_128', 'code_39']
+    });
+
+    const scanInterval = setInterval(async () => {
+      if (!videoRef.current || !isScanningBarcode || videoRef.current.readyState < 2) return;
+      try {
+        const barcodes = await barcodeDetector.detect(videoRef.current);
+        if (barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
+          const code = barcodes[0].rawValue;
+          setDetectedBarcode(code);
+          // Auto-trigger capture after a brief lock-on delay
+          setTimeout(() => {
+            if (isScanningBarcode) {
+              handleCapture();
+            }
+          }, 350);
+        }
+      } catch (e) {
+        // Fallback silently if continuous frame detection is unsupported
+      }
+    }, 300);
+
+    return () => {
+      isScanningBarcode = false;
+      clearInterval(scanInterval);
+    };
+  }, [stream]);
 
   const toggleTorch = async () => {
     if (!streamRef.current) return;
@@ -185,13 +222,23 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
                 {/* Cyber Laser Scan Beam */}
                 <div className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-emerald-400 to-transparent shadow-[0_0_15px_#10b981] animate-pulse" style={{ animationDuration: '1.5s', top: '45%' }} />
 
-                <div className="flex justify-between items-center text-[10px] font-mono text-emerald-300 bg-slate-950/80 px-2.5 py-1 rounded-full backdrop-blur-md border border-emerald-500/30 w-max shadow-lg">
-                  <Sparkles className="w-3 h-3 mr-1 text-amber-400 animate-spin" />
-                  <span>AI OPTICAL SCANNER ACTIVE</span>
+                <div className="flex justify-between items-center gap-2">
+                  <div className="flex items-center text-[10px] font-mono text-emerald-300 bg-slate-950/80 px-2.5 py-1 rounded-full backdrop-blur-md border border-emerald-500/30 w-max shadow-lg">
+                    <Sparkles className="w-3 h-3 mr-1 text-amber-400 animate-spin" />
+                    <span>AI OPTICAL &amp; BARCODE SCANNER ACTIVE</span>
+                  </div>
+
+                  {detectedBarcode && (
+                    <div className="flex items-center text-[10px] font-mono font-bold text-amber-300 bg-amber-950/90 px-2.5 py-1 rounded-full backdrop-blur-md border border-amber-500/50 shadow-lg animate-bounce">
+                      <span>⚡ BARCODE LOCK: {detectedBarcode}</span>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="text-center text-[11px] font-medium text-white/90 bg-slate-950/80 px-3 py-1 rounded-full backdrop-blur-md border border-slate-700/60 w-max mx-auto shadow-md">
-                  Align MRP, Net Weight &amp; Manufacturer Label in frame
+                  {detectedBarcode 
+                    ? '✨ Barcode locked on! Auto-verifying statutory record...'
+                    : 'Align Barcode (EAN-13), MRP or Net Weight in frame'}
                 </div>
               </div>
 

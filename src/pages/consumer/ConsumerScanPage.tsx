@@ -470,50 +470,88 @@ export const ConsumerScanPage: React.FC = () => {
               </button>
 
               {showManualEntry && (
-                <div className="pt-2 border-t border-slate-200/70 grid grid-cols-1 sm:grid-cols-4 gap-2.5 animate-in fade-in">
-                  <div>
-                    <label className="text-[10px] font-black text-slate-600 block mb-1">Product Name</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Marie Gold Biscuit"
-                      value={customName}
-                      onChange={(e) => setCustomName(e.target.value)}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 font-medium focus:ring-1 focus:ring-emerald-500 outline-hidden"
-                    />
+                <div className="pt-2 border-t border-slate-200/70 space-y-3 animate-in fade-in">
+                  {/* Barcode Fast Lookup */}
+                  <div className="p-3 bg-white rounded-xl border border-emerald-200/80 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-black text-emerald-950 flex items-center gap-1.5">
+                        <span>⚡ 1-Tap Barcode / EAN-13 Instant Lookup</span>
+                      </span>
+                      <span className="text-[10px] text-slate-500 font-mono">GS1 India Master</span>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-1.5">
+                      {[
+                        { name: 'Maggi (8901058852393)', code: '8901058852393', cat: 'FOOD' as ProductCategory },
+                        { name: 'Parle-G (8901719101037)', code: '8901719101037', cat: 'FOOD' as ProductCategory },
+                        { name: "Lay's (8901491101830)", code: '8901491101830', cat: 'FOOD' as ProductCategory },
+                        { name: 'Fortune Oil (8906007280014)', code: '8906007280014', cat: 'FOOD' as ProductCategory },
+                        { name: 'Amul Butter (8901262010025)', code: '8901262010025', cat: 'FOOD' as ProductCategory },
+                        { name: 'Dolo 650 (8901117002014)', code: '8901117002014', cat: 'PHARMA' as ProductCategory },
+                        { name: 'VoltMax 20K (8908849201994)', code: '8908849201994', cat: 'ELECTRONICS' as ProductCategory }
+                      ].map(item => (
+                        <button
+                          key={item.code}
+                          type="button"
+                          onClick={() => {
+                            setCustomName(item.name.split(' (')[0]);
+                            setSelectedCategory(item.cat);
+                            executeScan(item.cat, undefined, `${item.code}.jpg`, undefined);
+                          }}
+                          className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300/80 rounded-lg text-[10px] font-bold text-emerald-900 transition-colors cursor-pointer"
+                        >
+                          🏷️ {item.name}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                  <div>
-                    <label className="text-[10px] font-black text-slate-600 block mb-1">Printed MRP (₹)</label>
-                    <input
-                      type="number"
-                      placeholder="e.g. 50"
-                      value={customMRP}
-                      onChange={(e) => setCustomMRP(e.target.value)}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 font-medium focus:ring-1 focus:ring-emerald-500 outline-hidden"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-black text-slate-600 block mb-1">Net Quantity</label>
-                    <input
-                      type="number"
-                      placeholder="e.g. 250"
-                      value={customQty}
-                      onChange={(e) => setCustomQty(e.target.value)}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 font-medium focus:ring-1 focus:ring-emerald-500 outline-hidden"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-black text-slate-600 block mb-1">Metric Unit</label>
-                    <select
-                      value={customUnit}
-                      onChange={(e) => setCustomUnit(e.target.value)}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 font-medium focus:ring-1 focus:ring-emerald-500 outline-hidden"
-                    >
-                      <option value="g">Grams (g)</option>
-                      <option value="kg">Kilograms (kg)</option>
-                      <option value="ml">Millilitres (ml)</option>
-                      <option value="L">Litres (L)</option>
-                      <option value="Unit">Unit / NOS</option>
-                    </select>
+
+                  {/* Manual Fields */}
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
+                    <div>
+                      <label className="text-[10px] font-black text-slate-600 block mb-1">Product Name</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Marie Gold Biscuit"
+                        value={customName}
+                        onChange={(e) => setCustomName(e.target.value)}
+                        className="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 font-medium focus:ring-1 focus:ring-emerald-500 outline-hidden"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-black text-slate-600 block mb-1">Printed MRP (₹)</label>
+                      <input
+                        type="number"
+                        placeholder="e.g. 50"
+                        value={customMRP}
+                        onChange={(e) => setCustomMRP(e.target.value)}
+                        className="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 font-medium focus:ring-1 focus:ring-emerald-500 outline-hidden"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-black text-slate-600 block mb-1">Net Quantity</label>
+                      <input
+                        type="number"
+                        placeholder="e.g. 250"
+                        value={customQty}
+                        onChange={(e) => setCustomQty(e.target.value)}
+                        className="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 font-medium focus:ring-1 focus:ring-emerald-500 outline-hidden"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-black text-slate-600 block mb-1">Metric Unit</label>
+                      <select
+                        value={customUnit}
+                        onChange={(e) => setCustomUnit(e.target.value)}
+                        className="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 font-medium focus:ring-1 focus:ring-emerald-500 outline-hidden"
+                      >
+                        <option value="g">Grams (g)</option>
+                        <option value="kg">Kilograms (kg)</option>
+                        <option value="ml">Millilitres (ml)</option>
+                        <option value="L">Litres (L)</option>
+                        <option value="Unit">Unit / NOS</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
               )}
