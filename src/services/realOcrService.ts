@@ -167,7 +167,7 @@ export async function performRealImageOCR(
   const qualityInfo: ImageQualityInfo = await assessImageQuality(imageUrl);
   const qualityCheckMs = Date.now() - q0;
 
-  // Extract base64
+  // Track image metadata for the diagnostic trace.
   let base64Data = '';
   let mimeType = 'image/jpeg';
   let sizeBytes = 0;
@@ -178,7 +178,7 @@ export async function performRealImageOCR(
     sizeBytes = Math.round((base64Data.length * 3) / 4);
   }
 
-  // Stage 2: Optical Character Recognition (Parallel Tesseract + Vision AI)
+  // Stage 2: Free browser OCR. No API key or cloud service is required.
   if (onProgress) {
     onProgress({
       stage: 2,
@@ -190,7 +190,6 @@ export async function performRealImageOCR(
 
   const ocrStartTime = Date.now();
   
-  // Launch Tesseract and Gemini in parallel for maximum speed
   const tesseractPromise = runTesseractOCR(imageUrl, (percent, status) => {
     if (onProgress) {
       onProgress({
@@ -202,9 +201,7 @@ export async function performRealImageOCR(
     }
   });
 
-  const geminiPromise = base64Data
-    ? callGeminiVisionStrict(base64Data, mimeType)
-    : Promise.resolve({ data: null, durationMs: 0 });
+  const geminiPromise: Promise<{ data: any | null; durationMs: number }> = Promise.resolve({ data: null, durationMs: 0 });
 
   const [tesseractSettled, geminiSettled] = await Promise.allSettled([
     tesseractPromise,

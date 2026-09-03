@@ -180,7 +180,7 @@ export async function runTesseractOCR(
     }
   };
 
-  // 5-second safety race so optical engine never hangs UI on mobile CDN delays
+  // Keep enough time for the first language-model download on mobile devices.
   const timeoutPromise = new Promise<TesseractOCRResult>((resolve) => {
     setTimeout(() => {
       resolve({
@@ -190,7 +190,7 @@ export async function runTesseractOCR(
         tokensCount: 0,
         processingTimeMs: Date.now() - startTime
       });
-    }, 5500);
+    }, 20000);
   });
 
   return Promise.race([ocrExecution(), timeoutPromise]);
