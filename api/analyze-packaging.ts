@@ -80,7 +80,7 @@ Return ONLY a valid JSON object matching this schema:
   try {
     const cleanBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, '');
 
-    const model = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+    const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
     const requestVision = (modelName: string) => fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`,
       {
@@ -102,8 +102,11 @@ Return ONLY a valid JSON object matching this schema:
     );
 
     let response = await requestVision(model);
-    if (!response.ok && model !== 'gemini-2.0-flash') {
+    if (!response.ok) {
       response = await requestVision('gemini-2.0-flash');
+    }
+    if (!response.ok) {
+      response = await requestVision('gemini-1.5-flash');
     }
 
     if (!response.ok) {

@@ -80,9 +80,9 @@ Return ONLY a valid JSON object matching this schema:
     const directController = new AbortController();
     const directTimeout = setTimeout(() => directController.abort(), 15000);
 
-    // Try gemini-1.5-flash
+    // Try the current model first, then fall back for projects with older model access.
     let response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -99,10 +99,29 @@ Return ONLY a valid JSON object matching this schema:
       }
     );
 
-    // If 1.5-flash fails or returns 404, fallback to gemini-2.0-flash
+    // If the current model fails or returns 404, fall back to older available models.
     if (!response.ok) {
       response = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          signal: directController.signal,
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                { text: prompt },
+                { inline_data: { mime_type: mimeType, data: base64Image } }
+              ]
+            }],
+            generationConfig: { temperature: 0.0, maxOutputTokens: 1024 }
+          })
+        }
+      );
+    }
+    if (!response.ok) {
+      response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
