@@ -153,7 +153,7 @@ export const cloudSyncService = {
       if (error) throw error;
       return { success: true, ticketNumber };
     } catch {
-      return { success: true, ticketNumber };
+      return { success: false };
     }
   }
 };

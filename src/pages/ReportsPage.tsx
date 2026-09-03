@@ -17,7 +17,7 @@ export const ReportsPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    setInspections(persistenceService.getAll());
+    setInspections(persistenceService.getOfficerInspections());
   }, []);
 
   const handleDownloadPDF = (insp: SavedInspection) => {

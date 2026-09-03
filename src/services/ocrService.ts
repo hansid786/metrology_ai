@@ -97,7 +97,12 @@ export class DemoOCRProvider implements OCRProvider {
 
     // Stage 2 – Hand off to Gemini Vision + compliance engine
     // (performRealImageOCR handles its own progress callbacks from stage 2 onward)
-    return await performRealImageOCR(processedUrl, fileName, category, onStageUpdate);
+    const result = await performRealImageOCR(processedUrl, fileName, category, onStageUpdate);
+    const detectedDeclarations = result.declarations.filter(declaration => declaration.status !== 'NOT_DETECTED').length;
+    if (detectedDeclarations === 0 && processedUrl !== imageUrl) {
+      return performRealImageOCR(imageUrl, fileName, category, onStageUpdate);
+    }
+    return result;
   }
 }
 

@@ -50,7 +50,7 @@ export const SettingsPage: React.FC = () => {
   const handleResetData = () => {
     if (window.confirm('Reset all demo inspections and restore initial sample datasets?')) {
       localStorage.removeItem('metrologylens_inspections');
-      localStorage.removeItem('metrologylens_seeded');
+      localStorage.removeItem('metrologylens_seeded_v5');
       window.location.reload();
     }
   };

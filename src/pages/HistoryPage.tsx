@@ -20,14 +20,14 @@ export const HistoryPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
 
   useEffect(() => {
-    setInspections(persistenceService.getAll());
+    setInspections(persistenceService.getOfficerInspections());
   }, []);
 
   const handleDelete = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (window.confirm(lang === 'hi' ? `क्या आप निश्चित रूप से निरीक्षण रिकॉर्ड ${id} हटाना चाहते हैं?` : `Are you sure you want to delete inspection record ${id}?`)) {
       persistenceService.delete(id);
-      setInspections(persistenceService.getAll());
+      setInspections(persistenceService.getOfficerInspections());
     }
   };
 

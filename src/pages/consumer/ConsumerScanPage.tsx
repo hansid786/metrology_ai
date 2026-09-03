@@ -17,6 +17,7 @@ import { sanitizeProductName } from '../../utils/sanitize';
 import { aggregateMultiSideScans, MultiSideScanPayload } from '../../services/multiSideAggregator';
 import { prewarmTesseractWorker } from '../../services/tesseractEngine';
 import { convertToJpegDataUrl } from '../../utils/imagePreprocessor';
+import { calculatePricingIntelligence } from '../../services/complianceEngine';
 
 interface QueuedSidePhoto {
   id: string;
@@ -138,7 +139,12 @@ export const ConsumerScanPage: React.FC = () => {
         primaryResult.pricing.mrpAmount = mrpNum;
         primaryResult.pricing.netQuantityValue = qtyNum;
         primaryResult.pricing.netQuantityUnit = unitStr;
-        primaryResult.pricing.calculatedUSPAmount = Number((mrpNum / (qtyNum || 1)).toFixed(2));
+        primaryResult.pricing = calculatePricingIntelligence(
+          mrpNum,
+          qtyNum,
+          unitStr,
+          primaryResult.pricing.printedUSPText
+        );
       }
 
       const savedItem: SavedInspection = {

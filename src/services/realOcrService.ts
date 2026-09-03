@@ -61,6 +61,7 @@ Return ONLY a valid JSON object matching this schema:
   "productName": "exact name printed on package or null",
   "brandName": "exact brand printed on package or null",
   "mrp": <number or null>,
+  "printedUSP": "exact printed unit sale price or null",
   "netQuantityValue": <number or null>,
   "netQuantityUnit": "exact unit (g, kg, ml, L, Tablets, Pages, NOS, Unit) or null",
   "mfgDate": "exact printed mfg date or null",
@@ -262,7 +263,7 @@ export async function performRealImageOCR(
     finalMRPAmount,
     finalQtyAmount,
     finalQtyUnit,
-    undefined
+    evidenceResult.printedUSPText
   );
 
   const consensus = calculate3WayTruthConsensus({

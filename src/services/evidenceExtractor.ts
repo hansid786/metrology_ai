@@ -18,6 +18,7 @@ export interface EvidenceExtractionResult {
   mrpAmount: number | null;
   netQuantityValue: number | null;
   netQuantityUnit: string | null;
+  printedUSPText?: string;
   declarations: MandatoryDeclaration[];
   boundingBoxes: BoundingBox[];
   entityRoles: EntityRoles;
@@ -238,6 +239,12 @@ export function extractEvidenceDeclarations(
       if (extractedQtyVal !== null) break;
     }
   }
+
+  const printedUSPText = typeof geminiData?.printedUSP === 'string' && geminiData.printedUSP.trim()
+    ? geminiData.printedUSP.trim()
+    : geminiData?.printedUSPAmount != null
+      ? `₹ ${geminiData.printedUSPAmount} / ${geminiData.printedUSPUnit || extractedQtyUnit || 'unit'}`
+      : lines.find(line => /(?:unit\s*sale\s*price|\busp\b)/i.test(line));
 
   // ─── 3. SEPARATE ENTITY ROLES: MANUFACTURER / PACKER / IMPORTER / MARKETER ───
   const entityRoles: EntityRoles = {};
@@ -540,6 +547,31 @@ export function extractEvidenceDeclarations(
     }
   });
 
+  if (category === 'FOOD') {
+    const uspValue = printedUSPText || 'Not Detected';
+    const uspBBox = printedUSPText ? createBBox('unit_sale_price', 'Unit Sale Price', printedUSPText, 90) : undefined;
+    if (printedUSPText) extractedEvidenceCount++;
+    declarations.push({
+      id: 'decl-usp',
+      key: 'unit_sale_price',
+      name: 'Unit Sale Price (USP)',
+      legalReference: 'Rule 6(1)(e) [Amendment 2021] - Compulsory for Food Retail',
+      status: printedUSPText ? 'PASS' : 'NOT_DETECTED',
+      extractedValue: uspValue,
+      confidence: printedUSPText ? 90 : 0,
+      explanation: printedUSPText ? `Unit Sale Price detected: ${printedUSPText}` : 'Unit Sale Price was not readable on this packaging surface.',
+      boundingBoxId: uspBBox,
+      evidence: {
+        sourceText: printedUSPText || 'No visible Unit Sale Price declaration detected',
+        confidenceLevel: printedUSPText ? 'HIGH' : 'NOT_DETECTED',
+        confidenceScore: printedUSPText ? 90 : 0,
+        locationOnPackage: 'Packaging Surface',
+        isEvidenceBacked: Boolean(printedUSPText),
+        boundingBoxId: uspBBox
+      }
+    });
+  }
+
   // 2. Net Quantity
   const qtyValText = (extractedQtyVal !== null && extractedQtyUnit !== null)
     ? `${extractedQtyVal} ${extractedQtyUnit}`
@@ -794,6 +826,7 @@ export function extractEvidenceDeclarations(
     mrpAmount: extractedMRPAmount,
     netQuantityValue: extractedQtyVal,
     netQuantityUnit: extractedQtyUnit,
+    printedUSPText,
     declarations,
     boundingBoxes,
     entityRoles,

@@ -11,7 +11,7 @@ export const ConsumerHistoryPage: React.FC = () => {
   const [scans, setScans] = useState<SavedInspection[]>([]);
 
   useEffect(() => {
-    setScans(persistenceService.getAll());
+    setScans(persistenceService.getConsumerInspections());
   }, []);
 
   const handleDownloadSlip = (insp: SavedInspection, e: React.MouseEvent) => {

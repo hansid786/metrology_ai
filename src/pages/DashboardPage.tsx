@@ -42,7 +42,7 @@ export const DashboardPage: React.FC = () => {
     setChartData(persistenceService.getChartData(14));
     setViolationsByCategory(persistenceService.getViolationsByCategory());
     setTopViolations(persistenceService.getTopViolations());
-    setRecentInspections(persistenceService.getAll().slice(0, 5));
+    setRecentInspections(persistenceService.getOfficerInspections().slice(0, 5));
   }, []);
 
   const handleDownloadPDF = (insp: SavedInspection, e: React.MouseEvent) => {

@@ -60,6 +60,7 @@ Return ONLY a valid JSON object matching this schema:
   "netQuantityValue": <exact numeric quantity or null>,
   "netQuantityUnit": "exact unit e.g. g, kg, ml, L, Unit, NOS, Tablets, Pages or null",
   "hasPrintedUSP": <true if printed on package else false>,
+  "printedUSP": "exact printed unit sale price text or null",
   "printedUSPAmount": <exact printed USP number or null>,
   "printedUSPUnit": <exact printed unit e.g. g, ml, kg or null>,
   "mfgDate": "exact printed mfg/pkd date or null",

@@ -7,6 +7,10 @@ import { cloudSyncService } from './cloudSyncService';
 const INSPECTIONS_KEY = 'metrologylens_inspections';
 const SEEDED_KEY = 'metrologylens_seeded_v5';
 
+function isConsumerInspection(inspection: SavedInspection): boolean {
+  return inspection.metadata?.inspectorId === 'CITIZEN-PORTAL';
+}
+
 function sanitizeInspection(insp: SavedInspection): SavedInspection {
   if (!insp) return insp;
   const cleanName = sanitizeProductName(insp.metadata?.productName || insp.result?.product?.name, insp.id);
@@ -75,12 +79,20 @@ export const persistenceService = {
     return loadAll();
   },
 
+  getConsumerInspections(): SavedInspection[] {
+    return loadAll().filter(isConsumerInspection);
+  },
+
+  getOfficerInspections(): SavedInspection[] {
+    return loadAll().filter(inspection => !isConsumerInspection(inspection));
+  },
+
   delete(id: string): void {
     saveAll(loadAll().filter(i => i.id !== id));
   },
 
   getStats(): DashboardStats {
-    const all = loadAll();
+    const all = this.getOfficerInspections();
     const today = new Date().toDateString();
     const passed = all.filter(i => i.result.overallStatus === 'COMPLIANT').length;
     const withViolations = all.filter(i => i.result.overallStatus === 'CRITICAL_NON_COMPLIANT' || i.result.overallStatus === 'NON_COMPLIANT').length;
@@ -103,7 +115,7 @@ export const persistenceService = {
   },
 
   getChartData(days: number = 30): { date: string; count: number; passed: number; violations: number }[] {
-    const all = loadAll();
+    const all = this.getOfficerInspections();
     const result: Record<string, { count: number; passed: number; violations: number }> = {};
     const now = new Date();
     for (let i = days - 1; i >= 0; i--) {
@@ -128,7 +140,7 @@ export const persistenceService = {
   },
 
   getViolationsByCategory(): { category: string; count: number }[] {
-    const all = loadAll();
+    const all = this.getOfficerInspections();
     const map: Record<string, number> = {};
     all.forEach(insp => {
       const cat = insp.metadata.productCategory || 'FOOD';
@@ -148,7 +160,7 @@ export const persistenceService = {
   },
 
   getTopViolations(): { name: string; count: number }[] {
-    const all = loadAll();
+    const all = this.getOfficerInspections();
     const map: Record<string, number> = {};
     all.forEach(insp => {
       insp.result.findings
