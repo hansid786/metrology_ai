@@ -183,12 +183,12 @@ export const ConsumerScanPage: React.FC = () => {
       navigate(`/consumer/result/${inspectionId}`);
     } catch (err: any) {
       console.error('[MetrologyLens] Scan pipeline error:', err);
-      setIsScanning(false);
       setScanError(
         lang === 'hi'
           ? 'छवि से पर्याप्त पाठ पढ़ने में असमर्थ। कृपया अधिक स्पष्ट और केंद्रित फोटो अपलोड करें।'
-          : 'Unable to read sufficient text from this image. Please upload a clearer, well-lit image.'
+          : 'Unable to read sufficient text from this image. Please upload a clearer, well-lit image of the packaging label.'
       );
+      setIsScanning(false);
     }
   };
 
@@ -318,6 +318,24 @@ export const ConsumerScanPage: React.FC = () => {
       </div>
 
       {/* Central Scanner Command Center */}
+      {scanError && !isScanning && (
+        <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 flex items-start gap-3 shadow-sm animate-in fade-in">
+          <AlertCircle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-rose-800">
+              {lang === 'hi' ? 'स्कैन विफल' : 'Scan Failed'}
+            </p>
+            <p className="text-xs text-rose-600 mt-0.5">{scanError}</p>
+          </div>
+          <button
+            onClick={() => setScanError(null)}
+            className="text-rose-400 hover:text-rose-600 transition-colors cursor-pointer shrink-0"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       <div
         ref={scanBoxRef}
         className="scroll-mt-4 bg-white rounded-3xl p-5 sm:p-8 border-2 border-emerald-500/40 shadow-xl shadow-emerald-600/5 space-y-6 relative overflow-hidden"
@@ -345,54 +363,34 @@ export const ConsumerScanPage: React.FC = () => {
 
         {isScanning ? (
           <div className="py-12 px-4 max-w-md mx-auto text-center space-y-6 animate-in fade-in">
-            {scanError ? (
-              <div className="space-y-4">
-                <div className="w-16 h-16 rounded-3xl bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center mx-auto shadow-md">
-                  <AlertCircle className="w-8 h-8" />
-                </div>
-                <div>
-                  <h3 className="text-base font-extrabold text-slate-900">{lang === 'hi' ? 'स्कैन त्रुटि' : 'Scan Error'}</h3>
-                  <p className="text-xs text-rose-600 font-medium mt-1">{scanError}</p>
-                </div>
-                <button
-                  onClick={() => setIsScanning(false)}
-                  className="px-5 py-2.5 bg-slate-900 text-white text-xs font-bold rounded-xl shadow-md cursor-pointer"
-                >
-                  {lang === 'hi' ? 'पुनः प्रयास करें' : 'Try Again'}
-                </button>
+            <div className="relative w-24 h-24 mx-auto">
+              <div className="absolute inset-0 rounded-3xl bg-emerald-500/20 animate-ping" />
+              <div className="relative w-24 h-24 rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-600 to-slate-900 flex items-center justify-center text-white shadow-2xl shadow-emerald-600/40 border border-emerald-400">
+                <ShoppingBag className="w-12 h-12 animate-pulse" />
               </div>
-            ) : (
-              <>
-                <div className="relative w-24 h-24 mx-auto">
-                  <div className="absolute inset-0 rounded-3xl bg-emerald-500/20 animate-ping" />
-                  <div className="relative w-24 h-24 rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-600 to-slate-900 flex items-center justify-center text-white shadow-2xl shadow-emerald-600/40 border border-emerald-400">
-                    <ShoppingBag className="w-12 h-12 animate-pulse" />
-                  </div>
-                </div>
+            </div>
 
-                <div className="space-y-2">
-                  <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                    {scanStage?.label || (lang === 'hi' ? 'AI पैकेजिंग विश्लेषण चल रहा है...' : 'AI Packaging Verification in Progress...')}
-                  </h3>
-                  <p className="text-xs text-slate-600 font-medium leading-relaxed max-w-sm mx-auto">
-                    {scanStage?.detail || (lang === 'hi' ? 'MRP, USP, एक्सपायरी, FSSAI और निर्माता विवरण की जांच की जा रही है...' : 'Reading text blocks, extracting declarations, validating compliance...')}
-                  </p>
-                </div>
+            <div className="space-y-2">
+              <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                {scanStage?.label || (lang === 'hi' ? 'AI पैकेजिंग विश्लेषण चल रहा है...' : 'AI Packaging Verification in Progress...')}
+              </h3>
+              <p className="text-xs text-slate-600 font-medium leading-relaxed max-w-sm mx-auto">
+                {scanStage?.detail || (lang === 'hi' ? 'MRP, USP, एक्सपायरी, FSSAI और निर्माता विवरण की जांच की जा रही है...' : 'Reading text blocks, extracting declarations, validating compliance...')}
+              </p>
+            </div>
 
-                <div className="space-y-2 max-w-xs mx-auto">
-                  <div className="w-full bg-slate-100 rounded-full h-3.5 overflow-hidden shadow-inner p-0.5 border border-slate-200">
-                    <div
-                      className="bg-gradient-to-r from-emerald-500 via-teal-500 to-blue-600 h-full rounded-full transition-all duration-300 shadow-sm"
-                      style={{ width: `${scanStage?.progressPercent || 35}%` }}
-                    />
-                  </div>
-                  <div className="flex justify-between text-[11px] font-mono font-bold text-slate-500">
-                    <span>{lang === 'hi' ? 'विधिक मापविज्ञान जांच' : 'Optical Evidence Engine'}</span>
-                    <span className="text-emerald-700 font-black">{scanStage?.progressPercent || 35}%</span>
-                  </div>
-                </div>
-              </>
-            )}
+            <div className="space-y-2 max-w-xs mx-auto">
+              <div className="w-full bg-slate-100 rounded-full h-3.5 overflow-hidden shadow-inner p-0.5 border border-slate-200">
+                <div
+                  className="bg-gradient-to-r from-emerald-500 via-teal-500 to-blue-600 h-full rounded-full transition-all duration-300 shadow-sm"
+                  style={{ width: `${scanStage?.progressPercent || 35}%` }}
+                />
+              </div>
+              <div className="flex justify-between text-[11px] font-mono font-bold text-slate-500">
+                <span>{lang === 'hi' ? 'विधिक मापविज्ञान जांच' : 'Optical Evidence Engine'}</span>
+                <span className="text-emerald-700 font-black">{scanStage?.progressPercent || 35}%</span>
+              </div>
+            </div>
           </div>
         ) : (
           <div className="space-y-5">
