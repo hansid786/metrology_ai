@@ -80,8 +80,10 @@ Return ONLY a valid JSON object matching this schema:
   try {
     const cleanBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, '');
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-    const response = await fetch(geminiUrl, {
+    const model = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+    const requestVision = (modelName: string) => fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`,
+      {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -96,7 +98,13 @@ Return ONLY a valid JSON object matching this schema:
           maxOutputTokens: 1024
         }
       })
-    });
+      }
+    );
+
+    let response = await requestVision(model);
+    if (!response.ok && model !== 'gemini-2.0-flash') {
+      response = await requestVision('gemini-2.0-flash');
+    }
 
     if (!response.ok) {
       const errText = await response.text();
