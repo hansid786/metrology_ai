@@ -152,7 +152,7 @@ export const ConsumerScanPage: React.FC = () => {
           inspectionId,
           establishmentName: lang === 'hi' ? 'खुदरा बाजार (उपभोक्ता जांच)' : 'Retail Market (Consumer Scan)',
           productName: finalName,
-          productCategory: categoryToUse,
+          productCategory: primaryResult.product.category as ProductCategory,
           location: 'Consumer Purchase Check',
           inspectorId: 'CITIZEN-PORTAL',
           inspectorName: 'Citizen Consumer',
@@ -259,7 +259,7 @@ export const ConsumerScanPage: React.FC = () => {
     if (activeSideCapturing === 'FRONT' && queuedSides.length === 0) {
       setUploadedImage(dataUrl);
       setFileName(camFileName);
-      executeScan('FOOD', dataUrl, camFileName);
+      executeScan(selectedCategory, dataUrl, camFileName);
     } else {
       const newSide: QueuedSidePhoto = {
         id: `side-${Date.now()}`,

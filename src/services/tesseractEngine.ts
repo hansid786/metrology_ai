@@ -21,6 +21,8 @@ export interface TesseractOCRResult {
 
 let workerInstance: any = null;
 let workerInitPromise: Promise<any> | null = null;
+let activeProgressCallback: ((percent: number, status: string) => void) | undefined;
+let recognitionQueue = Promise.resolve();
 
 function reportWorkerProgress(
   message: any,
@@ -34,8 +36,9 @@ function reportWorkerProgress(
 }
 
 function createTesseractWorker(onProgress?: (percent: number, status: string) => void): Promise<any> {
+  activeProgressCallback = onProgress;
   return createWorker('eng', 1, {
-    logger: message => reportWorkerProgress(message, onProgress)
+    logger: message => reportWorkerProgress(message, activeProgressCallback)
   });
 }
 
@@ -54,6 +57,7 @@ export async function prewarmTesseractWorker(): Promise<void> {
 }
 
 async function getTesseractWorker(onProgress?: (percent: number, status: string) => void) {
+  activeProgressCallback = onProgress;
   if (workerInstance) return workerInstance;
   if (workerInitPromise) {
     try {
@@ -216,5 +220,7 @@ export async function runTesseractOCR(
     }, 20000);
   });
 
-  return Promise.race([ocrExecution(), timeoutPromise]);
+  const queuedExecution = recognitionQueue.then(ocrExecution, ocrExecution);
+  recognitionQueue = queuedExecution.then(() => undefined, () => undefined);
+  return Promise.race([queuedExecution, timeoutPromise]);
 }

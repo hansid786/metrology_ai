@@ -1005,7 +1005,7 @@ Reported via MetrologyLens AI (Govt of India SIH Initiative)`;
               <span className="text-[10px] font-extrabold text-slate-400 uppercase block">Manufacturing &amp; Batch Dates</span>
               <div>
                 <div className="text-slate-500 text-[11px]">Batch / Lot No:</div>
-                <div className="font-bold text-slate-900 font-mono">{result.manufacturingDates?.mfgDate ? 'Detected' : 'Not Detected'}</div>
+                <div className="font-bold text-slate-900 font-mono">{result.rawOcrText?.match(/(?:batch|lot)\s*(?:no\.?|number)?\s*[:.-]?\s*([A-Z0-9\/-]{3,})/i)?.[1] || 'Not Detected'}</div>
               </div>
               <div>
                 <div className="text-slate-500 text-[11px]">Manufacturing Date (MFD):</div>

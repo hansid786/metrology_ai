@@ -443,8 +443,8 @@ export function extractEvidenceDeclarations(
   if (geminiData?.category && ['FOOD', 'PHARMA', 'ELECTRONICS', 'GENERAL'].includes(geminiData.category)) {
     category = geminiData.category as ProductCategory;
   } else {
-    const isPharma = /pharma|capsule|tablet|syrup|ointment|medicine|paracetamol|dolo|antibiotic|dosage|drops|ip|bp|usp\b/i.test(combinedText);
-    const isElec = /mah|powerbank|volt|watt|charger|usb|cable|battery|ampere|cro|bis|earbuds|adapter|router/i.test(combinedText);
+    const isPharma = /\b(?:pharma|capsule|tablet|syrup|ointment|medicine|paracetamol|dolo|antibiotic|dosage|drops|ayurvedic|homeopathic|drug\s*licen[cs]e|schedule\s*h)\b/i.test(combinedText);
+    const isElec = /\b(?:\d+\s*mAh|power\s*bank|volt(?:age)?|watt(?:age)?|charger|usb|cable|battery|ampere|electronics?|earbuds?|adapter|router|bluetooth|lithium\s*ion|input\s*dc|output\s*dc)\b/i.test(combinedText);
     const isBook = /book|notebook|pages|paper|itc|classmate|gsm|ruled|exercise\s*book/i.test(combinedText);
     if (isPharma) category = 'PHARMA';
     else if (isElec) category = 'ELECTRONICS';
@@ -465,7 +465,12 @@ export function extractEvidenceDeclarations(
     }
   }
 
-  if (matchedMaster) {
+  const hasStrongMasterMatch = matchedMaster && (
+    lowerText.includes(matchedMaster.brand.toLowerCase())
+    || matchedMaster.name.toLowerCase().split(' ').filter(word => word.length > 3 && lowerText.includes(word)).length >= 3
+  );
+
+  if (hasStrongMasterMatch && matchedMaster) {
     if (extractedMRPAmount === null) {
       extractedMRPAmount = matchedMaster.officialMrp;
       mrpSourceText = `MRP ₹${matchedMaster.officialMrp.toFixed(2)} (GS1 Master Triangulated)`;
@@ -503,15 +508,6 @@ export function extractEvidenceDeclarations(
     if (brandName === 'Not Detected') {
       brandName = matchedMaster.brand;
     }
-    category = matchedMaster.category;
-  }
-
-  // General Domestic Commodity Safeguard (All packaged goods sold in India)
-  if (!countryOfOrigin) {
-    countryOfOrigin = 'INDIA';
-  }
-  if (!customerCare) {
-    customerCare = '1915 (National Consumer Helpline) | consumerhelpline.gov.in';
   }
 
   // ─── 11. BUILD STRUCTURED MANDATORY DECLARATIONS ───────────────────────────
