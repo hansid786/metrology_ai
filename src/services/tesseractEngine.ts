@@ -148,9 +148,17 @@ export async function runTesseractOCR(
       const worker = await getTesseractWorker(onProgress);
       if (onProgress) onProgress(38, 'OCR engine ready; reading package text...');
 
-      // Step 3: Run recognition
-      const result = await worker.recognize(optimizedImage);
-      const data = result.data;
+      // Step 3: Read normal packaging layout first. Sparse labels get a second pass.
+      await worker.setParameters({ tessedit_pageseg_mode: '6' });
+      const firstResult = await worker.recognize(optimizedImage);
+      let data = firstResult.data;
+      const firstText = (data.text || '').trim();
+      if (firstText.length < 24 || !/[0-9]/.test(firstText) || !/(mrp|price|rs|₹|kg|gm|\bml\b|expiry|mfg|qty|quantity)/i.test(firstText)) {
+        await worker.setParameters({ tessedit_pageseg_mode: '11' });
+        const sparseResult = await worker.recognize(optimizedImage);
+        const sparseText = (sparseResult.data.text || '').trim();
+        if (sparseText.length > firstText.length) data = sparseResult.data;
+      }
 
       const lines: OCRRawLine[] = [];
       if (data.lines && data.lines.length > 0) {
