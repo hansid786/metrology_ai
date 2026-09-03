@@ -2,7 +2,7 @@ import { InspectionResult, ProductCategory } from '../types/inspection';
 import { DEMO_PRESETS } from '../data/demoProducts';
 import { analyzeCompliance } from './complianceEngine';
 import { performRealImageOCR } from './realOcrService';
-import { preprocessImageForOCR } from '../utils/imagePreprocessor';
+import { convertToJpegDataUrl } from '../utils/imagePreprocessor';
 import { analyzeIngredients } from './ingredientAnalyzer';
 
 export interface OCRProcessingStage {
@@ -78,7 +78,7 @@ export class DemoOCRProvider implements OCRProvider {
     }
 
     // ── REAL IMAGE PIPELINE ─────────────────────────────────────────────────────
-    // Stage 1 – Image normalisation (HEIC → JPEG + contrast preprocessing)
+    // Stage 1 – Image normalisation (HEIC → JPEG + bounded resize)
     if (onStageUpdate) onStageUpdate({
       stage: 1, label: 'Normalising Image',
       detail: 'Converting format, suppressing glare & enhancing contrast for OCR...',
@@ -87,8 +87,7 @@ export class DemoOCRProvider implements OCRProvider {
 
     let processedUrl = imageUrl;
     try {
-      const preprocessed = await preprocessImageForOCR(imageUrl);
-      processedUrl = preprocessed.processedDataUrl;
+      processedUrl = await convertToJpegDataUrl(imageUrl);
     } catch (prepErr) {
       // Non-fatal – continue with original image
       console.warn('[MetrologyLens] Preprocessing skipped:', prepErr);
