@@ -102,11 +102,9 @@ Return ONLY a valid JSON object matching this schema:
     );
 
     let response = await requestVision(model);
-    if (!response.ok) {
-      response = await requestVision('gemini-2.0-flash');
-    }
-    if (!response.ok) {
-      response = await requestVision('gemini-1.5-flash');
+    for (const fallbackModel of ['gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-001', 'gemini-2.0-flash-lite', 'gemini-1.5-flash']) {
+      if (response.ok) break;
+      response = await requestVision(fallbackModel);
     }
 
     if (!response.ok) {

@@ -100,28 +100,10 @@ Return ONLY a valid JSON object matching this schema:
     );
 
     // If the current model fails or returns 404, fall back to older available models.
-    if (!response.ok) {
+    for (const fallbackModel of ['gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-001', 'gemini-2.0-flash-lite', 'gemini-1.5-flash']) {
+      if (response.ok) break;
       response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          signal: directController.signal,
-          body: JSON.stringify({
-            contents: [{
-              parts: [
-                { text: prompt },
-                { inline_data: { mime_type: mimeType, data: base64Image } }
-              ]
-            }],
-            generationConfig: { temperature: 0.0, maxOutputTokens: 1024 }
-          })
-        }
-      );
-    }
-    if (!response.ok) {
-      response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/${fallbackModel}:generateContent?key=${apiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
