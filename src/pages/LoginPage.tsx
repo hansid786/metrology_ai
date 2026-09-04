@@ -26,8 +26,15 @@ export const LoginPage: React.FC = () => {
 
   // 1-Click Officer Entry (Demo / SIH Hackathon mode)
   const handleOfficerProceed = () => {
-    authService.loginAsRole('INSPECTOR');
-    navigate('/dashboard');
+    try {
+      authService.loginAsRole('INSPECTOR');
+      navigate('/dashboard');
+    } catch (loginError) {
+      setShowCustomOfficerForm(true);
+      setError(lang === 'hi'
+        ? 'Officer login के लिए Supabase account configure करें या demo mode enable करें।'
+        : 'Configure a Supabase officer account or enable demo mode for officer access.');
+    }
   };
 
   // Custom Email/Passcode Login (Supabase or demo fallback)

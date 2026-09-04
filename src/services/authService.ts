@@ -5,12 +5,11 @@ const AUTH_KEY = 'metrologylens_auth';
 const AUTH_SOURCE_KEY = 'metrologylens_auth_source';
 
 function isDemoAuthEnabled(): boolean {
-  // Always allow demo auth for SIH hackathon.
-  // In a real production deployment, set VITE_ALLOW_DEMO_AUTH=false and configure Supabase.
+  // Prototype mode stays usable until a deployment explicitly opts into production auth.
   return Boolean(
     (import.meta as any).env?.DEV ||
     (import.meta as any).env?.VITE_ALLOW_DEMO_AUTH === 'true' ||
-    !(import.meta as any).env?.VITE_SUPABASE_URL
+    (import.meta as any).env?.VITE_PRODUCTION_AUTH !== 'true'
   );
 }
 
@@ -76,6 +75,10 @@ export const authService = {
   },
 
   isDemoAuthEnabled,
+
+  isDemoSession(): boolean {
+    return localStorage.getItem(AUTH_SOURCE_KEY) === 'demo';
+  },
 
   async hasValidSupabaseSession(): Promise<boolean> {
     const supabase = getSupabase();

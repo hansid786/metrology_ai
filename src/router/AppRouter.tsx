@@ -44,7 +44,8 @@ const OfficerRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   }, []);
 
   if (!sessionChecked) return <RouteLoading />;
-  if (!user || user.role === 'CITIZEN' || (isSupabaseConfigured() && !hasSession)) {
+  const demoSession = authService.isDemoSession();
+  if (!user || user.role === 'CITIZEN' || (isSupabaseConfigured() && !hasSession && !demoSession)) {
     return <Navigate to="/login" replace />;
   }
 
