@@ -240,7 +240,8 @@ export async function performRealImageOCR(
     tesseractResult.fullText || geminiResult.data?.rawText || '',
     tesseractResult.lines,
     geminiResult.data,
-    initialCategory
+    initialCategory,
+    fileName
   );
   const extractionMs = Date.now() - ext0;
 

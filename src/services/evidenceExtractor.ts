@@ -71,9 +71,10 @@ export function extractEvidenceDeclarations(
   rawOcrText: string,
   rawLines: OCRRawLine[],
   geminiData: any | null,
-  initialCategory: ProductCategory = 'FOOD'
+  initialCategory: ProductCategory = 'FOOD',
+  sourceHint = ''
 ): EvidenceExtractionResult {
-  const combinedText = `${rawOcrText}\n${geminiData?.rawText || ''}`.trim();
+  const combinedText = `${rawOcrText}\n${geminiData?.rawText || ''}\n${sourceHint}`.trim();
   
   // Combine all lines from rawLines and rawText
   const lines: string[] = [];
@@ -446,12 +447,14 @@ export function extractEvidenceDeclarations(
   if (geminiData?.category && ['FOOD', 'PHARMA', 'ELECTRONICS', 'GENERAL'].includes(geminiData.category)) {
     category = geminiData.category as ProductCategory;
   } else {
-    const isPharma = /\b(?:pharma|capsule|tablet|syrup|ointment|medicine|paracetamol|dolo|antibiotic|dosage|drops|ayurvedic|homeopathic|drug\s*licen[cs]e|schedule\s*h)\b/i.test(combinedText);
-    const isElec = /\b(?:\d+\s*mAh|power\s*bank|volt(?:age)?|watt(?:age)?|charger|usb|cable|battery|ampere|electronics?|earbuds?|adapter|router|bluetooth|lithium\s*ion|input\s*dc|output\s*dc)\b/i.test(combinedText);
-    const isBook = /book|notebook|pages|paper|itc|classmate|gsm|ruled|exercise\s*book/i.test(combinedText);
-    if (isPharma) category = 'PHARMA';
-    else if (isElec) category = 'ELECTRONICS';
-    else if (isBook) category = 'GENERAL';
+    const categoryScores: Array<[ProductCategory, number]> = [
+      ['PHARMA', (combinedText.match(/\b(?:pharma|capsule|tablet|syrup|ointment|medicine|paracetamol|dolo|antibiotic|dosage|drops|ayurvedic|homeopathic|drug\s*licen[cs]e|schedule\s*h)\b/gi) || []).length],
+      ['ELECTRONICS', (combinedText.match(/\b(?:\d+\s*mAh|power\s*bank|volt(?:age)?|watt(?:age)?|charger|usb|cable|battery|ampere|electronics?|earbuds?|adapter|router|bluetooth|lithium\s*ion|input\s*dc|output\s*dc)\b/gi) || []).length],
+      ['GENERAL', (combinedText.match(/\b(?:book|notebook|pages|paper|classmate|gsm|ruled|exercise\s*book|stationery|pencil|pen)\b/gi) || []).length],
+      ['COSMETICS', (combinedText.match(/\b(?:cosmetic|shampoo|conditioner|soap|lotion|cream|perfume|deodorant|face\s*wash|moisturizer|toothpaste)\b/gi) || []).length],
+    ];
+    const strongest = categoryScores.sort((left, right) => right[1] - left[1])[0];
+    if (strongest && strongest[1] > 0) category = strongest[0];
   }
 
   // ─── 10.5. INTELLIGENT COMMODITY RESOLVER & MASTER RECONCILIATION ──────────
