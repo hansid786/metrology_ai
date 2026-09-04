@@ -24,20 +24,16 @@ export const LoginPage: React.FC = () => {
     navigate('/consumer/scan');
   };
 
-  // 1-Click Officer Entry
+  // 1-Click Officer Entry (Demo / SIH Hackathon mode)
   const handleOfficerProceed = () => {
-    if (!authService.isDemoAuthEnabled()) {
-      setShowCustomOfficerForm(true);
-      setError(lang === 'hi' ? 'कृपया Supabase अधिकारी खाते से लॉगिन करें।' : 'Please sign in with your Supabase officer account.');
-      return;
-    }
     authService.loginAsRole('INSPECTOR');
     navigate('/dashboard');
   };
 
-  // Custom Email/Passcode Login
+  // Custom Email/Passcode Login (Supabase or demo fallback)
   const handleCustomOfficerLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     const user = await authService.loginWithSupabase(officerEmail, officerPassword);
     if (user) {
       navigate('/dashboard');

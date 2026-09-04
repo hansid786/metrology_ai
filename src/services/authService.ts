@@ -5,7 +5,13 @@ const AUTH_KEY = 'metrologylens_auth';
 const AUTH_SOURCE_KEY = 'metrologylens_auth_source';
 
 function isDemoAuthEnabled(): boolean {
-  return Boolean((import.meta as any).env?.DEV || (import.meta as any).env?.VITE_ALLOW_DEMO_AUTH === 'true');
+  // Always allow demo auth for SIH hackathon.
+  // In a real production deployment, set VITE_ALLOW_DEMO_AUTH=false and configure Supabase.
+  return Boolean(
+    (import.meta as any).env?.DEV ||
+    (import.meta as any).env?.VITE_ALLOW_DEMO_AUTH === 'true' ||
+    !(import.meta as any).env?.VITE_SUPABASE_URL
+  );
 }
 
 export const authService = {
