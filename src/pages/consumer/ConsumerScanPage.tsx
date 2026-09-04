@@ -120,6 +120,11 @@ export const ConsumerScanPage: React.FC = () => {
         primaryResult = aggregateMultiSideScans(primaryResult, additionalPayloads);
       }
 
+      const detectedDeclarations = primaryResult.declarations.filter(declaration => declaration.status !== 'NOT_DETECTED').length;
+      if (detectedDeclarations === 0 && !(primaryResult.rawOcrText || '').trim()) {
+        throw new Error('NO_READABLE_TEXT');
+      }
+
       primaryResult.inspectionId = inspectionId;
       primaryResult.inspector = {
         id: 'CITIZEN-VERIFIED',
@@ -184,9 +189,13 @@ export const ConsumerScanPage: React.FC = () => {
     } catch (err: any) {
       console.error('[MetrologyLens] Scan pipeline error:', err);
       setScanError(
-        lang === 'hi'
-          ? 'छवि से पर्याप्त पाठ पढ़ने में असमर्थ। कृपया अधिक स्पष्ट और केंद्रित फोटो अपलोड करें।'
-          : 'Unable to read sufficient text from this image. Please upload a clearer, well-lit image of the packaging label.'
+        err?.message === 'NO_READABLE_TEXT'
+          ? (lang === 'hi'
+            ? 'इस फोटो में पढ़ने योग्य पैकेजिंग टेक्स्ट नहीं मिला। MRP/quantity का close-up, सीधी और रोशनी वाली फोटो लें।'
+            : 'No readable packaging text was found. Capture a straight, well-lit close-up of the MRP and quantity label.')
+          : (lang === 'hi'
+            ? 'छवि से पर्याप्त पाठ पढ़ने में असमर्थ। कृपया अधिक स्पष्ट और केंद्रित फोटो अपलोड करें।'
+            : 'Unable to read sufficient text from this image. Please upload a clearer, well-lit image of the packaging label.')
       );
       setIsScanning(false);
     }

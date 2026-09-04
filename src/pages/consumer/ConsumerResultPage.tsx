@@ -627,6 +627,9 @@ Reported via MetrologyLens AI (Govt of India SIH Initiative)`;
                       <div className="text-[11px] font-mono text-slate-600">
                         {decl.extractedValue}
                       </div>
+                      <div className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">
+                        {decl.evidence?.isEvidenceBacked ? 'Source: package image' : 'Source: not visible on scanned side'}
+                      </div>
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">
