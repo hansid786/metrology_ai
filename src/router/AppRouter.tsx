@@ -44,8 +44,10 @@ const OfficerRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   }, []);
 
   if (!sessionChecked) return <RouteLoading />;
-  const demoSession = authService.isDemoSession();
-  if (!user || user.role === 'CITIZEN' || (isSupabaseConfigured() && !hasSession && !demoSession)) {
+
+  // Allow access if: user exists + not a citizen + (no supabase OR has valid supabase session)
+  const hasAccess = user && user.role !== 'CITIZEN' && (!isSupabaseConfigured() || hasSession);
+  if (!hasAccess) {
     return <Navigate to="/login" replace />;
   }
 
