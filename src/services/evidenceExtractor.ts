@@ -39,6 +39,14 @@ export interface EvidenceExtractionResult {
 function cleanLine(text: string): string {
   return text.replace(/\s+/g, ' ').trim();
 }
+function normalizeOcrLine(text: string): string {
+  return cleanLine(text)
+    .replace(/[₹]/g, ' Rs ')
+    .replace(/\bM\s*\.\s*R\s*\.\s*P\b/gi, 'MRP')
+    .replace(/\bN\s*\.\s*W\s*\.\s*T\b/gi, 'NET WT')
+    .replace(/\bN\s*\.\s*Q\s*\.\s*T\b/gi, 'NET QTY')
+    .replace(/\b(?:MPR|NRP|MR\.P)\b/gi, 'MRP');
+}
 
 /**
  * Normalizes metric quantity units to Legal Metrology statutory standards.
@@ -71,13 +79,13 @@ export function extractEvidenceDeclarations(
   const lines: string[] = [];
   if (rawLines && rawLines.length > 0) {
     rawLines.forEach(l => {
-      if (l.text && l.text.trim().length > 0) lines.push(cleanLine(l.text));
+      if (l.text && l.text.trim().length > 0) lines.push(normalizeOcrLine(l.text));
     });
   }
   combinedText.split('\n').forEach(l => {
     const cleaned = cleanLine(l);
     if (cleaned.length > 0 && !lines.includes(cleaned)) {
-      lines.push(cleaned);
+      lines.push(normalizeOcrLine(cleaned));
     }
   });
 
@@ -110,18 +118,13 @@ export function extractEvidenceDeclarations(
 
   // Patterns for MRP
   const mrpPatterns = [
-    // 1. Explicit MRP with label
-    /(?:m\.?\s*r\.?\s*p\.?|max(?:imum)?\.?\s*retail\s*price|mrp)\s*[:.\-]?\s*(?:rs\.?|inr|₹)?\s*([0-9]+(?:\.[0-9]{1,2})?)/i,
-    // 2. "Rs." or "₹" followed by amount and taxes
-    /(?:rs\.?|inr|₹)\s*[:.\-]?\s*([0-9]+(?:\.[0-9]{1,2})?)\s*(?:\/-|\(?(?:incl|inclusive|tax|mrp))/i,
-    // 3. Currency symbol directly before number
+    /(?:m\s*\.?\s*r\s*\.?\s*p\s*\.?|max(?:imum)?\.?\s*retail\s*price)\s*[:.\-]?\s*(?:rs\.?|inr|₹)?\s*([0-9]+(?:\.[0-9]{1,2})?)/i,
+    /(?:rs\.?|inr|₹)\s*[:.\-]?\s*([0-9]+(?:\.[0-9]{1,2})?)\s*(?:\/\-|\(?(?:incl|inclusive|tax|mrp))?/i,
     /[₹]\s*([0-9]+(?:\.[0-9]{1,2})?)/,
-    // 4. "Rs." or "Rs" before number
-    /(?:^|\s)rs\.?\s*([0-9]+(?:\.[0-9]{1,2})?)(?:\s|\/|-|$)/i,
-    // 5. Amount followed by "/-" (common Indian price stamp)
-    /(?:^|\s)([0-9]+(?:\.[0-9]{1,2})?)\s*\/-/i,
-    // 6. Number followed by "(Incl. of all taxes)"
+    /(?:^|\s)rs\.?\s*[:.\-]?\s*([0-9]+(?:\.[0-9]{1,2})?)(?:\s|\/|-|$)/i,
+    /(?:^|\s)([0-9]+(?:\.[0-9]{1,2})?)\s*\/\-/i,
     /([0-9]+(?:\.[0-9]{1,2})?)\s*(?:\(?(?:incl|inclusive)\s*(?:of\s*)?all\s*taxes\)?)/i,
+    /\b(?:mrp|price)\b[^0-9]{0,12}([0-9]+(?:\.[0-9]{1,2})?)/i,
   ];
 
   function validateMRPCandidate(val: number, line: string): { isValid: boolean; reason?: string } {
@@ -199,7 +202,7 @@ export function extractEvidenceDeclarations(
 
   const qtyPatterns = [
     // 1. Explicit Net Qty label
-    /(?:net\s*(?:wt|weight|qty|quantity|vol|volume|content|contents))\s*[:.\-]?\s*([0-9]+(?:\.[0-9]+)?)\s*(kg|g|gm|gms|grams|ml|l|ltr|litre|litres|tablets|tabs|capsules|caps|pages|sheets|nos|units|pieces|pcs|m|cm|u|n)\b/i,
+    /(?:n[e3]t\s*(?:wt|w|weight|qty|q t y|quantity|vol|volume|content|contents))\s*[:.\-]?\s*([0-9]+(?:\.[0-9]+)?)\s*(kg|g|gm|gms|grams|ml|l|ltr|litre|litres|tablets|tabs|capsules|caps|pages|sheets|nos|units|pieces|pcs|m|cm|u|n)\b/i,
     // 2. Quantity followed by standard unit (e.g. 500g, 250ml, 1 kg)
     /(?:^|\s)([0-9]+(?:\.[0-9]+)?)\s*(kg|g|gm|gms|grams|ml|l|ltr|litre|litres|tablets|tabs|capsules|caps|pages|sheets|nos|units|pieces|pcs|u|n)\b/i,
     // 3. Count indicator e.g. "Pack of 10", "10 N", "1 Unit"
