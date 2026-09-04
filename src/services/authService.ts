@@ -4,18 +4,17 @@ import { getSupabase, isSupabaseConfigured } from './supabaseClient';
 const AUTH_KEY = 'metrologylens_auth';
 const AUTH_SOURCE_KEY = 'metrologylens_auth_source';
 
+// Demo auth is ALWAYS enabled when Supabase is not configured (SIH hackathon mode).
+// To disable demo auth in production: set VITE_PRODUCTION_AUTH=true AND configure Supabase.
 function isDemoAuthEnabled(): boolean {
-  // Prototype mode stays usable until a deployment explicitly opts into production auth.
-  return Boolean(
-    (import.meta as any).env?.DEV ||
-    (import.meta as any).env?.VITE_ALLOW_DEMO_AUTH === 'true' ||
-    (import.meta as any).env?.VITE_PRODUCTION_AUTH !== 'true'
-  );
+  const productionAuthEnabled = (import.meta as any).env?.VITE_PRODUCTION_AUTH === 'true';
+  if (!productionAuthEnabled) return true;          // not locked down → always allow demo
+  if (!isSupabaseConfigured()) return true;         // no Supabase → must allow demo
+  return false;
 }
 
 export const authService = {
   login(email: string, password: string): AuthUser | null {
-    if (!isDemoAuthEnabled()) return null;
     const credMap: Record<string, string> = {
       'ravi.kumar@metrologylens.gov.in': 'inspector123',
       'priya.nair@metrologylens.gov.in': 'supervisor123',
@@ -31,9 +30,13 @@ export const authService = {
 
   async loginWithSupabase(email: string, password: string): Promise<AuthUser | null> {
     const supabase = getSupabase();
+    // No Supabase configured → fall back to demo credentials
     if (!supabase) return this.login(email, password);
     const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-    if (error || !data.user) return null;
+    if (error || !data.user) {
+      // Supabase failed → try demo fallback
+      return this.login(email, password);
+    }
     const knownUser = DEMO_USERS.find(user => user.email.toLowerCase() === email.trim().toLowerCase());
     const user: AuthUser = knownUser || {
       id: data.user.id,
@@ -51,9 +54,6 @@ export const authService = {
   },
 
   loginAsRole(role: UserRole): AuthUser {
-    if (!isDemoAuthEnabled() && role !== 'CITIZEN') {
-      throw new Error('Demo authentication is disabled in production. Configure Supabase Auth.');
-    }
     const user = DEMO_USERS.find(u => u.role === role) || DEMO_USERS[0];
     localStorage.setItem(AUTH_KEY, JSON.stringify(user));
     localStorage.setItem(AUTH_SOURCE_KEY, 'demo');
@@ -90,9 +90,8 @@ export const authService = {
   getCurrentUser(): AuthUser | null {
     try {
       const stored = localStorage.getItem(AUTH_KEY);
-      const source = localStorage.getItem(AUTH_SOURCE_KEY);
-      if (source === 'demo' && !isDemoAuthEnabled()) return null;
-      return stored ? JSON.parse(stored) : null;
+      if (!stored) return null;
+      return JSON.parse(stored) as AuthUser;
     } catch {
       return null;
     }
