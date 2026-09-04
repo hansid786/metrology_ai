@@ -26,14 +26,19 @@ export const LoginPage: React.FC = () => {
 
   // 1-Click Officer Entry
   const handleOfficerProceed = () => {
+    if (!authService.isDemoAuthEnabled()) {
+      setShowCustomOfficerForm(true);
+      setError(lang === 'hi' ? 'कृपया Supabase अधिकारी खाते से लॉगिन करें।' : 'Please sign in with your Supabase officer account.');
+      return;
+    }
     authService.loginAsRole('INSPECTOR');
     navigate('/dashboard');
   };
 
   // Custom Email/Passcode Login
-  const handleCustomOfficerLogin = (e: React.FormEvent) => {
+  const handleCustomOfficerLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const user = authService.login(officerEmail, officerPassword);
+    const user = await authService.loginWithSupabase(officerEmail, officerPassword);
     if (user) {
       navigate('/dashboard');
     } else {
