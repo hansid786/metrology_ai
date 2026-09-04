@@ -1,10 +1,9 @@
-import React, { lazy, Suspense, useEffect, useState } from 'react';
+import React, { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout';
 import { ConsumerLayout } from '../components/layout/ConsumerLayout';
 import { LoginPage } from '../pages/LoginPage';
 import { authService } from '../services/authService';
-import { isSupabaseConfigured } from '../services/supabaseClient';
 
 const ConsumerScanPage = lazy(() => import('../pages/consumer/ConsumerScanPage').then(module => ({ default: module.ConsumerScanPage })));
 const ConsumerResultPage = lazy(() => import('../pages/consumer/ConsumerResultPage').then(module => ({ default: module.ConsumerResultPage })));
@@ -28,29 +27,19 @@ const RouteLoading: React.FC = () => (
 
 const OfficerRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const user = authService.getCurrentUser();
-  const [sessionChecked, setSessionChecked] = useState(!isSupabaseConfigured());
-  const [hasSession, setHasSession] = useState(!isSupabaseConfigured());
+  const isDemoSession = authService.isDemoSession();
 
-  useEffect(() => {
-    if (!isSupabaseConfigured()) return;
-    let active = true;
-    authService.hasValidSupabaseSession().then(valid => {
-      if (active) {
-        setHasSession(valid);
-        setSessionChecked(true);
-      }
-    });
-    return () => { active = false; };
-  }, []);
+  // Demo session → allow immediately, no Supabase check needed
+  if (user && user.role !== 'CITIZEN' && isDemoSession) {
+    return <AppLayout>{children}</AppLayout>;
+  }
 
-  if (!sessionChecked) return <RouteLoading />;
-
-  // Allow access if: user exists + not a citizen + (no supabase OR has valid supabase session)
-  const hasAccess = user && user.role !== 'CITIZEN' && (!isSupabaseConfigured() || hasSession);
-  if (!hasAccess) {
+  // No user at all → go to login
+  if (!user || user.role === 'CITIZEN') {
     return <Navigate to="/login" replace />;
   }
 
+  // Supabase session → render (Supabase session is validated at login time)
   return <AppLayout>{children}</AppLayout>;
 };
 
