@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   MessageSquare, X, Send, Bot, User, Sparkles, PhoneCall,
-  ShieldCheck, HelpCircle, ChevronRight, Volume2, RotateCcw, Check, MessageCircle, Copy, Trash2
+  ShieldCheck, HelpCircle, ChevronRight, Volume2, RotateCcw, Check, MessageCircle, Copy, Trash2, Mic, ThumbsUp, ThumbsDown, Camera, FileWarning
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
-import { generateChatbotResponse } from '../../services/chatbotEngine';
+import { generateChatbotResponse, ChatInspectionContext } from '../../services/chatbotEngine';
+import { persistenceService } from '../../services/persistenceService';
 
 interface Message {
   id: string;
@@ -12,6 +14,7 @@ interface Message {
   text: string;
   timestamp: string;
   suggestedFollowups?: string[];
+  feedback?: 'up' | 'down';
 }
 
 const DEFAULT_PROMPTS = [
@@ -37,6 +40,7 @@ function renderMessageText(text: string): React.ReactNode {
 
 export const MetrologyChatBot: React.FC = () => {
   const { lang } = useLanguage();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>(() => {
     try {
@@ -56,7 +60,9 @@ export const MetrologyChatBot: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [speakingId, setSpeakingId] = useState<string | null>(null);
+  const [isListening, setIsListening] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
     try {
@@ -72,6 +78,50 @@ export const MetrologyChatBot: React.FC = () => {
 
   const copyMessage = async (text: string) => {
     try { await navigator.clipboard.writeText(text.replace(/\*\*/g, '')); } catch { /* clipboard may be unavailable */ }
+  };
+
+  const getLatestScanContext = (): ChatInspectionContext | undefined => {
+    const latest = persistenceService.getConsumerInspections()[0];
+    if (!latest) return undefined;
+    const result = latest.result;
+    return {
+      productName: result.product.name || latest.metadata.productName,
+      category: result.product.category || latest.metadata.productCategory,
+      overallStatus: result.overallStatus,
+      compliancePercentage: result.compliancePercentage,
+      mrpAmount: result.pricing.mrpAmount,
+      quantity: `${result.pricing.netQuantityValue || 'Not detected'} ${result.pricing.netQuantityUnit || ''}`.trim(),
+      expiry: result.manufacturingDates?.expiryDate || result.manufacturingDates?.bestBefore || 'Not detected',
+      discrepancy: result.pricing.hasPrintedUSP ? `${result.pricing.printedUSPText || 'Declared'} (${result.pricing.differencePercentage}% difference)` : 'Not detected',
+      findings: result.findings.filter(f => f.severity === 'CRITICAL' || f.severity === 'WARNING').map(f => f.title),
+    };
+  };
+
+  const handleFeedback = (messageId: string, feedback: 'up' | 'down') => {
+    setMessages(prev => prev.map(message => message.id === messageId ? { ...message, feedback } : message));
+    try { localStorage.setItem(`metrologylens_chat_feedback_${messageId}`, feedback); } catch { /* optional feedback */ }
+  };
+
+  const handleVoiceInput = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setInputValue(lang === 'hi' ? 'Voice input इस browser में उपलब्ध नहीं है।' : 'Voice input is not supported in this browser.');
+      return;
+    }
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.lang = lang === 'hi' ? 'hi-IN' : 'en-IN';
+    recognition.interimResults = false;
+    recognition.onresult = (event: any) => setInputValue(event.results[0][0].transcript);
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = () => setIsListening(false);
+    recognitionRef.current = recognition;
+    setIsListening(true);
+    recognition.start();
   };
 
   // Text to Speech
@@ -112,7 +162,7 @@ export const MetrologyChatBot: React.FC = () => {
     setIsTyping(true);
 
     setTimeout(() => {
-      const response = generateChatbotResponse(query, lang);
+      const response = generateChatbotResponse(query, lang, getLatestScanContext());
 
       const botMsg: Message = {
         id: `bot-${Date.now()}`,
@@ -145,6 +195,7 @@ export const MetrologyChatBot: React.FC = () => {
   };
 
   const latestFollowups = messages[messages.length - 1]?.suggestedFollowups || DEFAULT_PROMPTS;
+  const latestScan = persistenceService.getConsumerInspections()[0];
 
   return (
     <>
@@ -244,6 +295,8 @@ export const MetrologyChatBot: React.FC = () => {
                           <Volume2 className={`w-3 h-3 ${speakingId === msg.id ? 'text-blue-600 animate-pulse' : ''}`} />
                           <span>{speakingId === msg.id ? (lang === 'hi' ? 'बोल रहा है...' : 'Speaking...') : (lang === 'hi' ? 'सुनें' : 'Listen')}</span>
                         </button>
+                        <button onClick={() => handleFeedback(msg.id, 'up')} className={msg.feedback === 'up' ? 'text-emerald-600' : 'text-slate-400 hover:text-emerald-600'} title="Helpful"><ThumbsUp className="w-3 h-3" /></button>
+                        <button onClick={() => handleFeedback(msg.id, 'down')} className={msg.feedback === 'down' ? 'text-rose-600' : 'text-slate-400 hover:text-rose-600'} title="Not helpful"><ThumbsDown className="w-3 h-3" /></button>
                       </div>
                     )}
                   </div>
@@ -289,6 +342,12 @@ export const MetrologyChatBot: React.FC = () => {
             </div>
           )}
 
+          <div className="px-3 py-2 bg-white border-t border-slate-100 flex gap-2 overflow-x-auto">
+            <button onClick={() => navigate('/consumer/scan')} className="shrink-0 px-2.5 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-[10px] font-bold text-emerald-800 flex items-center gap-1 cursor-pointer"><Camera className="w-3 h-3" /> Scan product</button>
+            <button onClick={() => handleSend('Explain my latest scan')} disabled={!latestScan} className="shrink-0 px-2.5 py-1.5 rounded-lg bg-blue-50 border border-blue-200 text-[10px] font-bold text-blue-800 flex items-center gap-1 cursor-pointer disabled:opacity-40"><FileWarning className="w-3 h-3" /> Explain latest</button>
+            <button onClick={() => navigate('/consumer/history')} className="shrink-0 px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-[10px] font-bold text-slate-700 flex items-center gap-1 cursor-pointer"><MessageCircle className="w-3 h-3" /> My scans</button>
+          </div>
+
           {/* Input Box */}
           <form
             onSubmit={(e) => {
@@ -304,6 +363,9 @@ export const MetrologyChatBot: React.FC = () => {
               placeholder={lang === 'hi' ? 'कानूनी प्रश्न पूछें (उदा. Section 36 penalty)...' : 'Type legal query (e.g. Rule 6 overcharging)...'}
               className="flex-1 bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-500"
             />
+            <button type="button" onClick={handleVoiceInput} className={`p-2.5 rounded-xl border cursor-pointer ${isListening ? 'bg-rose-50 border-rose-300 text-rose-600' : 'bg-slate-100 border-slate-200 text-slate-500 hover:text-blue-600'}`} title="Voice input">
+              <Mic className={`w-4 h-4 ${isListening ? 'animate-pulse' : ''}`} />
+            </button>
             <button
               type="submit"
               disabled={!inputValue.trim()}

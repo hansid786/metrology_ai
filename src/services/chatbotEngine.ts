@@ -5,6 +5,18 @@ export interface ChatResponse {
   suggestedFollowups?: string[];
 }
 
+export interface ChatInspectionContext {
+  productName: string;
+  category: string;
+  overallStatus: string;
+  compliancePercentage: number;
+  mrpAmount: number;
+  quantity: string;
+  expiry: string;
+  discrepancy: string;
+  findings: string[];
+}
+
 interface IntentPattern {
   keywords: (string | RegExp)[];
   handler: (query: string, lang: Language, isHinglish: boolean) => ChatResponse;
@@ -16,12 +28,31 @@ const DEFAULT_FOLLOWUPS = [
   'What can you help me with?'
 ];
 
-export function generateChatbotResponse(rawQuery: string, lang: Language): ChatResponse {
+export function generateChatbotResponse(rawQuery: string, lang: Language, context?: ChatInspectionContext): ChatResponse {
   const query = rawQuery.trim();
   const qLower = query.toLowerCase();
 
   // Detect Hinglish (Roman script Hindi)
   const isHinglish = /\b(kya|kaise|karo|batao|kuch|paise|jyada|zyada|chahiye|nahi|hota|hoga|hota|wala|wali|dukan|dukandar|shikayat|karna|h|hai|ho|raha|rahi|tha|thi|mere|tera|hum|apna|pani|khareeda|le|sakta|liya)\b/i.test(qLower);
+
+  if (context && /(my scan|latest scan|scanned product|scan result|is product|mere scan|meri report|ye product|this product|result explain|explain.*scan|scan.*explain)/i.test(qLower)) {
+    const findingText = context.findings.length > 0 ? context.findings.slice(0, 3).join('; ') : 'No critical finding was recorded.';
+    return {
+      text: lang === 'hi' || isHinglish
+        ? `🔎 **आपके latest scan का सारांश**\n• Product: ${context.productName}\n• Category: ${context.category}\n• MRP: ₹${context.mrpAmount || 'Not detected'}\n• Quantity: ${context.quantity}\n• Expiry/Best Before: ${context.expiry}\n• Compliance: ${context.compliancePercentage}% (${context.overallStatus})\n• USP: ${context.discrepancy}\n\nमुख्य findings: ${findingText}\n\nयह AI screening है; final legal decision के लिए package और bill की manual verification करें।`
+        : `🔎 **Your latest scan summary**\n• Product: ${context.productName}\n• Category: ${context.category}\n• MRP: ₹${context.mrpAmount || 'Not detected'}\n• Quantity: ${context.quantity}\n• Expiry/Best Before: ${context.expiry}\n• Compliance: ${context.compliancePercentage}% (${context.overallStatus})\n• USP: ${context.discrepancy}\n\nKey findings: ${findingText}\n\nThis is an AI screening result; verify the package and bill manually before taking legal action.`,
+      suggestedFollowups: ['Why was this product flagged?', 'How do I file a complaint?', 'Scan another product'],
+    };
+  }
+
+  if (context && /(why.*flag|why.*fail|violation|problem.*product|issue.*product|kya problem|problem kya)/i.test(qLower)) {
+    return {
+      text: lang === 'hi' || isHinglish
+        ? `इस scan का status **${context.overallStatus}** है और compliance score **${context.compliancePercentage}%** है। Findings: ${context.findings.length ? context.findings.join('; ') : 'कोई स्पष्ट violation दर्ज नहीं है।'} कृपया दूसरे package sides और bill से cross-check करें।`
+        : `This scan is marked **${context.overallStatus}** with a compliance score of **${context.compliancePercentage}%**. Findings: ${context.findings.length ? context.findings.join('; ') : 'No clear violation was recorded.'} Cross-check other package sides and the bill before deciding.`,
+      suggestedFollowups: ['Explain my latest scan', 'How do I file a complaint?', 'Scan another product'],
+    };
+  }
 
   // 1. EXACT PRESET PROMPTS & CORE LEGAL CHECKLIST
   // Prompt 1: Unit Sale Price on Electronics
