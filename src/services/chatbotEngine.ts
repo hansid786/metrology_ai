@@ -10,6 +10,12 @@ interface IntentPattern {
   handler: (query: string, lang: Language, isHinglish: boolean) => ChatResponse;
 }
 
+const DEFAULT_FOLLOWUPS = [
+  'How to file an overcharging complaint under Rule 6?',
+  'What are the 8 mandatory declarations?',
+  'What can you help me with?'
+];
+
 export function generateChatbotResponse(rawQuery: string, lang: Language): ChatResponse {
   const query = rawQuery.trim();
   const qLower = query.toLowerCase();
@@ -328,11 +334,56 @@ export function generateChatbotResponse(rawQuery: string, lang: Language): ChatR
     };
   }
 
+  if (/(thank|thanks|धन्यवाद|shukriya|bye|goodbye|see you)/i.test(qLower)) {
+    return {
+      text: lang === 'hi' || isHinglish
+        ? 'आपका स्वागत है। किसी भी पैकेजिंग, MRP या उपभोक्ता शिकायत के लिए मैं यहां हूं।'
+        : 'You are welcome. I can help with packaging, MRP, quantity, and consumer complaints anytime.',
+      suggestedFollowups: DEFAULT_FOLLOWUPS,
+    };
+  }
+
+  if (/(mrp|maximum retail|price|daam|rate|zyada charge|overcharg|bill|receipt|invoice)/i.test(qLower)) {
+    return {
+      text: lang === 'hi' || isHinglish
+        ? 'MRP पैकेट पर छपी अधिकतम कीमत है और इसमें लागू टैक्स शामिल होते हैं। दुकानदार MRP से अधिक नहीं ले सकता। बिल/रसीद संभालकर रखें और अधिक वसूली होने पर 1915 या consumerhelpline.gov.in पर शिकायत करें।'
+        : 'MRP is the maximum retail price printed on the package and includes applicable taxes. A retailer cannot charge more than MRP. Keep the bill and report overcharging to 1915 or consumerhelpline.gov.in.',
+      suggestedFollowups: ['How to file an overcharging complaint under Rule 6?', 'Can shops charge extra for cooling / fridge?', 'What are the 8 mandatory declarations?'],
+    };
+  }
+
+  if (/(return|refund|replacement|warranty|defect|damaged|खराब|वापस|रिफंड)/i.test(qLower)) {
+    return {
+      text: lang === 'hi' || isHinglish
+        ? 'खराब या गलत उत्पाद के लिए पहले विक्रेता/प्लेटफॉर्म को बिल, फोटो और ऑर्डर विवरण के साथ लिखित शिकायत दें। समाधान न मिले तो National Consumer Helpline 1915 या consumerhelpline.gov.in पर शिकायत करें। वारंटी और रिफंड की शर्तें उत्पाद की नीति के अनुसार अलग हो सकती हैं।'
+        : 'For a defective or incorrect product, first complain to the seller or platform in writing with the bill, photos, and order details. If unresolved, contact the National Consumer Helpline at 1915 or consumerhelpline.gov.in. Warranty and refund terms can vary by product policy.',
+      suggestedFollowups: ['How to file an overcharging complaint under Rule 6?', 'What are my consumer rights?', 'Can I file a complaint online?'],
+    };
+  }
+
+  if (/(online|amazon|flipkart|ecommerce|e-commerce|delivery|shopping)/i.test(qLower)) {
+    return {
+      text: lang === 'hi' || isHinglish
+        ? 'ऑनलाइन खरीदारी में product page, seller name, invoice, delivery package और return policy के screenshots रखें। MRP से अधिक वसूली, गलत वस्तु या नकली उत्पाद की शिकायत पहले platform पर और फिर consumerhelpline.gov.in पर करें।'
+        : 'For online purchases, save the product page, seller name, invoice, delivery-package photos, and return policy. Report overcharging, wrong goods, or suspected counterfeit products to the platform first and then consumerhelpline.gov.in if unresolved.',
+      suggestedFollowups: ['How to file an overcharging complaint under Rule 6?', 'What are my consumer rights?', 'How do I report a fake product?'],
+    };
+  }
+
+  if (/(what can you do|who are you|help|madad|helpful|capabilit)/i.test(qLower)) {
+    return {
+      text: lang === 'hi' || isHinglish
+        ? 'मैं MRP, net quantity, USP, expiry, FSSAI/BIS, पैकेजिंग घोषणाएं, वजन की कमी, cooling charge, शिकायत प्रक्रिया और scanner इस्तेमाल करने में मदद कर सकता हूं। किसी घटना के लिए उत्पाद, कीमत, दुकान और तारीख बताएं।'
+        : 'I can help with MRP, net quantity, USP, expiry, FSSAI/BIS, packaging declarations, short weight, cooling charges, complaint filing, and using the scanner. For an incident, share the product, price, seller, and date.',
+      suggestedFollowups: DEFAULT_FOLLOWUPS,
+    };
+  }
+
   // 14. DYNAMIC INTELLIGENT FALLBACK (Handles ANY arbitrary user query naturally)
-  const cleanQ = query.slice(0, 60);
+  const cleanQ = query.slice(0, 100);
   if (lang === 'hi' || isHinglish) {
     return {
-      text: `📋 **विधिक मापविज्ञान एवं उपभोक्ता विधिक सलाह:**\nआपने पूछा: *"${cleanQ}"*\n\nविधिक मापविज्ञान अधिनियम, 2009 और उपभोक्ता संरक्षण नियमों के तहत, पैकेज्ड वस्तुओं पर सही मूल्य (MRP), सटीक वजन, और स्पष्ट घोषणाएं पाना आपका कानूनी अधिकार है।\n\nयदि आपके साथ कोई विसंगति हुई है या किसी नियम की पुष्टि करनी है, तो **1915 (टोल-फ्री)** पर कॉल करें या नीचे दिए गए विषयों में से चुनें:`,
+      text: `📋 **मैं इस प्रश्न का निश्चित उत्तर नहीं दे पा रहा हूं:**\nआपने पूछा: *"${cleanQ}"*\n\nमैं Legal Metrology और consumer complaints पर मदद कर सकता हूं। कृपया उत्पाद, MRP, net quantity, दुकान, बिल, तारीख या समस्या का थोड़ा context दें। आप 1915 (टोल-फ्री) पर भी सहायता ले सकते हैं।`,
       suggestedFollowups: [
         'Is Unit Sale Price mandatory on electronic items?',
         'How to file an overcharging complaint under Rule 6?',
@@ -341,7 +392,7 @@ export function generateChatbotResponse(rawQuery: string, lang: Language): ChatR
     };
   } else {
     return {
-      text: `📋 **Legal Metrology Statutory Guidance:**\nRegarding your query: *"${cleanQ}"*\n\nUnder the Legal Metrology Act, 2009 and Packaged Commodities Rules, 2011, all retail packages must declare accurate pricing, certified net quantities, and mandatory manufacturer disclosures.\n\nFor grievances, dial **1915 (Toll-Free)** or choose a statutory topic below:`,
+      text: `📋 **I need a little more context to answer accurately:**\nYou asked: *"${cleanQ}"*\n\nI can help with Legal Metrology, packaging declarations, MRP, quantity, expiry, and consumer complaints. Share the product, seller, price, bill, date, or exact issue. For official help, call **1915 (Toll-Free)**.`,
       suggestedFollowups: [
         'Is Unit Sale Price mandatory on electronic items?',
         'How to file an overcharging complaint under Rule 6?',

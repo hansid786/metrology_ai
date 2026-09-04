@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   MessageSquare, X, Send, Bot, User, Sparkles, PhoneCall,
-  ShieldCheck, HelpCircle, ChevronRight, Volume2, RotateCcw, Check, MessageCircle
+  ShieldCheck, HelpCircle, ChevronRight, Volume2, RotateCcw, Check, MessageCircle, Copy, Trash2
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { generateChatbotResponse } from '../../services/chatbotEngine';
@@ -20,30 +20,59 @@ const DEFAULT_PROMPTS = [
   'What are the penalty rules under Section 36(1)?',
 ];
 
+const CHAT_STORAGE_KEY = 'metrologylens_chat_history_v2';
+
+function renderMessageText(text: string): React.ReactNode {
+  return text.split('\n').map((line, index) => (
+    <React.Fragment key={`${line}-${index}`}>
+      {line.split(/(\*\*[^*]+\*\*)/g).map((part, partIndex) =>
+        part.startsWith('**') && part.endsWith('**')
+          ? <strong key={partIndex}>{part.slice(2, -2)}</strong>
+          : part
+      )}
+      {index < text.split('\n').length - 1 && <br />}
+    </React.Fragment>
+  ));
+}
+
 export const MetrologyChatBot: React.FC = () => {
   const { lang } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
+  const [messages, setMessages] = useState<Message[]>(() => {
+    try {
+      const stored = localStorage.getItem(CHAT_STORAGE_KEY);
+      if (stored) return JSON.parse(stored) as Message[];
+    } catch { /* use welcome state */ }
+    return [{
       id: 'welcome',
-      sender: 'bot',
+      sender: 'bot' as const,
       text: lang === 'hi'
         ? 'नमस्ते! 🙏 मैं **AI Legal Assistant** हूँ।\nविधिक मापविज्ञान अधिनियम, 2009 और उपभोक्ता अधिकारों पर तुरंत कानूनी जानकारी पाने के लिए नीचे दिए गए प्रॉम्प्ट्स पर टैप करें या अपना प्रश्न पूछें:'
         : 'Hello! 👋 I am the **AI Legal Assistant** under the Legal Metrology Act, 2009.\nTap a prompt chip below or type any legal query for instant statutory citations:',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       suggestedFollowups: DEFAULT_PROMPTS,
-    },
-  ]);
+    }];
+  });
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [speakingId, setSpeakingId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    try {
+      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages.slice(-40)));
+    } catch { /* chat remains usable if storage is unavailable */ }
+  }, [messages]);
+
+  useEffect(() => {
     if (isOpen) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, isOpen, isTyping]);
+
+  const copyMessage = async (text: string) => {
+    try { await navigator.clipboard.writeText(text.replace(/\*\*/g, '')); } catch { /* clipboard may be unavailable */ }
+  };
 
   // Text to Speech
   const handleSpeak = (msgId: string, text: string) => {
@@ -112,6 +141,7 @@ export const MetrologyChatBot: React.FC = () => {
         suggestedFollowups: DEFAULT_PROMPTS,
       },
     ]);
+    localStorage.removeItem(CHAT_STORAGE_KEY);
   };
 
   const latestFollowups = messages[messages.length - 1]?.suggestedFollowups || DEFAULT_PROMPTS;
@@ -153,6 +183,7 @@ export const MetrologyChatBot: React.FC = () => {
                 <p className="text-[10px] text-blue-300 font-medium">
                   {lang === 'hi' ? 'विधिक मापविज्ञान अधिनियम, 2009' : 'Legal Metrology Act, 2009 & PCR 2011'}
                 </p>
+                <span className="text-[9px] text-emerald-300 font-bold">{lang === 'hi' ? 'ऑफलाइन सहायता • चैट सेव है' : 'Offline assistant • chat saved'}</span>
               </div>
             </div>
 
@@ -197,8 +228,8 @@ export const MetrologyChatBot: React.FC = () => {
                       : 'bg-white text-slate-800 border border-slate-200 rounded-tl-xs shadow-xs'
                   }`}
                 >
-                  <div className="whitespace-pre-line font-normal">
-                    {msg.text}
+                  <div className="font-normal">
+                    {renderMessageText(msg.text)}
                   </div>
 
                   <div className="flex items-center justify-between mt-2 pt-1 border-t border-slate-100/60 text-[9px]">
@@ -207,14 +238,13 @@ export const MetrologyChatBot: React.FC = () => {
                     </span>
 
                     {msg.sender === 'bot' && (
-                      <button
-                        onClick={() => handleSpeak(msg.id, msg.text)}
-                        className="text-slate-400 hover:text-blue-600 flex items-center gap-1 cursor-pointer ml-2"
-                        title="Read out loud"
-                      >
-                        <Volume2 className={`w-3 h-3 ${speakingId === msg.id ? 'text-blue-600 animate-pulse' : ''}`} />
-                        <span>{speakingId === msg.id ? (lang === 'hi' ? 'बोल रहा है...' : 'Speaking...') : (lang === 'hi' ? 'सुनें' : 'Listen')}</span>
-                      </button>
+                      <div className="flex items-center gap-2 ml-2">
+                        <button onClick={() => copyMessage(msg.text)} className="text-slate-400 hover:text-blue-600 cursor-pointer" title="Copy response"><Copy className="w-3 h-3" /></button>
+                        <button onClick={() => handleSpeak(msg.id, msg.text)} className="text-slate-400 hover:text-blue-600 flex items-center gap-1 cursor-pointer" title="Read out loud">
+                          <Volume2 className={`w-3 h-3 ${speakingId === msg.id ? 'text-blue-600 animate-pulse' : ''}`} />
+                          <span>{speakingId === msg.id ? (lang === 'hi' ? 'बोल रहा है...' : 'Speaking...') : (lang === 'hi' ? 'सुनें' : 'Listen')}</span>
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>
