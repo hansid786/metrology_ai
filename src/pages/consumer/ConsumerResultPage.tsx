@@ -242,7 +242,7 @@ Reported via MetrologyLens AI (Govt of India SIH Initiative)`;
               </div>
             )}
 
-            {hasText && (
+            {hasText && detectedCount === 0 && (
               <div className="text-xs text-amber-700 bg-amber-100 rounded-lg p-3">
                 <p className="font-bold mb-1">Raw text was read ({rawText.length} chars) but fields not extracted:</p>
                 <pre className="text-[10px] whitespace-pre-wrap break-all max-h-24 overflow-auto">{rawText.slice(0, 400)}</pre>
