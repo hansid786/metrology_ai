@@ -11,7 +11,6 @@ import { extractEvidenceDeclarations } from './evidenceExtractor';
 import { assessImageQuality } from '../utils/imageQuality';
 import { lookupBarcodeInText } from './barcodeService';
 import { optimizePackagingROI } from '../utils/roiOptimizer';
-import { fetchLiveProductByBarcode } from './liveRegistryService';
 import { calculate3WayTruthConsensus } from './consensusEngine';
 
 export interface OCRProgressCallback {
@@ -261,17 +260,12 @@ export async function performRealImageOCR(
   );
   const extractionMs = Date.now() - ext0;
 
-  // 3-Way Truth Triangulation: Cross-verify with Barcode Master DB & Live Open Food Facts
+  // Barcode is reference-only. It must never overwrite package evidence or delay the scan.
   const barcodeMatch = lookupBarcodeInText(rawOcrText);
   let liveProduct = null;
-  if (barcodeMatch.rawCode) {
-    try {
-      liveProduct = await fetchLiveProductByBarcode(barcodeMatch.rawCode);
-    } catch {}
-  }
 
-  const finalMRPAmount = evidenceResult.mrpAmount ?? (barcodeMatch.matchedProduct?.officialMrp || 0);
-  const finalQtyAmount = evidenceResult.netQuantityValue ?? (barcodeMatch.matchedProduct?.netQuantityValue || 0);
+  const finalMRPAmount = evidenceResult.mrpAmount ?? 0;
+  const finalQtyAmount = evidenceResult.netQuantityValue ?? 0;
   const finalQtyUnit = evidenceResult.netQuantityUnit ?? (barcodeMatch.matchedProduct?.netQuantityUnit || 'g');
 
   const pricing = calculatePricingIntelligence(

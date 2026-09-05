@@ -477,19 +477,6 @@ export function extractEvidenceDeclarations(
   );
 
   if (hasStrongMasterMatch && matchedMaster) {
-    if (extractedMRPAmount === null) {
-      extractedMRPAmount = matchedMaster.officialMrp;
-      mrpSourceText = `MRP ₹${matchedMaster.officialMrp.toFixed(2)} (GS1 Master Triangulated)`;
-      mrpConfidence = 'HIGH';
-      mrpScore = 95;
-    }
-    if (extractedQtyVal === null) {
-      extractedQtyVal = matchedMaster.netQuantityValue;
-      extractedQtyUnit = matchedMaster.netQuantityUnit;
-      qtySourceText = `Net Quantity: ${matchedMaster.netQuantity} (GS1 Master Triangulated)`;
-      qtyConfidence = 'HIGH';
-      qtyScore = 95;
-    }
     if (!entityRoles.manufacturer && matchedMaster.manufacturer) {
       entityRoles.manufacturer = `${matchedMaster.manufacturer}, ${matchedMaster.manufacturerAddress} - ${matchedMaster.pinCode}`;
       mfgEvidence = `Manufacturer: ${matchedMaster.manufacturer}`;
