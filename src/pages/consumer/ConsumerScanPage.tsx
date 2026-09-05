@@ -120,11 +120,6 @@ export const ConsumerScanPage: React.FC = () => {
         primaryResult = aggregateMultiSideScans(primaryResult, additionalPayloads);
       }
 
-      const detectedDeclarations = primaryResult.declarations.filter(declaration => declaration.status !== 'NOT_DETECTED').length;
-      if (detectedDeclarations === 0 && !(primaryResult.rawOcrText || '').trim()) {
-        throw new Error('NO_READABLE_TEXT');
-      }
-
       primaryResult.inspectionId = inspectionId;
       primaryResult.inspector = {
         id: 'CITIZEN-VERIFIED',
