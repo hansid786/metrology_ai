@@ -9,7 +9,6 @@ import { calculatePricingIntelligence, analyzeCompliance } from './complianceEng
 import { runTesseractOCR, TesseractOCRResult } from './tesseractEngine';
 import { extractEvidenceDeclarations } from './evidenceExtractor';
 import { assessImageQuality } from '../utils/imageQuality';
-import { lookupBarcodeInText } from './barcodeService';
 import { optimizePackagingROI } from '../utils/roiOptimizer';
 import { calculate3WayTruthConsensus } from './consensusEngine';
 
@@ -260,13 +259,9 @@ export async function performRealImageOCR(
   );
   const extractionMs = Date.now() - ext0;
 
-  // Barcode is reference-only. It must never overwrite package evidence or delay the scan.
-  const barcodeMatch = lookupBarcodeInText(rawOcrText);
-  let liveProduct = null;
-
   const finalMRPAmount = evidenceResult.mrpAmount ?? 0;
   const finalQtyAmount = evidenceResult.netQuantityValue ?? 0;
-  const finalQtyUnit = evidenceResult.netQuantityUnit ?? (barcodeMatch.matchedProduct?.netQuantityUnit || 'g');
+  const finalQtyUnit = evidenceResult.netQuantityUnit ?? 'g';
 
   const pricing = calculatePricingIntelligence(
     finalMRPAmount,
@@ -279,8 +274,8 @@ export async function performRealImageOCR(
     opticalDeclarations: evidenceResult.declarations,
     opticalPricing: pricing,
     geminiData: geminiResult.data,
-    masterProduct: barcodeMatch.matchedProduct,
-    liveProduct,
+    masterProduct: undefined,
+    liveProduct: null,
     category: evidenceResult.category
   });
 
