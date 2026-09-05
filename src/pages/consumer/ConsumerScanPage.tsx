@@ -569,34 +569,33 @@ export const ConsumerScanPage: React.FC = () => {
               )}
             </div>
 
-            {/* Guided 4-Angle Stepper & Evidence Completeness Indicator */}
+            {/* Optional Multi-Angle Extra Shots */}
             <div className="p-4 bg-slate-900 text-white rounded-3xl border border-slate-800 space-y-3.5 shadow-xl">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
                 <div className="flex items-center gap-2">
-                  <Layers className="w-5 h-5 text-emerald-400" />
+                  <Layers className="w-5 h-5 text-slate-400" />
                   <div>
                     <span className="text-xs font-black tracking-tight text-white block">
-                      {lang === 'hi' ? 'गाइडेड मल्टी-एंगल पैकेजिंग स्कैनर' : 'Guided Multi-Angle Packaging Workflow'}
+                      {lang === 'hi' ? '⚡ वैकल्पिक: अधिक कोणों से फोटो जोड़ें' : '⚡ Optional: Add More Sides for Higher Accuracy'}
                     </span>
                     <span className="text-[10px] text-slate-400 font-medium block">
-                      {lang === 'hi' ? 'सटीक कानूनी सत्यापन के लिए पैकेट की आवश्यक सतहें जोड़ें' : 'Capture required panels for 100% evidence-backed verification'}
+                      {lang === 'hi' ? '1 फोटो काफी है — ज़्यादा जोड़ने से बेहतर परिणाम मिलते हैं' : '1 photo is enough — extra sides are optional.'}
                     </span>
                   </div>
                 </div>
 
-                {/* Evidence Completeness Pill */}
+                {/* Evidence Count Pill — shows even 1 is fine */}
                 {(() => {
-                  const requiredViewsCount = selectedCategory === 'FOOD' ? 4 : selectedCategory === 'COSMETICS' ? 3 : 2;
                   const capturedCount = (uploadedImage ? 1 : 0) + queuedSides.length;
-                  const isComplete = capturedCount >= requiredViewsCount;
+                  const isGood = capturedCount >= 1;
                   return (
                     <div className={`px-3 py-1.5 rounded-full text-xs font-mono font-bold flex items-center gap-1.5 border shadow-sm ${
-                      isComplete 
-                        ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300' 
-                        : 'bg-amber-500/20 border-amber-500/40 text-amber-300'
+                      isGood
+                        ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
+                        : 'bg-slate-700/40 border-slate-600/40 text-slate-400'
                     }`}>
-                      <span className={`w-2 h-2 rounded-full ${isComplete ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
-                      <span>Evidence Completeness: {capturedCount}/{requiredViewsCount} views captured</span>
+                      <span className={`w-2 h-2 rounded-full ${isGood ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`} />
+                      <span>{capturedCount === 0 ? 'No photo yet' : `${capturedCount} photo${capturedCount > 1 ? 's' : ''} ready ✓`}</span>
                     </div>
                   );
                 })()}
@@ -669,7 +668,7 @@ export const ConsumerScanPage: React.FC = () => {
                           </span>
                         ) : (
                           <span className="text-[10px] font-bold text-slate-500">
-                            Required
+                            Optional
                           </span>
                         )}
 
@@ -699,7 +698,7 @@ export const ConsumerScanPage: React.FC = () => {
                   <div className="text-xs text-slate-300 font-medium flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                     <span>
-                      {(uploadedImage ? 1 : 0) + queuedSides.length} view(s) ready for statutory rule verification
+                      {(uploadedImage ? 1 : 0) + queuedSides.length} photo(s) ready. One clear photo is enough; extra sides are optional.
                     </span>
                   </div>
 

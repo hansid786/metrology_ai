@@ -189,22 +189,37 @@ export async function performRealImageOCR(
   }
 
   const ocrStartTime = Date.now();
-  
+
+  // Free local OCR is the primary path; it does not depend on paid cloud APIs.
   const tesseractPromise = runTesseractOCR(imageUrl, (percent, status) => {
     if (onProgress) {
       onProgress({
         stage: 2,
-        label: 'Optical Character Recognition',
-        detail: status || 'Reading text blocks from packaging...',
-        progressPercent: Math.min(70, 45 + Math.round(percent * 0.25))
+        label: 'Reading Packaging Text',
+        detail: status || 'Scanning text blocks...',
+        progressPercent: Math.min(65, 45 + Math.round(percent * 0.2))
       });
     }
   });
 
-  const geminiPromise: Promise<{ data: any | null; durationMs: number }> = Promise.resolve({ data: null, durationMs: 0 });
-
-  const [tesseractSettled, geminiSettled] = await Promise.allSettled([
+  // Give the first worker/language-data load enough time on mobile devices.
+  const tesseractWithTimeout = Promise.race([
     tesseractPromise,
+    new Promise<TesseractOCRResult>((resolve) =>
+      setTimeout(() => resolve({
+        fullText: '', lines: [], averageConfidence: 0,
+        tokensCount: 0, processingTimeMs: 18000
+      }), 18000)
+    )
+  ]);
+
+  // Cloud vision remains optional, but the free scanner does not wait for it.
+  const geminiPromise: Promise<{ data: any | null; durationMs: number }> =
+    Promise.resolve({ data: null, durationMs: 0 });
+
+  // Run both in parallel, wait for both (or Tesseract timeout)
+  const [tesseractSettled, geminiSettled] = await Promise.allSettled([
+    tesseractWithTimeout,
     geminiPromise
   ]);
 
@@ -219,11 +234,12 @@ export async function performRealImageOCR(
   const ocrMs = tesseractResult.processingTimeMs;
   const aiMs = geminiResult.durationMs;
 
-  // Combine OCR text evidence
+  // Combine OCR text — Gemini rawText takes priority
   const rawOcrText = [
+    geminiResult.data?.rawText || '',
     tesseractResult.fullText,
-    geminiResult.data?.rawText || ''
   ].filter(Boolean).join('\n\n---\n\n').trim();
+
 
   // Stage 3: Evidence Extraction & Strict Field Identification
   if (onProgress) {
