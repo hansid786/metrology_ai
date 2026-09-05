@@ -201,7 +201,63 @@ Reported via MetrologyLens AI (Govt of India SIH Initiative)`;
         result={result}
       />
 
+      {/* OCR Diagnostic Banner — always visible so user/judge knows what happened */}
+      {(() => {
+        const rawText = result.rawOcrText || '';
+        const geminiWorked = Boolean(result.diagnosticTrace?.aiStatus?.success);
+        const hasText = rawText.length > 20 && !rawText.includes('No text could be');
+        const detectedCount = result.declarations?.filter(d => d.status !== 'NOT_DETECTED').length ?? 0;
+
+        if (hasText && detectedCount > 0) return null; // All good — hide banner
+
+        return (
+          <div className={`rounded-2xl border p-4 space-y-3 ${hasText ? 'bg-amber-50 border-amber-200' : 'bg-rose-50 border-rose-200'}`}>
+            <div className="flex items-center gap-2">
+              <Terminal className={`w-4 h-4 shrink-0 ${hasText ? 'text-amber-600' : 'text-rose-600'}`} />
+              <span className={`text-sm font-black ${hasText ? 'text-amber-800' : 'text-rose-800'}`}>
+                {hasText ? '⚠️ OCR TEXT FOUND — But Fields Not Extracted' : '❌ OCR FAILED — No Text Could Be Read'}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+              <div className={`rounded-lg p-2 ${geminiWorked ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}`}>
+                <div className="font-bold">Gemini Vision</div>
+                <div>{geminiWorked ? '✅ Worked' : '❌ Failed / No API Key'}</div>
+              </div>
+              <div className={`rounded-lg p-2 ${(result.diagnosticTrace?.ocrStatus?.tokensCount ?? 0) > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}`}>
+                <div className="font-bold">Tesseract OCR</div>
+                <div>{(result.diagnosticTrace?.ocrStatus?.tokensCount ?? 0) > 0 ? `✅ ${result.diagnosticTrace?.ocrStatus?.tokensCount} tokens` : '❌ No text read'}</div>
+              </div>
+            </div>
+
+            {!hasText && (
+              <div className="text-xs text-rose-700 font-medium bg-rose-100 rounded-lg p-3 space-y-1">
+                <p className="font-bold">To fix this:</p>
+                <p>1. Make sure your Gemini API key is saved in <strong>Settings → Gemini API Key</strong></p>
+                <p>2. Open browser Console (F12) and look for <code>[MetrologyLens OCR]</code> logs</p>
+                <p>3. Try a clearer, well-lit photo with text fully visible</p>
+              </div>
+            )}
+
+            {hasText && (
+              <div className="text-xs text-amber-700 bg-amber-100 rounded-lg p-3">
+                <p className="font-bold mb-1">Raw text was read ({rawText.length} chars) but fields not extracted:</p>
+                <pre className="text-[10px] whitespace-pre-wrap break-all max-h-24 overflow-auto">{rawText.slice(0, 400)}</pre>
+              </div>
+            )}
+
+            <button
+              onClick={() => setIsRawOcrOpen(true)}
+              className="text-xs font-bold underline text-slate-600 hover:text-slate-900 cursor-pointer"
+            >
+              View Full OCR Diagnostic Report →
+            </button>
+          </div>
+        );
+      })()}
+
       {/* Top Controls Bar */}
+
       <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-3xl border border-slate-200 shadow-xs">
         <button
           onClick={() => navigate('/consumer/scan')}

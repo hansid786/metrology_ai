@@ -188,34 +188,67 @@ export async function performRealImageOCR(
 
   const ocrStartTime = Date.now();
 
-  // Free local OCR is the primary path; it does not depend on paid cloud APIs.
+  // ─── DEBUG: log pipeline entry ────────────────────────────────────────────
+  const apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY
+    || localStorage.getItem('gemini_api_key') || '';
+  console.group('[MetrologyLens OCR] Pipeline Start');
+  console.log('fileName:', fileName);
+  console.log('imageUrl prefix:', imageUrl.slice(0, 60));
+  console.log('base64Data length:', base64Data.length);
+  console.log('mimeType:', mimeType);
+  console.log('apiKey present:', Boolean(apiKey), apiKey ? `(ends ...${apiKey.slice(-6)})` : '(MISSING)');
+  console.groupEnd();
+
+  if (onProgress) {
+    onProgress({
+      stage: 2,
+      label: 'Launching AI Vision + OCR',
+      detail: apiKey
+        ? 'Starting Gemini Vision (primary) + Tesseract (fallback)...'
+        : '⚠️ No Gemini API key — using Tesseract only. Set gemini_api_key in Settings.',
+      progressPercent: 40
+    });
+  }
+
+  // ─── Tesseract (offline OCR, runs in parallel, 10s max) ───────────────────
   const tesseractPromise = runTesseractOCR(imageUrl, (percent, status) => {
     if (onProgress) {
       onProgress({
         stage: 2,
-        label: 'Reading Packaging Text',
+        label: 'Tesseract OCR',
         detail: status || 'Scanning text blocks...',
-        progressPercent: Math.min(65, 45 + Math.round(percent * 0.2))
+        progressPercent: Math.min(65, 40 + Math.round(percent * 0.25))
       });
     }
   });
 
-  // Give the first worker/language-data load enough time on mobile devices.
   const tesseractWithTimeout = Promise.race([
     tesseractPromise,
     new Promise<TesseractOCRResult>((resolve) =>
-      setTimeout(() => resolve({
-        fullText: '', lines: [], averageConfidence: 0,
-        tokensCount: 0, processingTimeMs: 18000
-      }), 18000)
+      setTimeout(() => {
+        console.warn('[MetrologyLens OCR] Tesseract timed out after 10s — continuing with Gemini result');
+        resolve({ fullText: '', lines: [], averageConfidence: 0, tokensCount: 0, processingTimeMs: 10000 });
+      }, 10000)
     )
   ]);
 
-  // Cloud vision remains optional, but the free scanner does not wait for it.
-  const geminiPromise: Promise<{ data: any | null; durationMs: number }> =
-    Promise.resolve({ data: null, durationMs: 0 });
+  // ─── Gemini Vision (PRIMARY engine) ───────────────────────────────────────
+  if (onProgress) {
+    onProgress({ stage: 2, label: 'Gemini Vision AI', detail: 'Reading MRP, Net Quantity, Dates, Manufacturer...', progressPercent: 55 });
+  }
 
-  // Run both in parallel, wait for both (or Tesseract timeout)
+  let geminiPromise: Promise<{ data: any | null; durationMs: number }>;
+  if (!base64Data) {
+    console.error('[MetrologyLens OCR] CRITICAL: base64Data is empty — image did not convert to data URL. Gemini will not be called.');
+    geminiPromise = Promise.resolve({ data: null, durationMs: 0 });
+  } else if (!apiKey) {
+    console.warn('[MetrologyLens OCR] No Gemini API key found. Add it in Settings → Gemini API Key field, or set VITE_GEMINI_API_KEY in .env');
+    geminiPromise = Promise.resolve({ data: null, durationMs: 0 });
+  } else {
+    geminiPromise = callGeminiVisionStrict(base64Data, mimeType);
+  }
+
+  // ─── Run both in parallel ─────────────────────────────────────────────────
   const [tesseractSettled, geminiSettled] = await Promise.allSettled([
     tesseractWithTimeout,
     geminiPromise
@@ -232,11 +265,25 @@ export async function performRealImageOCR(
   const ocrMs = tesseractResult.processingTimeMs;
   const aiMs = geminiResult.durationMs;
 
-  // Combine OCR text — Gemini rawText takes priority
+  // ─── DEBUG: log OCR results ───────────────────────────────────────────────
+  console.group('[MetrologyLens OCR] Results');
+  console.log('Gemini data:', geminiResult.data);
+  console.log('Gemini rawText:', geminiResult.data?.rawText || '(empty)');
+  console.log('Tesseract fullText (first 500 chars):', tesseractResult.fullText?.slice(0, 500) || '(empty)');
+  console.log('Tesseract confidence:', tesseractResult.averageConfidence);
+  console.log('Tesseract lines:', tesseractResult.lines?.length);
+  console.groupEnd();
+
+  // ─── Combine: Gemini rawText takes priority ───────────────────────────────
   const rawOcrText = [
     geminiResult.data?.rawText || '',
-    tesseractResult.fullText,
-  ].filter(Boolean).join('\n\n---\n\n').trim();
+    tesseractResult.fullText || ''
+  ].filter(t => t.trim().length > 3).join('\n\n---TESSERACT---\n\n').trim();
+
+  console.log('[MetrologyLens OCR] Combined rawOcrText length:', rawOcrText.length);
+  if (!rawOcrText) {
+    console.error('[MetrologyLens OCR] BOTH Gemini AND Tesseract returned empty text. Check API key and image quality.');
+  }
 
 
   // Stage 3: Evidence Extraction & Strict Field Identification
