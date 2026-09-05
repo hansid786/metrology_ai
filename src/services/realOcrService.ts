@@ -189,26 +189,12 @@ export async function performRealImageOCR(
   const ocrStartTime = Date.now();
 
   // ─── DEBUG: log pipeline entry ────────────────────────────────────────────
-  const apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY
-    || localStorage.getItem('gemini_api_key') || '';
   console.group('[MetrologyLens OCR] Pipeline Start');
   console.log('fileName:', fileName);
   console.log('imageUrl prefix:', imageUrl.slice(0, 60));
   console.log('base64Data length:', base64Data.length);
   console.log('mimeType:', mimeType);
-  console.log('apiKey present:', Boolean(apiKey), apiKey ? `(ends ...${apiKey.slice(-6)})` : '(MISSING)');
   console.groupEnd();
-
-  if (onProgress) {
-    onProgress({
-      stage: 2,
-      label: 'Launching AI Vision + OCR',
-      detail: apiKey
-        ? 'Starting Gemini Vision (primary) + Tesseract (fallback)...'
-        : '⚠️ No Gemini API key — using Tesseract only. Set gemini_api_key in Settings.',
-      progressPercent: 40
-    });
-  }
 
   // ─── Tesseract (offline OCR, runs in parallel, 10s max) ───────────────────
   const tesseractPromise = runTesseractOCR(imageUrl, (percent, status) => {
@@ -232,23 +218,10 @@ export async function performRealImageOCR(
     )
   ]);
 
-  // ─── Gemini Vision (PRIMARY engine) ───────────────────────────────────────
-  if (onProgress) {
-    onProgress({ stage: 2, label: 'Gemini Vision AI', detail: 'Reading MRP, Net Quantity, Dates, Manufacturer...', progressPercent: 55 });
-  }
+  const geminiPromise: Promise<{ data: any | null; durationMs: number }> =
+    Promise.resolve({ data: null, durationMs: 0 });
 
-  let geminiPromise: Promise<{ data: any | null; durationMs: number }>;
-  if (!base64Data) {
-    console.error('[MetrologyLens OCR] CRITICAL: base64Data is empty — image did not convert to data URL. Gemini will not be called.');
-    geminiPromise = Promise.resolve({ data: null, durationMs: 0 });
-  } else if (!apiKey) {
-    console.warn('[MetrologyLens OCR] No Gemini API key found. Add it in Settings → Gemini API Key field, or set VITE_GEMINI_API_KEY in .env');
-    geminiPromise = Promise.resolve({ data: null, durationMs: 0 });
-  } else {
-    geminiPromise = callGeminiVisionStrict(base64Data, mimeType);
-  }
-
-  // ─── Run both in parallel ─────────────────────────────────────────────────
+  // ─── Run OCR and optional vision result in parallel ────────────────────────
   const [tesseractSettled, geminiSettled] = await Promise.allSettled([
     tesseractWithTimeout,
     geminiPromise
@@ -298,7 +271,7 @@ export async function performRealImageOCR(
 
   const ext0 = Date.now();
   const evidenceResult = extractEvidenceDeclarations(
-    tesseractResult.fullText || geminiResult.data?.rawText || '',
+    rawOcrText,
     tesseractResult.lines,
     geminiResult.data,
     initialCategory,
@@ -342,13 +315,29 @@ export async function performRealImageOCR(
     (evidenceResult.category === 'PHARMA' && finalQtyUnit === 'ml')
   ) ? 'CYLINDRICAL' : 'RECTANGULAR';
 
-  const complianceAssessment = analyzeCompliance(
-    consensus.reconciledDeclarations,
-    pricing,
-    evidenceResult.category,
-    packageShape,
-    evidenceResult.boundingBoxes
-  );
+  const complianceAssessment = rawOcrText
+    ? analyzeCompliance(
+      consensus.reconciledDeclarations,
+      pricing,
+      evidenceResult.category,
+      packageShape,
+      evidenceResult.boundingBoxes
+    )
+    : {
+      verifiedCount: 0,
+      totalCount: consensus.reconciledDeclarations.length,
+      compliancePercentage: 0,
+      overallStatus: 'INSUFFICIENT_EVIDENCE' as const,
+      findings: [{
+        id: 'finding-ocr-failed',
+        severity: 'WARNING' as const,
+        title: 'OCR failed: validation skipped',
+        description: 'No raw OCR text was returned. Legal Metrology validation was not run.',
+        legalActClause: 'Evidence gate'
+      }],
+      pdpInfo: undefined,
+      fontReadabilitySummary: { totalMeasured: 0, compliantCount: 0, failedCount: 0, overallFontCompliant: false }
+    };
   const complianceMs = Date.now() - comp0;
 
   const totalMs = Date.now() - overallStartTime;
@@ -438,10 +427,17 @@ export async function performRealImageOCR(
     diagnosticTrace,
     ingredientAnalysis: evidenceResult.ingredientAnalysis,
     ocrMetadata: {
-      engine: geminiResult.data ? 'MetrologyLens Hybrid (Tesseract.js + Grounded Gemini 1.5 Vision)' : 'MetrologyLens On-Device Optical Engine (Tesseract.js 7.0)',
+      engine: 'MetrologyLens On-Device Optical Engine (Tesseract.js 7.0)',
       processingTimeMs: totalMs,
       tokensDetected: tesseractResult.tokensCount || (rawOcrText.split(/\s+/).filter(Boolean).length),
-      averageConfidence: tesseractResult.averageConfidence || 85
+      averageConfidence: tesseractResult.averageConfidence || 0,
+      status: rawOcrText ? 'SUCCESS' : 'FAILED',
+      rawText: rawOcrText,
+      extractedFields: evidenceResult.declarations
+        .filter(declaration => declaration.status !== 'NOT_DETECTED')
+        .map(declaration => `${declaration.key}: ${declaration.extractedValue}`),
+      validationStatus: rawOcrText ? 'COMPLETED' : 'SKIPPED_NO_OCR_TEXT',
+      error: rawOcrText ? undefined : 'Both OCR sources returned empty text.'
     }
   };
 }

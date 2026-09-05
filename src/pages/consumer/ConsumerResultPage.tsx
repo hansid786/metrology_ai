@@ -204,38 +204,41 @@ Reported via MetrologyLens AI (Govt of India SIH Initiative)`;
       {/* OCR Diagnostic Banner — always visible so user/judge knows what happened */}
       {(() => {
         const rawText = result.rawOcrText || '';
-        const geminiWorked = Boolean(result.diagnosticTrace?.aiStatus?.success);
         const hasText = rawText.length > 20 && !rawText.includes('No text could be');
         const detectedCount = result.declarations?.filter(d => d.status !== 'NOT_DETECTED').length ?? 0;
-
-        if (hasText && detectedCount > 0) return null; // All good — hide banner
+        const ocrSucceeded = result.ocrMetadata?.status === 'SUCCESS' || hasText;
+        const validationStatus = result.ocrMetadata?.validationStatus || (hasText ? 'COMPLETED' : 'SKIPPED_NO_OCR_TEXT');
 
         return (
-          <div className={`rounded-2xl border p-4 space-y-3 ${hasText ? 'bg-amber-50 border-amber-200' : 'bg-rose-50 border-rose-200'}`}>
+          <div className={`rounded-2xl border p-4 space-y-3 ${ocrSucceeded && detectedCount > 0 ? 'bg-emerald-50 border-emerald-200' : hasText ? 'bg-amber-50 border-amber-200' : 'bg-rose-50 border-rose-200'}`}>
             <div className="flex items-center gap-2">
-              <Terminal className={`w-4 h-4 shrink-0 ${hasText ? 'text-amber-600' : 'text-rose-600'}`} />
-              <span className={`text-sm font-black ${hasText ? 'text-amber-800' : 'text-rose-800'}`}>
-                {hasText ? '⚠️ OCR TEXT FOUND — But Fields Not Extracted' : '❌ OCR FAILED — No Text Could Be Read'}
+              <Terminal className={`w-4 h-4 shrink-0 ${ocrSucceeded && detectedCount > 0 ? 'text-emerald-600' : hasText ? 'text-amber-600' : 'text-rose-600'}`} />
+              <span className={`text-sm font-black ${ocrSucceeded && detectedCount > 0 ? 'text-emerald-800' : hasText ? 'text-amber-800' : 'text-rose-800'}`}>
+                {ocrSucceeded && detectedCount > 0 ? '✅ OCR SUCCESS — Fields extracted' : hasText ? '⚠️ OCR TEXT FOUND — Fields need review' : '❌ OCR FAILED — No text could be read'}
               </span>
             </div>
 
             <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-              <div className={`rounded-lg p-2 ${geminiWorked ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}`}>
-                <div className="font-bold">Gemini Vision</div>
-                <div>{geminiWorked ? '✅ Worked' : '❌ Failed / No API Key'}</div>
+              <div className={`rounded-lg p-2 ${ocrSucceeded ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
+                <div className="font-bold">OCR STATUS</div>
+                <div>{ocrSucceeded ? 'SUCCESS' : 'FAILED'}</div>
               </div>
-              <div className={`rounded-lg p-2 ${(result.diagnosticTrace?.ocrStatus?.tokensCount ?? 0) > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}`}>
-                <div className="font-bold">Tesseract OCR</div>
-                <div>{(result.diagnosticTrace?.ocrStatus?.tokensCount ?? 0) > 0 ? `✅ ${result.diagnosticTrace?.ocrStatus?.tokensCount} tokens` : '❌ No text read'}</div>
+              <div className={`rounded-lg p-2 ${detectedCount > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
+                <div className="font-bold">EXTRACTED FIELDS</div>
+                <div>{detectedCount} / {result.declarations?.length ?? 0}</div>
+              </div>
+              <div className="rounded-lg p-2 bg-slate-100 text-slate-700">
+                <div className="font-bold">VALIDATION</div>
+                <div>{validationStatus}</div>
               </div>
             </div>
 
             {!hasText && (
               <div className="text-xs text-rose-700 font-medium bg-rose-100 rounded-lg p-3 space-y-1">
                 <p className="font-bold">To fix this:</p>
-                <p>1. Make sure your Gemini API key is saved in <strong>Settings → Gemini API Key</strong></p>
-                <p>2. Open browser Console (F12) and look for <code>[MetrologyLens OCR]</code> logs</p>
-                <p>3. Try a clearer, well-lit photo with text fully visible</p>
+                <p>1. Confirm the image reaches the OCR engine and is not blank/corrupt</p>
+                <p>2. Try a straight, well-lit close-up with MRP and quantity visible</p>
+                <p>3. Open the full OCR Diagnostic Report to inspect raw text and timings</p>
               </div>
             )}
 

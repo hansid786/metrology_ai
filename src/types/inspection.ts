@@ -324,6 +324,11 @@ export interface InspectionResult {
     processingTimeMs: number;
     tokensDetected: number;
     averageConfidence: number;
+    status?: 'SUCCESS' | 'FAILED';
+    rawText?: string;
+    extractedFields?: string[];
+    validationStatus?: 'SKIPPED_NO_OCR_TEXT' | 'COMPLETED';
+    error?: string;
   };
 }
 
