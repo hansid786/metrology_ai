@@ -51,14 +51,14 @@ export const RawOcrModal: React.FC<RawOcrModalProps> = ({ isOpen, onClose, resul
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-base sm:text-lg font-black text-white">
-                  Developer &amp; Optical Pipeline Inspector
+                  OCR Diagnostics
                 </h3>
                 <span className="text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/40">
                   {result.ocrMetadata?.engine || 'Tesseract.js'}
                 </span>
               </div>
               <p className="text-xs text-slate-400 font-medium">
-                Live trace of image quality, raw OCR tokens, AI vision latency &amp; rejection reasons
+                Raw OCR text, extracted fields, image quality, timings, and validation status
               </p>
             </div>
           </div>

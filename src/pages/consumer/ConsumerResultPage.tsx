@@ -194,7 +194,7 @@ Reported via MetrologyLens AI (Govt of India SIH Initiative)`;
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      {/* Raw OCR Modal for Developers & Judges */}
+      {/* Raw OCR diagnostics modal */}
       <RawOcrModal
         isOpen={isRawOcrOpen}
         onClose={() => setIsRawOcrOpen(false)}
