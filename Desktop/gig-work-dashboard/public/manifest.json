@@ -1,0 +1,17 @@
+﻿{
+  short_name: Doorstep,
+  name: Doorstep Pro: Hyperlocal On-Demand Services,
+  icons: [
+    {
+      src: /vite.svg,
+      type: image/svg+xml,
+      sizes: 192x192 512x512
+    }
+  ],
+  start_url: /,
+  background_color: #ffffff,
+  theme_color: #059669,
+  display: standalone,
+  orientation: portrait,
+  scope: /
+}
