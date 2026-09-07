@@ -30,8 +30,7 @@ import { getActiveLocality, getActiveCity, getBookingById, subscribeHommieState 
 
 function HommieMainApp() {
   const { user, role, switchRole } = useAuth();
-  const { activeChatBooking, closeChat } = useNotifications();
-
+  
   // Navigation State
   const [currentView, setCurrentView] = useState('home'); // home, discovery, pro-profile, my-home, bookings, pro-dashboard, pro-onboarding, admin
   const [viewParams, setViewParams] = useState({});
@@ -57,6 +56,9 @@ function HommieMainApp() {
 
   const [showSafetyModal, setShowSafetyModal] = useState(false);
   const [safetyTarget, setSafetyTarget] = useState(null);
+
+  // Active Chat State
+  const [activeChatBooking, setActiveChatBooking] = useState(null);
 
   const [selectedProId, setSelectedProId] = useState('pro-arjun');
 
@@ -122,6 +124,10 @@ function HommieMainApp() {
     setShowSafetyModal(true);
   };
 
+  const handleOpenChat = (booking) => {
+    setActiveChatBooking(booking);
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans selection:bg-amber-400 selection:text-slate-950">
       {/* 1. TOP NAVBAR */}
@@ -177,9 +183,7 @@ function HommieMainApp() {
             onOpenQuoteModal={handleOpenQuoteApproval}
             onOpenPaymentModal={handleOpenPayment}
             onOpenRatingModal={handleOpenRating}
-            onOpenChatModal={(booking) => {
-              // open chat
-            }}
+            onOpenChatModal={handleOpenChat}
             onOpenSafetyModal={handleOpenSafety}
             onNavigate={navigateTo}
           />
@@ -188,7 +192,7 @@ function HommieMainApp() {
         {currentView === 'pro-dashboard' && (
           <ProfessionalDashboardView
             proId={user?.workerId || 'pro-arjun'}
-            onOpenChatModal={(booking) => {}}
+            onOpenChatModal={handleOpenChat}
             onNavigate={navigateTo}
           />
         )}
@@ -282,7 +286,7 @@ function HommieMainApp() {
       {activeChatBooking && (
         <ChatDrawer
           booking={activeChatBooking}
-          onClose={closeChat}
+          onClose={() => setActiveChatBooking(null)}
           userRole={role}
         />
       )}
