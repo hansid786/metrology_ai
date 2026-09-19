@@ -481,98 +481,64 @@ export const ConsumerScanPage: React.FC = () => {
             />
 
 
-            {/* Quick Manual Entry / Fine-Tuning Drawer */}
-            <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 space-y-3">
+            {/* ── Manual Entry Accordion ── */}
+            <div className="rounded-2xl overflow-hidden border border-slate-200/80 bg-white/60">
               <button
                 type="button"
                 onClick={() => setShowManualEntry(!showManualEntry)}
-                className="w-full flex items-center justify-between text-xs font-bold text-slate-700 hover:text-emerald-700 cursor-pointer"
+                className="w-full flex items-center justify-between px-4 py-3 text-xs font-bold text-slate-600 hover:text-emerald-700 hover:bg-slate-50/80 transition-all duration-200 cursor-pointer"
               >
-                <div className="flex items-center gap-2">
-                  <Edit3 className="w-4 h-4 text-emerald-600" />
-                  <span>{lang === 'hi' ? '⚡ वैकल्पिक: उत्पाद का नाम या MRP सीधे दर्ज करें (Manual Entry / Fine-Tune)' : '⚡ Optional: Direct Product Name, MRP or Quantity Input'}</span>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-6 h-6 rounded-lg bg-emerald-100 flex items-center justify-center">
+                    <Edit3 className="w-3.5 h-3.5 text-emerald-600" />
+                  </div>
+                  <span className="font-semibold">{lang === 'hi' ? 'Manual Entry / Fine-Tune' : 'Optional: Enter Product Details Manually'}</span>
                 </div>
-                <span className="text-[11px] text-emerald-600 font-bold font-mono">
-                  {showManualEntry ? '▲ Hide' : '▼ Expand'}
-                </span>
+                <div className={`w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center transition-transform duration-200 ${showManualEntry ? 'rotate-180' : ''}`}>
+                  <span className="text-[10px] text-slate-500">▼</span>
+                </div>
               </button>
 
               {showManualEntry && (
-                <div className="pt-2 border-t border-slate-200/70 space-y-3 animate-in fade-in">
-                  {/* Barcode Fast Lookup */}
-                  <div className="p-3 bg-white rounded-xl border border-emerald-200/80 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-black text-emerald-950 flex items-center gap-1.5">
-                        <span>⚡ 1-Tap Barcode / EAN-13 Instant Lookup</span>
-                      </span>
-                      <span className="text-[10px] text-slate-500 font-mono">GS1 India Master</span>
-                    </div>
-                    
+                <div className="px-4 pb-4 pt-1 space-y-3 border-t border-slate-100 fade-in">
+                  {/* Barcode Quick Lookup */}
+                  <div className="p-3 bg-emerald-50/60 rounded-xl border border-emerald-100 space-y-2">
+                    <span className="text-[11px] font-black text-emerald-900">⚡ Quick Barcode Lookup</span>
                     <div className="flex flex-wrap gap-1.5">
                       {[
-                        { name: 'Maggi (8901058852393)', code: '8901058852393', cat: 'FOOD' as ProductCategory },
-                        { name: 'Parle-G (8901719101037)', code: '8901719101037', cat: 'FOOD' as ProductCategory },
-                        { name: "Lay's (8901491101830)", code: '8901491101830', cat: 'FOOD' as ProductCategory },
-                        { name: 'Fortune Oil (8906007280014)', code: '8906007280014', cat: 'FOOD' as ProductCategory },
-                        { name: 'Amul Butter (8901262010025)', code: '8901262010025', cat: 'FOOD' as ProductCategory },
-                        { name: 'Dolo 650 (8901117002014)', code: '8901117002014', cat: 'PHARMA' as ProductCategory },
-                        { name: 'VoltMax 20K (8908849201994)', code: '8908849201994', cat: 'ELECTRONICS' as ProductCategory }
+                        { name: 'Maggi', code: '8901058852393', cat: 'FOOD' as ProductCategory },
+                        { name: 'Parle-G', code: '8901719101037', cat: 'FOOD' as ProductCategory },
+                        { name: "Lay's", code: '8901491101830', cat: 'FOOD' as ProductCategory },
+                        { name: 'Fortune Oil', code: '8906007280014', cat: 'FOOD' as ProductCategory },
+                        { name: 'Dolo 650', code: '8901117002014', cat: 'PHARMA' as ProductCategory },
                       ].map(item => (
-                        <button
-                          key={item.code}
-                          type="button"
-                          onClick={() => {
-                            setCustomName(item.name.split(' (')[0]);
-                            setSelectedCategory(item.cat);
-                            executeScan(item.cat, undefined, `${item.code}.jpg`, undefined);
-                          }}
-                          className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300/80 rounded-lg text-[10px] font-bold text-emerald-900 transition-colors cursor-pointer"
-                        >
-                          🏷️ {item.name}
+                        <button key={item.code} type="button"
+                          onClick={() => { setCustomName(item.name); setSelectedCategory(item.cat); executeScan(item.cat, undefined, `${item.code}.jpg`, undefined); }}
+                          className="px-3 py-1 bg-white border border-emerald-200 rounded-full text-[11px] font-bold text-emerald-800 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all duration-200 cursor-pointer btn-press">
+                          {item.name}
                         </button>
                       ))}
                     </div>
                   </div>
 
-                  {/* Manual Fields */}
-                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
+                  {/* Fields */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {[
+                      { label: 'Product Name', placeholder: 'Marie Gold...', value: customName, onChange: (v: string) => setCustomName(v), type: 'text' },
+                      { label: 'MRP (₹)', placeholder: '50', value: customMRP, onChange: (v: string) => setCustomMRP(v), type: 'number' },
+                      { label: 'Net Quantity', placeholder: '250', value: customQty, onChange: (v: string) => setCustomQty(v), type: 'number' },
+                    ].map(f => (
+                      <div key={f.label}>
+                        <label className="text-[10px] font-bold text-slate-500 block mb-1">{f.label}</label>
+                        <input type={f.type} placeholder={f.placeholder} value={f.value}
+                          onChange={(e) => f.onChange(e.target.value)}
+                          className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 font-medium focus:ring-2 focus:ring-emerald-400/50 focus:border-emerald-400 outline-none transition-all duration-200" />
+                      </div>
+                    ))}
                     <div>
-                      <label className="text-[10px] font-black text-slate-600 block mb-1">Product Name</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Marie Gold Biscuit"
-                        value={customName}
-                        onChange={(e) => setCustomName(e.target.value)}
-                        className="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 font-medium focus:ring-1 focus:ring-emerald-500 outline-hidden"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] font-black text-slate-600 block mb-1">Printed MRP (₹)</label>
-                      <input
-                        type="number"
-                        placeholder="e.g. 50"
-                        value={customMRP}
-                        onChange={(e) => setCustomMRP(e.target.value)}
-                        className="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 font-medium focus:ring-1 focus:ring-emerald-500 outline-hidden"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] font-black text-slate-600 block mb-1">Net Quantity</label>
-                      <input
-                        type="number"
-                        placeholder="e.g. 250"
-                        value={customQty}
-                        onChange={(e) => setCustomQty(e.target.value)}
-                        className="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 font-medium focus:ring-1 focus:ring-emerald-500 outline-hidden"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] font-black text-slate-600 block mb-1">Metric Unit</label>
-                      <select
-                        value={customUnit}
-                        onChange={(e) => setCustomUnit(e.target.value)}
-                        className="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 font-medium focus:ring-1 focus:ring-emerald-500 outline-hidden"
-                      >
+                      <label className="text-[10px] font-bold text-slate-500 block mb-1">Unit</label>
+                      <select value={customUnit} onChange={(e) => setCustomUnit(e.target.value)}
+                        className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 font-medium focus:ring-2 focus:ring-emerald-400/50 focus:border-emerald-400 outline-none transition-all duration-200">
                         <option value="g">Grams (g)</option>
                         <option value="kg">Kilograms (kg)</option>
                         <option value="ml">Millilitres (ml)</option>
@@ -585,145 +551,59 @@ export const ConsumerScanPage: React.FC = () => {
               )}
             </div>
 
-            {/* Optional Multi-Angle Extra Shots */}
-            <div className="p-4 bg-slate-900 text-white rounded-3xl border border-slate-800 space-y-3.5 shadow-xl">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+            {/* ── Multi-Angle Steps ── */}
+            <div className="rounded-2xl border border-slate-200/80 bg-white/60 overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
                 <div className="flex items-center gap-2">
-                  <Layers className="w-5 h-5 text-slate-400" />
+                  <div className="w-6 h-6 rounded-lg bg-slate-100 flex items-center justify-center">
+                    <Layers className="w-3.5 h-3.5 text-slate-500" />
+                  </div>
                   <div>
-                    <span className="text-xs font-black tracking-tight text-white block">
-                      {lang === 'hi' ? '⚡ वैकल्पिक: अधिक कोणों से फोटो जोड़ें' : '⚡ Optional: Add More Sides for Higher Accuracy'}
-                    </span>
-                    <span className="text-[10px] text-slate-400 font-medium block">
-                      {lang === 'hi' ? '1 फोटो काफी है — ज़्यादा जोड़ने से बेहतर परिणाम मिलते हैं' : '1 photo is enough — extra sides are optional.'}
-                    </span>
+                    <p className="text-xs font-bold text-slate-700">{lang === 'hi' ? 'वैकल्पिक: और कोणों से फोटो' : 'Optional: Multi-Angle Photos'}</p>
+                    <p className="text-[10px] text-slate-400">{lang === 'hi' ? '1 काफी है — ज़्यादा से बेहतर accuracy' : '1 photo is enough · more sides = higher accuracy'}</p>
                   </div>
                 </div>
-
-                {/* Evidence Count Pill — shows even 1 is fine */}
                 {(() => {
-                  const capturedCount = (uploadedImage ? 1 : 0) + queuedSides.length;
-                  const isGood = capturedCount >= 1;
-                  return (
-                    <div className={`px-3 py-1.5 rounded-full text-xs font-mono font-bold flex items-center gap-1.5 border shadow-sm ${
-                      isGood
-                        ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
-                        : 'bg-slate-700/40 border-slate-600/40 text-slate-400'
-                    }`}>
-                      <span className={`w-2 h-2 rounded-full ${isGood ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`} />
-                      <span>{capturedCount === 0 ? 'No photo yet' : `${capturedCount} photo${capturedCount > 1 ? 's' : ''} ready ✓`}</span>
-                    </div>
-                  );
+                  const count = (uploadedImage ? 1 : 0) + queuedSides.length;
+                  return count > 0 ? (
+                    <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      {count} ready
+                    </span>
+                  ) : null;
                 })()}
               </div>
 
-              {/* 4 Guided Steps */}
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
+              <div className="p-3 grid grid-cols-4 gap-2">
                 {[
-                  {
-                    step: '1/4',
-                    tag: 'FRONT' as PackageSideTag,
-                    title: 'FRONT',
-                    desc: 'Brand, name, net quantity',
-                    icon: '🏷️',
-                    isUploaded: Boolean(uploadedImage)
-                  },
-                  {
-                    step: '2/4',
-                    tag: 'BACK' as PackageSideTag,
-                    title: 'BACK',
-                    desc: 'Mfg / FSSAI / declarations',
-                    icon: '🏭',
-                    isUploaded: queuedSides.some(s => s.tag === 'BACK')
-                  },
-                  {
-                    step: '3/4',
-                    tag: 'TOP' as PackageSideTag,
-                    title: 'MRP & CRIMP',
-                    desc: 'MRP, USP & date stamping',
-                    icon: '💰',
-                    isUploaded: queuedSides.some(s => s.tag === 'TOP')
-                  },
-                  {
-                    step: '4/4',
-                    tag: 'SIDE_LEFT' as PackageSideTag,
-                    title: 'SIDE / NUTRITION',
-                    desc: 'Nutrition & ingredients',
-                    icon: '📋',
-                    isUploaded: queuedSides.some(s => s.tag === 'SIDE_LEFT' || s.tag === 'SIDE_RIGHT')
-                  }
-                ].map((item) => {
-                  const isCurrent = activeSideCapturing === item.tag;
-                  return (
-                    <div
-                      key={item.tag}
-                      className={`p-3 rounded-2xl border transition-all flex flex-col justify-between space-y-2 ${
-                        item.isUploaded
-                          ? 'border-emerald-500/60 bg-emerald-950/40 text-emerald-200'
-                          : isCurrent
-                          ? 'border-blue-500/60 bg-blue-950/40 text-blue-200'
-                          : 'border-slate-800 bg-slate-950/60 text-slate-400'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
-                          STEP {item.step}
-                        </span>
-                        <span className="text-sm">{item.icon}</span>
-                      </div>
-
-                      <div>
-                        <div className="text-xs font-black text-white">{item.title}</div>
-                        <div className="text-[10px] text-slate-400 leading-tight mt-0.5">{item.desc}</div>
-                      </div>
-
-                      <div className="pt-1 flex items-center justify-between">
-                        {item.isUploaded ? (
-                          <span className="text-[10px] font-bold text-emerald-400 flex items-center gap-1">
-                            <CheckCircle2 className="w-3.5 h-3.5" /> Captured
-                          </span>
-                        ) : (
-                          <span className="text-[10px] font-bold text-slate-500">
-                            Optional
-                          </span>
-                        )}
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setActiveSideCapturing(item.tag);
-                            setIsCameraOpen(true);
-                          }}
-                          className={`px-2 py-1 rounded-lg text-[10px] font-bold cursor-pointer transition-colors ${
-                            item.isUploaded
-                              ? 'bg-slate-800 hover:bg-slate-700 text-slate-200'
-                              : 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                          }`}
-                        >
-                          {item.isUploaded ? 'Retake' : 'Capture'}
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
+                  { step: 1, tag: 'FRONT' as PackageSideTag, title: 'Front', icon: '🏷️', isUploaded: Boolean(uploadedImage) },
+                  { step: 2, tag: 'BACK' as PackageSideTag, title: 'Back', icon: '🏭', isUploaded: queuedSides.some(s => s.tag === 'BACK') },
+                  { step: 3, tag: 'TOP' as PackageSideTag, title: 'MRP', icon: '💰', isUploaded: queuedSides.some(s => s.tag === 'TOP') },
+                  { step: 4, tag: 'SIDE_LEFT' as PackageSideTag, title: 'Side', icon: '📋', isUploaded: queuedSides.some(s => s.tag === 'SIDE_LEFT' || s.tag === 'SIDE_RIGHT') },
+                ].map(item => (
+                  <button key={item.tag} type="button"
+                    onClick={() => { setActiveSideCapturing(item.tag); setIsCameraOpen(true); }}
+                    className={`flex flex-col items-center gap-1.5 p-2.5 rounded-2xl border transition-all duration-200 btn-press cursor-pointer ${
+                      item.isUploaded
+                        ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
+                        : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-emerald-300 hover:bg-emerald-50/50'
+                    }`}>
+                    <span className="text-lg">{item.isUploaded ? '✅' : item.icon}</span>
+                    <span className="text-[10px] font-bold">{item.title}</span>
+                    <span className={`text-[9px] font-semibold ${item.isUploaded ? 'text-emerald-500' : 'text-slate-400'}`}>
+                      {item.isUploaded ? 'Done' : 'Tap'}
+                    </span>
+                  </button>
+                ))}
               </div>
 
-              {/* Analyze Package CTA when views are captured */}
+              {/* Analyze button — shown when photo ready */}
               {(uploadedImage || queuedSides.length > 0) && (
-                <div className="pt-3 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
-                  <div className="text-xs text-slate-300 font-medium flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span>
-                      {(uploadedImage ? 1 : 0) + queuedSides.length} photo(s) ready. One clear photo is enough; extra sides are optional.
-                    </span>
-                  </div>
-
-                  <button
-                    type="button"
+                <div className="px-3 pb-3 fade-in">
+                  <button type="button"
                     onClick={() => executeScan(selectedCategory, uploadedImage || undefined, fileName, undefined, queuedSides)}
-                    className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 hover:from-emerald-500 hover:to-blue-500 text-white rounded-xl text-xs font-black shadow-lg shadow-emerald-950/40 flex items-center justify-center gap-2 transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
-                  >
-                    <span>🔍 {lang === 'hi' ? 'पैकेज का विश्लेषण करें (Analyze Package)' : 'Analyze Package & Verify Rules'}</span>
+                    className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white rounded-2xl text-sm font-black shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 transition-all duration-200 btn-press cursor-pointer">
+                    <span>🔍 {lang === 'hi' ? 'पैकेज का विश्लेषण करें' : 'Analyze Package'}</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -733,46 +613,50 @@ export const ConsumerScanPage: React.FC = () => {
         )}
       </div>
 
-      {/* Benchmark Presets Section (Strictly labeled as Demo Benchmark) */}
-      <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+
+      {/* Benchmark Presets Section */}
+      <div className="glass-card p-5 space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-black uppercase tracking-wider mb-1">
-              <span>Controlled Benchmark Library</span>
-            </div>
-            <h3 className="text-sm sm:text-base font-extrabold text-slate-900">
-              {lang === 'hi' ? 'नियंत्रित बेंचमार्क टेस्ट सैंपल्स' : 'Controlled Benchmark Calibration Samples'}
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-black uppercase tracking-wider mb-1.5">
+              📦 Demo Benchmarks
+            </span>
+            <h3 className="text-sm font-extrabold text-slate-900">
+              {lang === 'hi' ? 'नियंत्रित बेंचमार्क सैंपल्स' : 'Try with Sample Products'}
             </h3>
           </div>
-          <span className="text-[11px] font-bold text-slate-500">
-            {DEMO_PRESETS.length} Benchmarks Available
+          <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full">
+            {DEMO_PRESETS.length} available
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
           {DEMO_PRESETS.map((preset) => (
-            <button
-              key={preset.id}
-              type="button"
+            <button key={preset.id} type="button"
               onClick={() => handleSelectPreset(preset.id)}
-              className="p-3.5 rounded-2xl border border-slate-200 hover:border-emerald-500/60 bg-white hover:bg-emerald-50/30 text-left transition-all cursor-pointer shadow-2xs hover:shadow-md flex items-center gap-3 group"
-            >
-              <img
-                src={preset.imageUrl}
-                alt={preset.title}
-                className="w-12 h-12 object-cover rounded-xl border border-slate-200 shrink-0 group-hover:scale-105 transition-transform"
-              />
-              <div className="min-w-0">
+              className="p-3 rounded-2xl border border-slate-200/80 bg-white/80 hover:border-emerald-400/60 hover:bg-emerald-50/40 text-left transition-all duration-200 cursor-pointer flex items-center gap-3 group card-hover">
+              <div className="w-12 h-12 rounded-xl border border-slate-200 overflow-hidden shrink-0 shadow-sm group-hover:shadow-md transition-shadow">
+                <img src={preset.imageUrl} alt={preset.title}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+              </div>
+              <div className="min-w-0 flex-1">
                 <div className="text-xs font-bold text-slate-900 truncate">{preset.title}</div>
                 <div className="text-[10px] text-slate-500 truncate mt-0.5">{preset.subtitle}</div>
-                <div className="text-[9px] font-mono font-bold text-emerald-700 mt-1">
-                  ₹{preset.mrp.toFixed(2)} • {preset.netQuantity}
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-[9px] font-mono font-black text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-md">
+                    ₹{preset.mrp.toFixed(2)}
+                  </span>
+                  <span className="text-[9px] text-slate-400 font-medium">{preset.netQuantity}</span>
                 </div>
+              </div>
+              <div className="w-6 h-6 rounded-full bg-slate-100 group-hover:bg-emerald-100 flex items-center justify-center transition-all duration-200 shrink-0">
+                <ArrowRight className="w-3 h-3 text-slate-400 group-hover:text-emerald-600 transition-colors" />
               </div>
             </button>
           ))}
         </div>
       </div>
+
 
       <CloudConnectionModal
         isOpen={isCloudModalOpen}
