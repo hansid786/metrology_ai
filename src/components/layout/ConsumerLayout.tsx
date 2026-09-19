@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  Shield, ShoppingBag, PhoneCall, History, BookOpen, ScanLine,
-  Landmark, LogOut, ShieldAlert, X, Sparkles, Bot, MessageSquare
+  ShoppingBag, PhoneCall, History, BookOpen, ScanLine,
+  Landmark, LogOut, Sparkles
 } from 'lucide-react';
 import { authService } from '../../services/authService';
 import { useLanguage } from '../../context/LanguageContext';
@@ -13,10 +13,10 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
   const navigate = useNavigate();
   const location = useLocation();
   const { lang } = useLanguage();
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  const handleOpenLogoutModal = () => {
-    setShowLogoutModal(true);
+  const handleDirectLogout = () => {
+    authService.logout();
+    navigate('/login');
   };
 
   const handleOpenChat = () => {
@@ -102,13 +102,14 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
               );
             })}
 
+            {/* Direct Sign Out Button */}
             <button
-              onClick={handleOpenLogoutModal}
-              title={lang === 'hi' ? 'अधिकारी पोर्टल पर स्विच करें' : 'Switch to Officer Portal'}
-              className="p-2 sm:px-3 sm:py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all duration-200 btn-press"
+              onClick={handleDirectLogout}
+              title={lang === 'hi' ? 'साइन आउट करें' : 'Sign Out'}
+              className="px-2.5 sm:px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 hover:text-rose-800 border border-rose-200/80 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all duration-200 btn-press"
             >
-              <Shield className="w-3.5 h-3.5 text-blue-300" />
-              <span className="hidden sm:inline">{lang === 'hi' ? 'अधिकारी' : 'Officer'}</span>
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{lang === 'hi' ? 'साइन आउट' : 'Sign Out'}</span>
             </button>
           </div>
         </header>
@@ -204,68 +205,6 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
           </button>
         </div>
       </nav>
-
-      {/* Logout / Switch Gateway Confirmation Modal */}
-      {showLogoutModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 p-6 space-y-5 animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between">
-              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-600 flex items-center justify-center shadow-xs">
-                <ShieldAlert className="w-6 h-6" />
-              </div>
-              <button
-                onClick={() => setShowLogoutModal(false)}
-                className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="space-y-1.5">
-              <h3 className="text-base sm:text-lg font-black text-slate-900">
-                {lang === 'hi' ? 'सत्र समाप्त / अधिकारी पोर्टल' : 'Exit Consumer Portal?'}
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
-                {lang === 'hi'
-                  ? 'आप उपभोक्ता सत्यापन सत्र से बाहर निकलकर अधिकारी लॉगिन गेटवे पर जा रहे हैं। क्या आप जारी रखना चाहते हैं?'
-                  : 'You are about to exit the Consumer Portal and switch to the Officer Login & Authentication gateway. Do you want to proceed?'}
-              </p>
-            </div>
-
-            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/80 flex items-center gap-2 text-xs text-slate-600">
-              <Shield className="w-4 h-4 text-indigo-600 shrink-0" />
-              <span>
-                {lang === 'hi'
-                  ? 'अधिकारी पोर्टल केवल अधिकृत विधिक मापविज्ञान अधिकारियों के लिए है।'
-                  : 'Officer portal is strictly reserved for authorized Legal Metrology inspectors.'}
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => setShowLogoutModal(false)}
-                className="py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer text-center"
-              >
-                {lang === 'hi' ? 'रद्द करें' : 'Cancel'}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  authService.logout();
-                  setShowLogoutModal(false);
-                  navigate('/login');
-                }}
-                className="py-3 px-4 bg-gradient-to-r from-slate-900 to-indigo-950 hover:from-slate-800 hover:to-indigo-900 text-white rounded-xl text-xs font-black shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>{lang === 'hi' ? 'लॉगआउट करें' : 'Log Out'}</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       <OfficialGovFooter />
     </div>
