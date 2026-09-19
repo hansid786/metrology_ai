@@ -59,7 +59,7 @@ export function generateChatbotResponse(rawQuery: string, lang: Language, contex
   if (/(electronic.*usp|usp.*electronic|unit\s*sale\s*price.*electronic|is\s*unit\s*sale\s*price\s*mandatory\s*on\s*electronic)/i.test(qLower)) {
     if (lang === 'hi' || isHinglish) {
       return {
-        text: `⚖️ **इलेक्ट्रॉनिक्स पर USP छूट (Exemption):**\nविधिक मापविज्ञान (पैकेज्ड कमोडिटीज) नियम, 2011 के **नियम 6(1)(e)** के तहत, एकल इकाइयों (Piece/Unit/Number) में बेचे जाने वाले इलेक्ट्रॉनिक उपकरणों (जैसे पावर बैंक, मोबाइल, चार्जर) पर प्रति-ग्राम या प्रति-मिलीलीटर USP लिखना **अनिवार्य नहीं है (छूट प्राप्त है)**। इन पर केवल कुल MRP घोषित करना आवश्यक है।`,
+        text: `**इलेक्ट्रॉनिक्स पर USP छूट (Exemption):**\nविधिक मापविज्ञान (पैकेज्ड कमोडिटीज) नियम, 2011 के **नियम 6(1)(e)** के तहत, एकल इकाइयों (Piece/Unit/Number) में बेचे जाने वाले इलेक्ट्रॉनिक उपकरणों (जैसे पावर बैंक, मोबाइल, चार्जर) पर प्रति-ग्राम या प्रति-मिलीलीटर USP लिखना **अनिवार्य नहीं है (छूट प्राप्त है)**। इन पर केवल कुल MRP घोषित करना आवश्यक है।`,
         suggestedFollowups: [
           'What are the penalty rules under Section 36(1)?',
           'How to file an overcharging complaint under Rule 6?',
@@ -68,7 +68,7 @@ export function generateChatbotResponse(rawQuery: string, lang: Language, contex
       };
     }
     return {
-      text: `⚖️ **Legal Citation [Rule 6(1)(e) LM(PC) Rules, 2011]:**\nUnit Sale Price (₹/g or ₹/ml) is statutorily **EXEMPT** for electronic goods sold as discrete single units (piece/number). Only the Maximum Retail Price (MRP) per unit is legally mandatory.`,
+      text: `**Legal Citation [Rule 6(1)(e) LM(PC) Rules, 2011]:**\nUnit Sale Price (₹/g or ₹/ml) is statutorily **EXEMPT** for electronic goods sold as discrete single units (piece/number). Only the Maximum Retail Price (MRP) per unit is legally mandatory.`,
       suggestedFollowups: [
         'What are the penalty rules under Section 36(1)?',
         'How to file an overcharging complaint under Rule 6?',
@@ -81,7 +81,7 @@ export function generateChatbotResponse(rawQuery: string, lang: Language, contex
   if (/(how to file.*overcharg|file.*complaint.*rule 6|overcharg.*complaint.*rule 6|shikayat.*kaise.*kare|complaint.*kaise)/i.test(qLower)) {
     if (lang === 'hi' || isHinglish) {
       return {
-        text: `⚖️ **अधिक वसूली (Overcharging) की शिकायत प्रक्रिया:**\n1. **टोल-फ्री 1915** पर कॉल करें (सुबह 8 बजे से रात 8 बजे तक) या WhatsApp **8860001915** पर रसीद और MRP की फोटो भेजें।\n2. **National Consumer Helpline Portal** (consumerhelpline.gov.in) या NCH App पर ऑनलाइन शिकायत दर्ज करें।\n3. विधिक मापविज्ञान विभाग **धारा 36(1)** के तहत दुकानदार पर ₹25,000 तक का जुर्माना लगा सकता है।`,
+        text: `**अधिक वसूली (Overcharging) की शिकायत प्रक्रिया:**\n1. **टोल-फ्री 1915** पर कॉल करें (सुबह 8 बजे से रात 8 बजे तक) या WhatsApp **8860001915** पर रसीद और MRP की फोटो भेजें।\n2. **National Consumer Helpline Portal** (consumerhelpline.gov.in) या NCH App पर ऑनलाइन शिकायत दर्ज करें।\n3. विधिक मापविज्ञान विभाग **धारा 36(1)** के तहत दुकानदार पर ₹25,000 तक का जुर्माना लगा सकता है।`,
         suggestedFollowups: [
           'What are the penalty rules under Section 36(1)?',
           'Can shops charge extra for cooling / fridge?',
@@ -90,7 +90,7 @@ export function generateChatbotResponse(rawQuery: string, lang: Language, contex
       };
     }
     return {
-      text: `⚖️ **Statutory Redressal [Rule 6 LM(PC) Rules & Section 36(1)]:**\n1. **Call 1915 (Toll-Free)** or WhatsApp packaging photo + retail bill to **8860001915**.\n2. Log a grievance on **consumerhelpline.gov.in** or the NCH Mobile App.\n3. The Legal Metrology Officer will initiate a Form PC-1 statutory inspection docket against the violator.`,
+      text: `**Statutory Redressal [Rule 6 LM(PC) Rules & Section 36(1)]:**\n1. **Call 1915 (Toll-Free)** or WhatsApp packaging photo + retail bill to **8860001915**.\n2. Log a grievance on **consumerhelpline.gov.in** or the NCH Mobile App.\n3. The Legal Metrology Officer will initiate a Form PC-1 statutory inspection docket against the violator.`,
       suggestedFollowups: [
         'What are the penalty rules under Section 36(1)?',
         'Can shops charge extra for cooling / fridge?',
@@ -103,7 +103,7 @@ export function generateChatbotResponse(rawQuery: string, lang: Language, contex
   if (/(penalty.*36\(1\)|section 36\(1\)|36\(1\).*penalty|penalt.*rules|fine.*kitna|saza.*kya)/i.test(qLower)) {
     if (lang === 'hi' || isHinglish) {
       return {
-        text: `⚖️ **धारा 36(1) विधिक मापविज्ञान अधिनियम, 2009 के तहत दंड:**\n• **प्रथम अपराध (1st Offense):** ₹25,000 तक का नकद जुर्माना।\n• **द्वितीय अपराध (2nd Offense):** ₹50,000 तक का जुर्माना।\n• **बार-बार उल्लंघन (Subsequent Offenses):** ₹1,00,000 तक का जुर्माना या **1 वर्ष तक का कारावास** (जेल) या दोनों।`,
+        text: `**धारा 36(1) विधिक मापविज्ञान अधिनियम, 2009 के तहत दंड:**\n• **प्रथम अपराध (1st Offense):** ₹25,000 तक का नकद जुर्माना।\n• **द्वितीय अपराध (2nd Offense):** ₹50,000 तक का जुर्माना।\n• **बार-बार उल्लंघन (Subsequent Offenses):** ₹1,00,000 तक का जुर्माना या **1 वर्ष तक का कारावास** (जेल) या दोनों।`,
         suggestedFollowups: [
           'How to file an overcharging complaint under Rule 6?',
           'Is Unit Sale Price mandatory on electronic items?',
@@ -112,7 +112,7 @@ export function generateChatbotResponse(rawQuery: string, lang: Language, contex
       };
     }
     return {
-      text: `⚖️ **Statutory Penalties [Section 36(1), Legal Metrology Act, 2009]:**\n• **1st Offense:** Fine up to ₹25,000 for manufacturing, packing or selling non-compliant goods.\n• **2nd Offense:** Fine up to ₹50,000.\n• **Subsequent Offenses:** Fine up to ₹1,00,000 or **imprisonment up to 1 year**, or both.`,
+      text: `**Statutory Penalties [Section 36(1), Legal Metrology Act, 2009]:**\n• **1st Offense:** Fine up to ₹25,000 for manufacturing, packing or selling non-compliant goods.\n• **2nd Offense:** Fine up to ₹50,000.\n• **Subsequent Offenses:** Fine up to ₹1,00,000 or **imprisonment up to 1 year**, or both.`,
       suggestedFollowups: [
         'How to file an overcharging complaint under Rule 6?',
         'Is Unit Sale Price mandatory on electronic items?',
@@ -125,7 +125,7 @@ export function generateChatbotResponse(rawQuery: string, lang: Language, contex
   if (/^(hi|hello|hey|namaste|namaskar|pranam|halo|hola|good\s*(morning|afternoon|evening)|kaise\s*ho|kya\s*haal|kese\s*ho|hlo)/i.test(qLower)) {
     if (lang === 'hi' || isHinglish) {
       return {
-        text: `नमस्ते! 🙏 मैं **MetrologyLens Legal AI** हूँ — भारत सरकार के उपभोक्ता मामले विभाग की ओर से आपका आधिकारिक कानूनी सहायक।\n\nआप मुझसे MRP कानून, अधिक वसूली, एक्सपायरी, पैकेजिंग नियम (Rule 6, Rule 7, Rule 8), तराजू या 1915 हेल्पलाइन के बारे में कुछ भी पूछ सकते हैं।`,
+        text: `नमस्ते, मैं **MetrologyLens Legal AI** हूँ — भारत सरकार के उपभोक्ता मामले विभाग की ओर से आपका आधिकारिक कानूनी सहायक।\n\nआप मुझसे MRP कानून, अधिक वसूली, एक्सपायरी, पैकेजिंग नियम (Rule 6, Rule 7, Rule 8), तराजू या 1915 हेल्पलाइन के बारे में कुछ भी पूछ सकते हैं।`,
         suggestedFollowups: [
           'Can shops charge extra for cold water / cooling?',
           'What are font size rules under Rule 7(3)?',
@@ -134,7 +134,7 @@ export function generateChatbotResponse(rawQuery: string, lang: Language, contex
       };
     }
     return {
-      text: `Hello! 👋 I am **MetrologyLens Legal AI**, your official assistant for Legal Metrology & Consumer Protection under the Department of Consumer Affairs, Govt. of India.\n\nAsk me anything about MRP compliance, packaging laws (Rules 6, 7 & 8), overcharging, or filing consumer grievances.`,
+      text: `Hello, I am **MetrologyLens Legal AI**, your official assistant for Legal Metrology & Consumer Protection under the Department of Consumer Affairs, Govt. of India.\n\nAsk me anything about MRP compliance, packaging laws (Rules 6, 7 & 8), overcharging, or filing consumer grievances.`,
       suggestedFollowups: [
         'Can shops charge extra for cold water / cooling?',
         'What are font size rules under Rule 7(3)?',

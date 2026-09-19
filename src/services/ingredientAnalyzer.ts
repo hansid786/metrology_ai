@@ -159,14 +159,14 @@ export function analyzeIngredients(
 
   if (harmfulIngredients.length > 0) {
     const harmfulNames = harmfulIngredients.map(h => h.name.split('(')[0].trim()).join(', ');
-    adviceEn = `⚠️ CAUTION: Contains high-risk ingredients (${harmfulNames}). Not recommended for regular daily consumption by children or individuals with cardiovascular/metabolic risks.`;
-    adviceHi = `⚠️ चेतावनी: इसमें उच्च जोखिम वाले तत्व (${harmfulNames}) पाए गए हैं। बच्चों या हृदय/डायबिटीज रोगियों के लिए नियमित सेवन हानिकारक हो सकता है।`;
+    adviceEn = `CAUTION: Contains high-risk ingredients (${harmfulNames}). Not recommended for regular daily consumption by children or individuals with cardiovascular/metabolic risks.`;
+    adviceHi = `चेतावनी: इसमें उच्च जोखिम वाले तत्व (${harmfulNames}) पाए गए हैं। बच्चों या हृदय/डायबिटीज रोगियों के लिए नियमित सेवन हानिकारक हो सकता है।`;
   } else if (cautionIngredients.length > 0) {
-    adviceEn = `ℹ️ MODERATE PROCESSING: Contains flavor enhancers/refined carbohydrates. Consume in moderation as part of a balanced diet.`;
-    adviceHi = `ℹ️ मध्यम प्रोसेस्ड: इसमें मैदा/फ्लेवर एन्हांसर मौजूद हैं। संतुलित आहार के हिस्से के रूप में सीमित मात्रा में लें।`;
+    adviceEn = `MODERATE PROCESSING: Contains flavor enhancers/refined carbohydrates. Consume in moderation as part of a balanced diet.`;
+    adviceHi = `मध्यम प्रोसेस्ड: इसमें मैदा/फ्लेवर एन्हांसर मौजूद हैं। संतुलित आहार के हिस्से के रूप में सीमित मात्रा में लें।`;
   } else {
-    adviceEn = `✅ CLEAN PROFILE: No dangerous chemical dyes, trans fats, or high-risk synthetic preservatives detected.`;
-    adviceHi = `✅ सुरक्षित प्रोफाइल: कोई हानिकारक कृत्रिम रंग, ट्रांस फैट या खतरनाक प्रिजर्वेटिव नहीं मिला।`;
+    adviceEn = `CLEAN PROFILE: No dangerous chemical dyes, trans fats, or high-risk synthetic preservatives detected.`;
+    adviceHi = `सुरक्षित प्रोफाइल: कोई हानिकारक कृत्रिम रंग, ट्रांस फैट या खतरनाक प्रिजर्वेटिव नहीं मिला।`;
   }
 
   if (allergensDetected.length > 0) {
