@@ -218,16 +218,16 @@ Reported via MetrologyLens AI (Govt of India SIH Initiative)`;
             type="button"
             onClick={() => {
               const overchargeText = result.pricing.isDiscrepancy 
-                ? `⚠️ Overcharging Detected: Printed USP differs from legal rate.`
-                : `✓ Statutory Compliance Verified (100% Evidence-Backed).`;
+                ? `[WARNING] Overcharging Detected: Printed USP differs from statutory legal rate.`
+                : `[VERIFIED] Statutory Compliance Verified (100% Evidence-Backed).`;
               const text = `*LEGAL METROLOGY VERIFICATION DOCKET*\n` +
-                `📦 *Product:* ${metadata.productName}\n` +
-                `💰 *Printed MRP:* ₹${result.pricing.mrpAmount.toFixed(2)}\n` +
-                `⚖️ *Net Quantity:* ${result.pricing.netQuantityValue} ${result.pricing.netQuantityUnit}\n` +
-                `🏢 *Manufacturer:* ${metadata.manufacturer || 'Packaged Commodity'}\n` +
-                `📜 *Legal Ref:* Rule 6(1)(e) - Legal Metrology (PC) Rules, 2011\n` +
+                `*Product:* ${metadata.productName}\n` +
+                `*Printed MRP:* ₹${result.pricing.mrpAmount.toFixed(2)}\n` +
+                `*Net Quantity:* ${result.pricing.netQuantityValue} ${result.pricing.netQuantityUnit}\n` +
+                `*Manufacturer:* ${metadata.manufacturer || 'Packaged Commodity'}\n` +
+                `*Legal Ref:* Rule 6(1)(e) - Legal Metrology (PC) Rules, 2011\n` +
                 `${overchargeText}\n` +
-                `🔗 *Docket:* https://metrologylens-ai.vercel.app/consumer/results/${inspection.id}`;
+                `*Docket Reference:* https://metrologylens-ai.vercel.app/consumer/results/${inspection.id}`;
               window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
             }}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all cursor-pointer shadow-xs"
@@ -496,7 +496,7 @@ Reported via MetrologyLens AI (Govt of India SIH Initiative)`;
           </span>
           <span className="px-2.5 py-1 rounded-lg bg-white/10 border border-white/15 flex items-center gap-1.5">
             <Ruler className="w-3.5 h-3.5 text-amber-300" />
-            <span>Font Readability: {result.fontReadabilitySummary?.overallFontCompliant !== false ? '✓ Rule 7(3) Pass (≥1mm)' : '⚠️ Font Warning'}</span>
+            <span>Font Readability: {result.fontReadabilitySummary?.overallFontCompliant !== false ? 'Rule 7(3) Pass (≥1mm)' : 'Font Warning'}</span>
           </span>
         </div>
       </div>
@@ -690,8 +690,18 @@ Reported via MetrologyLens AI (Govt of India SIH Initiative)`;
                   : 'bg-emerald-950/60 border-emerald-500/50 text-emerald-200'
               }`}>
                 <div className="text-[10px] font-bold">Audit Result</div>
-                <div className="text-xs font-black">
-                  {result.pricing.isDiscrepancy ? '⚠️ Discrepancy / Overcharging' : '✓ Verified Accurate Match'}
+                <div className="text-xs font-black flex items-center gap-1.5">
+                  {result.pricing.isDiscrepancy ? (
+                    <>
+                      <AlertTriangle className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                      <span>Discrepancy / Overcharging</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      <span>Verified Accurate Match</span>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -855,8 +865,9 @@ Reported via MetrologyLens AI (Govt of India SIH Initiative)`;
                     </p>
 
                     {item.fssaiRegulationNote && (
-                      <div className="p-2 bg-rose-100/60 rounded-xl text-[10px] font-bold text-rose-950 border border-rose-200">
-                        ⚖️ FSSAI Note: {item.fssaiRegulationNote}
+                      <div className="p-2 bg-rose-100/60 rounded-xl text-[10px] font-bold text-rose-950 border border-rose-200 flex items-center gap-1.5">
+                        <Scale className="w-3.5 h-3.5 text-rose-700 shrink-0" />
+                        <span>FSSAI Note: {item.fssaiRegulationNote}</span>
                       </div>
                     )}
                   </div>
@@ -916,8 +927,9 @@ Reported via MetrologyLens AI (Govt of India SIH Initiative)`;
                   </p>
                   <div className="flex flex-wrap gap-1.5">
                     {result.ingredientAnalysis.allergensDetected.map((allergen, i) => (
-                      <span key={i} className="px-2.5 py-1 bg-blue-600 text-white rounded-lg text-xs font-bold shadow-xs">
-                        ⚠️ {allergen}
+                      <span key={i} className="px-2.5 py-1 bg-blue-600 text-white rounded-lg text-xs font-bold shadow-xs flex items-center gap-1">
+                        <AlertTriangle className="w-3 h-3 text-amber-300 shrink-0" />
+                        <span>{allergen}</span>
                       </span>
                     ))}
                   </div>
@@ -1073,10 +1085,10 @@ Reported via MetrologyLens AI (Govt of India SIH Initiative)`;
               const isNotDetected = decl.status === 'NOT_DETECTED' || decl.status === 'REVIEW_REQUIRED';
 
               const whyExplanation = isPassed
-                ? `✓ ${decl.name} was successfully verified from the packaging evidence in accordance with ${decl.legalReference || 'statutory provisions'}.`
+                ? `${decl.name} was successfully verified from the packaging evidence in accordance with ${decl.legalReference || 'statutory provisions'}.`
                 : isFail
-                ? `✕ ${decl.name} failed verification. Detected value differs from the statutory requirement.`
-                : `⚠ ${decl.name} could not be reliably extracted from the uploaded image angle(s).`;
+                ? `${decl.name} failed verification. Detected value differs from the statutory requirement.`
+                : `${decl.name} could not be reliably extracted from the uploaded image angle(s).`;
 
               return (
                 <div
@@ -1094,18 +1106,21 @@ Reported via MetrologyLens AI (Govt of India SIH Initiative)`;
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-black text-slate-900 truncate">{decl.name}</span>
                         {isPassed && (
-                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                            ✓ Verified Compliant
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 inline-flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-700" />
+                            <span>Verified Compliant</span>
                           </span>
                         )}
                         {isFail && (
-                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-300">
-                            ✕ Verified Violation
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-300 inline-flex items-center gap-1">
+                            <AlertCircle className="w-3 h-3 text-rose-700" />
+                            <span>Verified Violation</span>
                           </span>
                         )}
                         {isNotDetected && (
-                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
-                            ⚠ Unable to Verify
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300 inline-flex items-center gap-1">
+                            <AlertTriangle className="w-3 h-3 text-amber-700" />
+                            <span>Unable to Verify</span>
                           </span>
                         )}
                       </div>

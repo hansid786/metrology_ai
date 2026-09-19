@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Shield, ShoppingBag, PhoneCall, History, BookOpen, ScanLine } from 'lucide-react';
+import { Shield, ShoppingBag, PhoneCall, History, BookOpen, ScanLine, Landmark, LogOut, ShieldAlert, X } from 'lucide-react';
 import { authService } from '../../services/authService';
 import { useLanguage } from '../../context/LanguageContext';
 import { LanguageToggle } from '../common/LanguageToggle';
@@ -10,10 +10,10 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
   const navigate = useNavigate();
   const location = useLocation();
   const { lang } = useLanguage();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  const handleSwitchToOfficer = () => {
-    authService.logout();
-    navigate('/login');
+  const handleOpenLogoutModal = () => {
+    setShowLogoutModal(true);
   };
 
   const navItems = [
@@ -27,7 +27,7 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
       style={{ background: 'linear-gradient(160deg, #f0fdf4 0%, #f1f5f9 45%, #eff6ff 100%)' }}>
 
       {/* ── Sticky Glass Header ── */}
-      <div className="sticky top-0 z-50"
+      <div className="sticky top-0 z-40"
         style={{
           background: 'rgba(255,255,255,0.82)',
           backdropFilter: 'blur(24px) saturate(1.6)',
@@ -52,8 +52,9 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
-                <span className="text-[11px] font-semibold text-slate-400 hidden md:inline">
-                  🇮🇳 {lang === 'hi' ? 'भारत सरकार' : 'Govt. of India'}
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 hidden md:inline-flex">
+                  <Landmark className="w-3.5 h-3.5 text-slate-600" />
+                  <span>{lang === 'hi' ? 'भारत सरकार' : 'Govt. of India'}</span>
                 </span>
                 <span className="text-slate-200 hidden md:inline">·</span>
                 <span className="text-sm font-black text-slate-900 tracking-tight whitespace-nowrap">
@@ -94,8 +95,11 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
               );
             })}
 
-            <button onClick={handleSwitchToOfficer}
-              className="p-2 sm:px-3 sm:py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all duration-200 btn-press">
+            <button
+              onClick={handleOpenLogoutModal}
+              title={lang === 'hi' ? 'अधिकारी पोर्टल पर स्विच करें' : 'Switch to Officer Portal'}
+              className="p-2 sm:px-3 sm:py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all duration-200 btn-press"
+            >
               <Shield className="w-3.5 h-3.5 text-blue-300" />
               <span className="hidden sm:inline">{lang === 'hi' ? 'अधिकारी' : 'Officer'}</span>
             </button>
@@ -108,41 +112,154 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
         {children}
       </main>
 
-      {/* ── Mobile Bottom Nav ── */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden"
+      {/* ── App-Style Mobile Bottom Navigation Bar ── */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden"
         style={{
-          background: 'rgba(255,255,255,0.93)',
-          backdropFilter: 'blur(20px) saturate(1.6)',
-          WebkitBackdropFilter: 'blur(20px) saturate(1.6)',
-          borderTop: '1px solid rgba(0,0,0,0.07)',
-          boxShadow: '0 -4px 24px rgba(0,0,0,0.07)',
+          background: 'rgba(255,255,255,0.92)',
+          backdropFilter: 'blur(24px) saturate(1.8)',
+          WebkitBackdropFilter: 'blur(24px) saturate(1.8)',
+          borderTop: '1px solid rgba(0,0,0,0.08)',
+          boxShadow: '0 -4px 28px rgba(0,0,0,0.08)',
           paddingBottom: 'env(safe-area-inset-bottom, 8px)',
         }}>
-        <div className="flex items-center justify-around pt-2 pb-1">
-          {navItems.map(item => {
-            const Icon = item.icon;
-            const active = location.pathname === item.path;
-            return (
-              <button key={item.path} onClick={() => navigate(item.path)}
-                className="flex flex-col items-center gap-0.5 px-5 py-1 btn-press">
-                <div className={`p-1.5 rounded-2xl transition-all duration-200 ${active ? 'bg-emerald-100' : ''}`}>
-                  <Icon className={`w-5 h-5 transition-all duration-200 ${active ? 'text-emerald-600' : 'text-slate-400'}`} />
-                </div>
-                <span className={`text-[10px] font-bold transition-colors duration-200 ${active ? 'text-emerald-600' : 'text-slate-400'}`}>
-                  {item.label}
-                </span>
-              </button>
-            );
-          })}
-          <button onClick={handleSwitchToOfficer}
-            className="flex flex-col items-center gap-0.5 px-4 py-1 text-slate-400 btn-press">
-            <div className="p-1.5 rounded-2xl">
-              <Shield className="w-5 h-5" />
+        <div className="flex items-center justify-around px-2 pt-1 pb-1">
+          {/* Tab 1: History */}
+          <button
+            onClick={() => navigate('/consumer/history')}
+            className="flex-1 flex flex-col items-center gap-0.5 py-1 btn-press cursor-pointer"
+          >
+            <div className={`p-1.5 rounded-2xl transition-all duration-200 ${
+              location.pathname === '/consumer/history' ? 'bg-emerald-100 text-emerald-700' : 'text-slate-400'
+            }`}>
+              <History className="w-5 h-5" />
             </div>
-            <span className="text-[10px] font-bold">{lang === 'hi' ? 'अधिकारी' : 'Officer'}</span>
+            <span className={`text-[10px] font-bold ${
+              location.pathname === '/consumer/history' ? 'text-emerald-700 font-black' : 'text-slate-500'
+            }`}>
+              {lang === 'hi' ? 'इतिहास' : 'History'}
+            </span>
+          </button>
+
+          {/* Tab 2: Legal Rules */}
+          <button
+            onClick={() => navigate('/consumer/rules')}
+            className="flex-1 flex flex-col items-center gap-0.5 py-1 btn-press cursor-pointer"
+          >
+            <div className={`p-1.5 rounded-2xl transition-all duration-200 ${
+              location.pathname === '/consumer/rules' ? 'bg-emerald-100 text-emerald-700' : 'text-slate-400'
+            }`}>
+              <BookOpen className="w-5 h-5" />
+            </div>
+            <span className={`text-[10px] font-bold ${
+              location.pathname === '/consumer/rules' ? 'text-emerald-700 font-black' : 'text-slate-500'
+            }`}>
+              {lang === 'hi' ? 'नियम' : 'Rules'}
+            </span>
+          </button>
+
+          {/* Tab 3: Center Elevated SCAN Hero Button (Like Instagram Reels / Camera) */}
+          <div className="flex-1 flex flex-col items-center justify-center -mt-5">
+            <button
+              onClick={() => navigate('/consumer/scan')}
+              className={`w-13 h-13 rounded-full bg-gradient-to-tr from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 text-white shadow-xl shadow-emerald-600/40 border-4 border-white flex flex-col items-center justify-center transition-all transform active:scale-90 cursor-pointer ${
+                location.pathname === '/consumer/scan' ? 'ring-2 ring-emerald-500 ring-offset-2' : ''
+              }`}
+              title="Instant Scan Product"
+            >
+              <ScanLine className="w-6 h-6 animate-pulse" />
+            </button>
+            <span className="text-[10px] font-black text-emerald-700 mt-0.5">
+              {lang === 'hi' ? 'स्कैन करें' : 'Scan'}
+            </span>
+          </div>
+
+          {/* Tab 4: NCH 1915 Helpline */}
+          <a
+            href="tel:1915"
+            className="flex-1 flex flex-col items-center gap-0.5 py-1 btn-press cursor-pointer text-amber-700"
+          >
+            <div className="p-1.5 rounded-2xl bg-amber-50 text-amber-600 transition-all">
+              <PhoneCall className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] font-black text-amber-800">1915</span>
+          </a>
+
+          {/* Tab 5: Switch to Officer Portal */}
+          <button
+            onClick={handleOpenLogoutModal}
+            className="flex-1 flex flex-col items-center gap-0.5 py-1 text-slate-500 hover:text-slate-800 btn-press cursor-pointer"
+          >
+            <div className="p-1.5 rounded-2xl text-slate-400 hover:bg-slate-100 transition-all">
+              <Shield className="w-5 h-5 text-indigo-600" />
+            </div>
+            <span className="text-[10px] font-bold text-slate-600">
+              {lang === 'hi' ? 'अधिकारी' : 'Officer'}
+            </span>
           </button>
         </div>
       </nav>
+
+      {/* Logout / Switch Gateway Confirmation Modal */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 p-6 space-y-5 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between">
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-600 flex items-center justify-center shadow-xs">
+                <ShieldAlert className="w-6 h-6" />
+              </div>
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-1.5">
+              <h3 className="text-base sm:text-lg font-black text-slate-900">
+                {lang === 'hi' ? 'सत्र समाप्त / अधिकारी पोर्टल' : 'Exit Consumer Portal?'}
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
+                {lang === 'hi'
+                  ? 'आप उपभोक्ता सत्यापन सत्र से बाहर निकलकर अधिकारी लॉगिन गेटवे पर जा रहे हैं। क्या आप जारी रखना चाहते हैं?'
+                  : 'You are about to exit the Consumer Portal and switch to the Officer Login & Authentication gateway. Do you want to proceed?'}
+              </p>
+            </div>
+
+            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/80 flex items-center gap-2 text-xs text-slate-600">
+              <Shield className="w-4 h-4 text-indigo-600 shrink-0" />
+              <span>
+                {lang === 'hi'
+                  ? 'अधिकारी पोर्टल केवल अधिकृत विधिक मापविज्ञान अधिकारियों के लिए है।'
+                  : 'Officer portal is strictly reserved for authorized Legal Metrology inspectors.'}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowLogoutModal(false)}
+                className="py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer text-center"
+              >
+                {lang === 'hi' ? 'रद्द करें' : 'Cancel'}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  authService.logout();
+                  setShowLogoutModal(false);
+                  navigate('/login');
+                }}
+                className="py-3 px-4 bg-gradient-to-r from-slate-900 to-indigo-950 hover:from-slate-800 hover:to-indigo-900 text-white rounded-xl text-xs font-black shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>{lang === 'hi' ? 'लॉगआउट करें' : 'Log Out'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <OfficialGovFooter />
     </div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, BookOpen, Copy, Check, PhoneCall, ShoppingBag, Sparkles } from 'lucide-react';
+import { Search, BookOpen, Copy, Check, PhoneCall, ShoppingBag, Sparkles, Scale } from 'lucide-react';
 import { COMPLIANCE_RULES, ComplianceRule } from '../../data/complianceRules';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -178,8 +178,9 @@ export const ConsumerRulesPage: React.FC = () => {
 
               {/* Legal Reference Footer */}
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
-                <div className="text-[10px] font-mono text-slate-500 truncate" title={displayRef}>
-                  ⚖️ {displayRef}
+                <div className="text-[10px] font-mono text-slate-500 truncate flex items-center gap-1" title={displayRef}>
+                  <Scale className="w-3 h-3 text-slate-400 shrink-0" />
+                  <span>{displayRef}</span>
                 </div>
 
                 <button

@@ -459,7 +459,7 @@ export const ResultsPage: React.FC = () => {
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                       decl.pdpPlacement?.isInsidePDP !== false ? 'bg-cyan-50 text-cyan-800 border border-cyan-200' : 'bg-rose-50 text-rose-800 border border-rose-200'
                     }`}>
-                      {decl.pdpPlacement?.isInsidePDP !== false ? (lang === 'hi' ? '✓ PDP में' : '✓ In PDP') : (lang === 'hi' ? '⚠️ सील मार्जिन' : '⚠️ Seal Flange')}
+                      {decl.pdpPlacement?.isInsidePDP !== false ? (lang === 'hi' ? 'PDP में' : 'In PDP') : (lang === 'hi' ? 'सील मार्जिन' : 'Seal Flange')}
                     </span>
                   </td>
                   <td className="py-3 px-3 text-center">

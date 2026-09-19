@@ -8,6 +8,7 @@ import {
 import { authService } from '../../services/authService';
 import { useLanguage } from '../../context/LanguageContext';
 import { LanguageToggle } from '../common/LanguageToggle';
+import { OfficialGovFooter } from '../common/OfficialGovFooter';
 
 const OFFICER_NAV_ITEMS = [
   { path: '/dashboard', labelEn: 'Dashboard Overview', labelHi: 'डैशबोर्ड अवलोकन', icon: LayoutDashboard },
@@ -241,6 +242,17 @@ interface AppLayoutProps {
 
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { lang } = useLanguage();
+
+  const officerMobileTabs = [
+    { path: '/dashboard', labelEn: 'Overview', labelHi: 'डैशबोर्ड', icon: LayoutDashboard },
+    { path: '/history', labelEn: 'Records', labelHi: 'रिकॉर्ड्स', icon: ClipboardList },
+    { path: '/inspect/new', labelEn: 'Inspect', labelHi: 'निरीक्षण', icon: Plus, isHero: true },
+    { path: '/analytics', labelEn: 'Analytics', labelHi: 'एनालिटिक्स', icon: BarChart2 },
+    { path: '/rules', labelEn: 'Rules', labelHi: 'नियम', icon: ShieldCheck },
+  ];
 
   return (
     <div
@@ -256,21 +268,75 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(c => !c)} />
       <TopBar onMenuToggle={() => setSidebarCollapsed(c => !c)} sidebarCollapsed={sidebarCollapsed} />
       <main
-        className={`pt-16 min-h-screen transition-all duration-300 ${
+        className={`pt-16 min-h-screen transition-all duration-300 pb-24 lg:pb-8 ${
           sidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'
         }`}
       >
         <div className="w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8 page-enter">
           {children}
 
-          {/* SIH Official Hackathon Disclaimer */}
-          <footer className="pt-8 pb-4 text-center border-t border-slate-200/80">
-            <p className="text-xs text-slate-400 font-medium">
-              Prototype developed for Smart India Hackathon | Problem Statement ID: 26034. Demonstration Environment.
-            </p>
-          </footer>
+          <OfficialGovFooter />
         </div>
       </main>
+
+      {/* ── App-Style Officer Mobile Bottom Navigation Bar (Phone & Tablet) ── */}
+      <nav
+        className="fixed bottom-0 left-0 right-0 z-40 lg:hidden"
+        style={{
+          background: 'rgba(255,255,255,0.92)',
+          backdropFilter: 'blur(24px) saturate(1.8)',
+          WebkitBackdropFilter: 'blur(24px) saturate(1.8)',
+          borderTop: '1px solid rgba(0,0,0,0.08)',
+          boxShadow: '0 -4px 28px rgba(0,0,0,0.08)',
+          paddingBottom: 'env(safe-area-inset-bottom, 8px)',
+        }}
+      >
+        <div className="flex items-center justify-around px-2 pt-1 pb-1">
+          {officerMobileTabs.map(tab => {
+            const Icon = tab.icon;
+            const active = location.pathname === tab.path || (tab.path !== '/dashboard' && location.pathname.startsWith(tab.path));
+            const label = lang === 'hi' ? tab.labelHi : tab.labelEn;
+
+            if (tab.isHero) {
+              return (
+                <div key={tab.path} className="flex-1 flex flex-col items-center justify-center -mt-5">
+                  <button
+                    onClick={() => navigate(tab.path)}
+                    className={`w-13 h-13 rounded-full bg-gradient-to-tr from-indigo-600 via-blue-600 to-indigo-700 hover:from-indigo-500 hover:to-blue-500 text-white shadow-xl shadow-indigo-600/40 border-4 border-white flex flex-col items-center justify-center transition-all transform active:scale-90 cursor-pointer ${
+                      active ? 'ring-2 ring-indigo-500 ring-offset-2' : ''
+                    }`}
+                    title="New Statutory Inspection"
+                  >
+                    <Plus className="w-6 h-6 stroke-[2.5]" />
+                  </button>
+                  <span className="text-[10px] font-black text-indigo-700 mt-0.5">
+                    {label}
+                  </span>
+                </div>
+              );
+            }
+
+            return (
+              <button
+                key={tab.path}
+                onClick={() => navigate(tab.path)}
+                className="flex-1 flex flex-col items-center gap-0.5 py-1 btn-press cursor-pointer"
+              >
+                <div className={`p-1.5 rounded-2xl transition-all duration-200 ${
+                  active ? 'bg-indigo-100 text-indigo-700' : 'text-slate-400'
+                }`}>
+                  <Icon className="w-5 h-5" />
+                </div>
+                <span className={`text-[10px] font-bold ${
+                  active ? 'text-indigo-700 font-black' : 'text-slate-500'
+                }`}>
+                  {label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
     </div>
   );
 };

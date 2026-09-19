@@ -265,11 +265,11 @@ export const NewInspectionPage: React.FC = () => {
                   onChange={(e) => setMetadata({ ...metadata, productCategory: e.target.value as ProductCategory })}
                   className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-900 focus:bg-white focus:border-blue-500 focus:outline-none cursor-pointer"
                 >
-                  <option value="FOOD">{lang === 'hi' ? '🥗 खाद्य एवं पेय (USP Math, एक्सपायरी, FSSAI)' : '🥗 Food & FMCG (Enforces USP Math, Expiry, FSSAI)'}</option>
-                  <option value="ELECTRONICS">{lang === 'hi' ? '⚡ इलेक्ट्रॉनिक्स एवं IT (BIS मार्क, वोल्टेज, मॉडल)' : '⚡ Electronics & IT (Enforces BIS Mark, Voltage, Model)'}</option>
-                  <option value="GENERAL">{lang === 'hi' ? '📦 सामान्य वस्तुएं / स्टेशनरी (माप, संख्या)' : '📦 General Goods / Stationery (Enforces Dimensions, Count)'}</option>
-                  <option value="COSMETICS">{lang === 'hi' ? '💄 प्रसाधन सामग्री (बैच, MRP, एक्सपायरी)' : '💄 Cosmetics & Toiletries (Enforces Batch, MRP, Expiry)'}</option>
-                  <option value="PHARMA">{lang === 'hi' ? '💊 दवा व स्वास्थ्य उत्पाद (AYUSH/Drug लाइसेंस)' : '💊 Ayurvedic / Pharmaceuticals (Enforces AYUSH/Drug Lic)'}</option>
+                  <option value="FOOD">{lang === 'hi' ? 'खाद्य एवं पेय (USP Math, एक्सपायरी, FSSAI)' : 'Food & FMCG (Enforces USP Math, Expiry, FSSAI)'}</option>
+                  <option value="ELECTRONICS">{lang === 'hi' ? 'इलेक्ट्रॉनिक्स एवं IT (BIS मार्क, वोल्टेज, मॉडल)' : 'Electronics & IT (Enforces BIS Mark, Voltage, Model)'}</option>
+                  <option value="GENERAL">{lang === 'hi' ? 'सामान्य वस्तुएं / स्टेशनरी (माप, संख्या)' : 'General Goods / Stationery (Enforces Dimensions, Count)'}</option>
+                  <option value="COSMETICS">{lang === 'hi' ? 'प्रसाधन सामग्री (बैच, MRP, एक्सपायरी)' : 'Cosmetics & Toiletries (Enforces Batch, MRP, Expiry)'}</option>
+                  <option value="PHARMA">{lang === 'hi' ? 'दवा व स्वास्थ्य उत्पाद (AYUSH/Drug लाइसेंस)' : 'Ayurvedic / Pharmaceuticals (Enforces AYUSH/Drug Lic)'}</option>
                 </select>
               </div>
 
@@ -320,7 +320,7 @@ export const NewInspectionPage: React.FC = () => {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-black text-slate-800 uppercase tracking-wider">
-                  {lang === 'hi' ? '📦 मानक बेंचमार्क नमूना या संदर्भ केस चुनें' : '📦 Select Standard Benchmark Sample or Reference Case'}
+                  {lang === 'hi' ? 'मानक बेंचमार्क नमूना या संदर्भ केस चुनें' : 'Select Standard Benchmark Sample or Reference Case'}
                 </span>
                 <span className="text-[10px] text-blue-700 font-bold bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
                   {lang === 'hi' ? 'मानक आधारभूत मॉडल' : 'Standard Baseline Models'}

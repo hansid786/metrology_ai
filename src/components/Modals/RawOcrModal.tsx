@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Copy, Check, Terminal, FileCode, ShieldAlert, Cpu, Activity, Eye, Play, CheckCircle2, XCircle, Clock, Zap, Layers } from 'lucide-react';
+import { X, Copy, Check, Terminal, FileCode, ShieldAlert, Cpu, Activity, Eye, Play, CheckCircle2, XCircle, Clock, Zap, Layers, Image as ImageIcon } from 'lucide-react';
 import { InspectionResult } from '../../types/inspection';
 import { runPipelineQASuite, QASuiteReport } from '../../services/pipelineQA';
 
@@ -239,7 +239,10 @@ export const RawOcrModal: React.FC<RawOcrModalProps> = ({ isOpen, onClose, resul
                 {/* Image Status */}
                 <div className="p-3.5 bg-slate-950 rounded-xl border border-slate-800 space-y-2">
                   <div className="font-bold text-slate-300 flex items-center justify-between">
-                    <span>🖼️ Image Status</span>
+                    <span className="flex items-center gap-1.5">
+                      <ImageIcon className="w-3.5 h-3.5 text-blue-400" />
+                      <span>Image Status</span>
+                    </span>
                     <span className="text-emerald-400 font-mono">OK</span>
                   </div>
                   <div className="space-y-1 font-mono text-[11px] text-slate-400">
@@ -252,7 +255,10 @@ export const RawOcrModal: React.FC<RawOcrModalProps> = ({ isOpen, onClose, resul
                 {/* AI & OCR Status */}
                 <div className="p-3.5 bg-slate-950 rounded-xl border border-slate-800 space-y-2">
                   <div className="font-bold text-slate-300 flex items-center justify-between">
-                    <span>⚡ Optical &amp; AI Engine Status</span>
+                    <span className="flex items-center gap-1.5">
+                      <Zap className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Optical &amp; AI Engine Status</span>
+                    </span>
                     <span className="text-emerald-400 font-mono">ACTIVE</span>
                   </div>
                   <div className="space-y-1 font-mono text-[11px] text-slate-400">

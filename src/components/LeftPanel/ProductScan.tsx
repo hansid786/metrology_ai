@@ -284,7 +284,7 @@ export const ProductScan: React.FC<ProductScanProps> = ({
               disabled={isAnalyzing}
               className="col-span-2 sm:col-span-3 p-2.5 rounded-xl border bg-blue-600 text-white border-blue-600 shadow-md text-left cursor-pointer"
             >
-              <div className="text-xs font-black truncate">📦 Classmate Pulse Exercise Notebook 172 Pgs</div>
+              <div className="text-xs font-black truncate">Classmate Pulse Exercise Notebook 172 Pgs</div>
               <div className="text-[10px] text-blue-100 font-bold mt-0.5">
                 Pages: 172 • Dimensions: 24.0 x 18.0 cm (70 GSM) • FSSAI N/A
               </div>
@@ -498,7 +498,7 @@ export const ProductScan: React.FC<ProductScanProps> = ({
                     onClick={() => setShowEditDrawer(!showEditDrawer)}
                     className="text-[11px] text-cyan-400 hover:text-cyan-300 font-bold underline cursor-pointer"
                   >
-                    {showEditDrawer ? 'Hide Form' : 'Adjust Values ✏️'}
+                    {showEditDrawer ? 'Hide Form' : 'Adjust Values'}
                   </button>
                 </div>
 

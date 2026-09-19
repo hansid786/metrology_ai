@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { PhoneCall } from 'lucide-react';
+import { PhoneCall, Landmark } from 'lucide-react';
 
 export const OfficialGovHeader: React.FC = () => {
   const { lang } = useLanguage();
@@ -12,7 +12,7 @@ export const OfficialGovHeader: React.FC = () => {
         {/* Left: National Flag & Ministry Info */}
         <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-[11px]">
           <div className="flex items-center gap-1.5 font-bold text-white tracking-wide">
-            <span className="text-sm">🇮🇳</span>
+            <Landmark className="w-3.5 h-3.5 text-amber-400" />
             <span>{lang === 'hi' ? 'भारत सरकार' : 'GOVERNMENT OF INDIA'}</span>
           </div>
           <span className="text-slate-600 hidden sm:inline">|</span>

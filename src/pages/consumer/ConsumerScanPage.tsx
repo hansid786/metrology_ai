@@ -503,7 +503,10 @@ export const ConsumerScanPage: React.FC = () => {
                 <div className="px-4 pb-4 pt-1 space-y-3 border-t border-slate-100 fade-in">
                   {/* Barcode Quick Lookup */}
                   <div className="p-3 bg-emerald-50/60 rounded-xl border border-emerald-100 space-y-2">
-                    <span className="text-[11px] font-black text-emerald-900">⚡ Quick Barcode Lookup</span>
+                    <span className="text-[11px] font-black text-emerald-900 inline-flex items-center gap-1.5">
+                      <Zap className="w-3.5 h-3.5 text-amber-500" />
+                      <span>Quick Barcode Lookup</span>
+                    </span>
                     <div className="flex flex-wrap gap-1.5">
                       {[
                         { name: 'Maggi', code: '8901058852393', cat: 'FOOD' as ProductCategory },
@@ -576,25 +579,34 @@ export const ConsumerScanPage: React.FC = () => {
 
               <div className="p-3 grid grid-cols-4 gap-2">
                 {[
-                  { step: 1, tag: 'FRONT' as PackageSideTag, title: 'Front', icon: '🏷️', isUploaded: Boolean(uploadedImage) },
-                  { step: 2, tag: 'BACK' as PackageSideTag, title: 'Back', icon: '🏭', isUploaded: queuedSides.some(s => s.tag === 'BACK') },
-                  { step: 3, tag: 'TOP' as PackageSideTag, title: 'MRP', icon: '💰', isUploaded: queuedSides.some(s => s.tag === 'TOP') },
-                  { step: 4, tag: 'SIDE_LEFT' as PackageSideTag, title: 'Side', icon: '📋', isUploaded: queuedSides.some(s => s.tag === 'SIDE_LEFT' || s.tag === 'SIDE_RIGHT') },
-                ].map(item => (
-                  <button key={item.tag} type="button"
-                    onClick={() => { setActiveSideCapturing(item.tag); setIsCameraOpen(true); }}
-                    className={`flex flex-col items-center gap-1.5 p-2.5 rounded-2xl border transition-all duration-200 btn-press cursor-pointer ${
-                      item.isUploaded
-                        ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
-                        : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-emerald-300 hover:bg-emerald-50/50'
-                    }`}>
-                    <span className="text-lg">{item.isUploaded ? '✅' : item.icon}</span>
-                    <span className="text-[10px] font-bold">{item.title}</span>
-                    <span className={`text-[9px] font-semibold ${item.isUploaded ? 'text-emerald-500' : 'text-slate-400'}`}>
-                      {item.isUploaded ? 'Done' : 'Tap'}
-                    </span>
-                  </button>
-                ))}
+                  { step: 1, tag: 'FRONT' as PackageSideTag, title: 'Front', icon: Layers, isUploaded: Boolean(uploadedImage) },
+                  { step: 2, tag: 'BACK' as PackageSideTag, title: 'Back', icon: RefreshCw, isUploaded: queuedSides.some(s => s.tag === 'BACK') },
+                  { step: 3, tag: 'TOP' as PackageSideTag, title: 'MRP', icon: Sparkles, isUploaded: queuedSides.some(s => s.tag === 'TOP') },
+                  { step: 4, tag: 'SIDE_LEFT' as PackageSideTag, title: 'Side', icon: Edit3, isUploaded: queuedSides.some(s => s.tag === 'SIDE_LEFT' || s.tag === 'SIDE_RIGHT') },
+                ].map(item => {
+                  const SideIcon = item.icon;
+                  return (
+                    <button key={item.tag} type="button"
+                      onClick={() => { setActiveSideCapturing(item.tag); setIsCameraOpen(true); }}
+                      className={`flex flex-col items-center gap-1.5 p-2.5 rounded-2xl border transition-all duration-200 btn-press cursor-pointer ${
+                        item.isUploaded
+                          ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
+                          : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-emerald-300 hover:bg-emerald-50/50'
+                      }`}>
+                      <div className="w-6 h-6 flex items-center justify-center">
+                        {item.isUploaded ? (
+                          <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                        ) : (
+                          <SideIcon className="w-4 h-4 text-slate-500" />
+                        )}
+                      </div>
+                      <span className="text-[10px] font-bold">{item.title}</span>
+                      <span className={`text-[9px] font-semibold ${item.isUploaded ? 'text-emerald-500' : 'text-slate-400'}`}>
+                        {item.isUploaded ? 'Done' : 'Tap'}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Analyze button — shown when photo ready */}
@@ -603,7 +615,8 @@ export const ConsumerScanPage: React.FC = () => {
                   <button type="button"
                     onClick={() => executeScan(selectedCategory, uploadedImage || undefined, fileName, undefined, queuedSides)}
                     className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white rounded-2xl text-sm font-black shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 transition-all duration-200 btn-press cursor-pointer">
-                    <span>🔍 {lang === 'hi' ? 'पैकेज का विश्लेषण करें' : 'Analyze Package'}</span>
+                    <Sparkles className="w-4 h-4" />
+                    <span>{lang === 'hi' ? 'पैकेज का विश्लेषण करें' : 'Analyze Package'}</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -619,7 +632,8 @@ export const ConsumerScanPage: React.FC = () => {
         <div className="flex items-center justify-between">
           <div>
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-black uppercase tracking-wider mb-1.5">
-              📦 Demo Benchmarks
+              <Layers className="w-3 h-3 text-slate-500" />
+              <span>Demo Benchmarks</span>
             </span>
             <h3 className="text-sm font-extrabold text-slate-900">
               {lang === 'hi' ? 'नियंत्रित बेंचमार्क सैंपल्स' : 'Try with Sample Products'}

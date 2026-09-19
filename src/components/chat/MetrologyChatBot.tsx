@@ -53,8 +53,8 @@ export const MetrologyChatBot: React.FC = () => {
       id: 'welcome',
       sender: 'bot' as const,
       text: lang === 'hi'
-        ? 'नमस्ते! 🙏 मैं **AI Legal Assistant** हूँ।\nविधिक मापविज्ञान अधिनियम, 2009 और उपभोक्ता अधिकारों पर तुरंत कानूनी जानकारी पाने के लिए नीचे दिए गए प्रॉम्प्ट्स पर टैप करें या अपना प्रश्न पूछें:'
-        : 'Hello! 👋 I am the **AI Legal Assistant** under the Legal Metrology Act, 2009.\nTap a prompt chip below or type any legal query for instant statutory citations:',
+        ? 'नमस्ते, मैं **AI Legal Assistant** हूँ।\nविधिक मापविज्ञान अधिनियम, 2009 और उपभोक्ता अधिकारों पर तुरंत कानूनी जानकारी पाने के लिए नीचे दिए गए प्रॉम्प्ट्स पर क्लिक करें या अपना प्रश्न पूछें:'
+        : 'Hello, I am the **AI Legal Assistant** under the Legal Metrology Act, 2009.\nSelect a prompt chip below or type any legal query for instant statutory citations:',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       suggestedFollowups: DEFAULT_PROMPTS,
     }];
@@ -220,7 +220,7 @@ export const MetrologyChatBot: React.FC = () => {
           <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-400 rounded-full" />
         </div>
         <span className="text-xs font-black tracking-tight hidden sm:inline">
-          💬 AI Legal Assistant
+          AI Legal Assistant
         </span>
       </button>
 
@@ -393,9 +393,10 @@ export const MetrologyChatBot: React.FC = () => {
                       <button
                         key={idx}
                         onClick={() => handleSend(q)}
-                        className="px-3 py-1.5 bg-blue-50/80 hover:bg-blue-100 border border-blue-200/90 rounded-xl text-xs font-bold text-blue-900 text-left transition-all cursor-pointer hover:scale-[1.01] active:scale-98"
+                        className="px-3 py-1.5 bg-blue-50/80 hover:bg-blue-100 border border-blue-200/90 rounded-xl text-xs font-bold text-blue-900 text-left transition-all cursor-pointer hover:scale-[1.01] active:scale-98 flex items-center gap-1.5"
                       >
-                        💡 {q}
+                        <Sparkles className="w-3 h-3 text-indigo-600 shrink-0" />
+                        <span>{q}</span>
                       </button>
                     ))}
                   </div>

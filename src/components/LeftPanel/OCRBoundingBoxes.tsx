@@ -150,7 +150,7 @@ export const OCRBoundingBoxes: React.FC<OCRBoundingBoxesProps> = ({
 
                 {/* PDP Placement */}
                 <div className="text-[9px] text-slate-400 flex items-center justify-between">
-                  <span>Placement: {box.isInsidePDP ? '✓ Inside PDP' : '⚠️ Outside PDP'}</span>
+                  <span>Placement: {box.isInsidePDP ? 'Inside PDP' : 'Outside PDP'}</span>
                   <span className="text-blue-300 font-medium">Click to inspect</span>
                 </div>
               </div>

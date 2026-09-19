@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Shield, Lock, Mail, ArrowRight, UserCheck, AlertCircle,
-  Building2, ShoppingBag, CheckCircle2, PhoneCall, Sparkles
+  Building2, ShoppingBag, CheckCircle2, PhoneCall, Sparkles, Landmark
 } from 'lucide-react';
 import { authService } from '../services/authService';
 import { useLanguage } from '../context/LanguageContext';
@@ -138,7 +138,7 @@ export const LoginPage: React.FC = () => {
               <span>Smart India Hackathon 2026 • PS: 26034</span>
             </div>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-bold shadow-2xs">
-              <span>🇮🇳</span>
+              <Landmark className="w-3.5 h-3.5 text-emerald-700" />
               <span>{t('deptName')}</span>
             </div>
           </div>
@@ -270,25 +270,31 @@ export const LoginPage: React.FC = () => {
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     {[
-                      { role: 'INSPECTOR', label: '👮 Officer Ravi (LMO)', email: 'ravi.kumar@metrologylens.gov.in', pass: 'inspector123', color: 'border-emerald-200 bg-emerald-50/60 text-emerald-900 hover:bg-emerald-100' },
-                      { role: 'SUPERVISOR', label: '👩‍💼 Priya Nair (CLM)', email: 'priya.nair@metrologylens.gov.in', pass: 'supervisor123', color: 'border-indigo-200 bg-indigo-50/60 text-indigo-900 hover:bg-indigo-100' },
-                      { role: 'ADMIN', label: '🛡️ National Admin', email: 'admin@metrologylens.gov.in', pass: 'admin123', color: 'border-purple-200 bg-purple-50/60 text-purple-900 hover:bg-purple-100' }
-                    ].map((item) => (
-                      <button
-                        key={item.role}
-                        type="button"
-                        onClick={() => {
-                          setOfficerEmail(item.email);
-                          setOfficerPassword(item.pass);
-                          authService.loginAsRole(item.role as any);
-                          navigate('/dashboard');
-                        }}
-                        className={`p-2.5 rounded-xl border text-left transition-all duration-200 cursor-pointer btn-press ${item.color}`}
-                      >
-                        <div className="text-[11px] font-black truncate">{item.label}</div>
-                        <div className="text-[9px] text-slate-500 font-mono truncate">{item.email}</div>
-                      </button>
-                    ))}
+                      { role: 'INSPECTOR', label: 'Officer Ravi (LMO)', email: 'ravi.kumar@metrologylens.gov.in', pass: 'inspector123', icon: UserCheck, color: 'border-emerald-200 bg-emerald-50/60 text-emerald-900 hover:bg-emerald-100' },
+                      { role: 'SUPERVISOR', label: 'Priya Nair (CLM)', email: 'priya.nair@metrologylens.gov.in', pass: 'supervisor123', icon: Shield, color: 'border-indigo-200 bg-indigo-50/60 text-indigo-900 hover:bg-indigo-100' },
+                      { role: 'ADMIN', label: 'National Admin', email: 'admin@metrologylens.gov.in', pass: 'admin123', icon: Lock, color: 'border-purple-200 bg-purple-50/60 text-purple-900 hover:bg-purple-100' }
+                    ].map((item) => {
+                      const ItemIcon = item.icon;
+                      return (
+                        <button
+                          key={item.role}
+                          type="button"
+                          onClick={() => {
+                            setOfficerEmail(item.email);
+                            setOfficerPassword(item.pass);
+                            authService.loginAsRole(item.role as any);
+                            navigate('/dashboard');
+                          }}
+                          className={`p-2.5 rounded-xl border text-left transition-all duration-200 cursor-pointer btn-press ${item.color}`}
+                        >
+                          <div className="text-[11px] font-black truncate flex items-center gap-1.5">
+                            <ItemIcon className="w-3.5 h-3.5 shrink-0" />
+                            <span>{item.label}</span>
+                          </div>
+                          <div className="text-[9px] text-slate-500 font-mono truncate">{item.email}</div>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
