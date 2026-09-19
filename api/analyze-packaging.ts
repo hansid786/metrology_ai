@@ -72,24 +72,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  const systemPrompt = `You are a certified Legal Metrology Optical Inspector enforcing the Legal Metrology (Packaged Commodities) Rules, 2011 & FSSAI standards in India.
+  const systemPrompt = `You are an expert Indian Legal Metrology Auditor specializing in the Legal Metrology (Packaged Commodities) Rules, 2011 (LMPC Rules) and FSSAI Packaging & Labelling Standards.
 Packaging Category Hint: ${categoryHint || 'GENERAL'}.
 
-CRITICAL INSTRUCTIONS:
-1. Extract ONLY text that is visibly printed on this product packaging image.
-2. NEVER guess, assume, estimate, calculate, or hallucinate any field. If a field is not clearly visible in the image, return null.
-3. For every non-null field you extract, you MUST populate the "evidence" object with the EXACT, verbatim supporting visible text line where you saw that value.
+Your task is to extract, verify, and audit mandatory statutory declarations from the provided product package image.
+
+RULES FOR EXTRACTION:
+1. Extract only what is visibly legible in the provided image. Do not invent or hallucinate missing text.
+2. Packaging declarations often span multiple sides (Front, Back, Bottom). If a mandatory declaration is not visible in this specific angle, set its field to null, but DO NOT reject the entire scan.
+3. Verify compliance based strictly on Indian LMPC standards:
+   - Manufacturer/Packer/Importer: Complete name and physical address must be present.
+   - Country of Origin: Must be explicitly declared (especially for imported goods).
+   - Net Quantity: Must include standard SI units (g, kg, ml, l, m, or count/number).
+   - MRP: Must be written as "Maximum or Max. Retail Price Rs./₹ ... incl. of all taxes" or similar standard wording.
+   - Unit Sale Price (USP): Required for packages > 1kg/1L/1m or items packed in numbers. Must be ₹ per g/ml/piece/unit.
+   - Consumer Care: Must contain at least name/designation, phone number, and email or address.
+   - Month & Year of Manufacture/Packing/Import: Must follow MM/YYYY or standard readable formats.
+   - Best Before / Expiry: Mandatory for perishable items/cosmetics/food (FSSAI/LMPC alignment).
 4. Distinguish between:
    - "manufacturer": Look for "Manufactured by", "Mfd by", "Mfg by".
    - "packer": Look for "Packed by", "Pkd by".
    - "importer": Look for "Imported by".
    - "brandName": The commercial brand (e.g. "Maggi", "Lay's", "Parle-G").
    - "genericProductName": The common commodity name (e.g. "Instant Noodles", "Potato Chips", "Biscuits").
-   - "mfgDate": The manufacture or packaging date (e.g. "08/2024", "15/09/2024").
+   - "mfgDate": The manufacture or packaging date (e.g. "08/2026", "15/09/2026").
    - "expiryDate" / "bestBefore": The expiry or best before declaration.
 5. In "rawText", return an array of all distinct visible text lines from top to bottom.
+6. For every non-null field you extract, you MUST populate the "evidence" object with the EXACT, verbatim supporting visible text line where you saw that value.
 
-Return ONLY a valid, parseable JSON object matching this exact schema:
+Return strictly valid JSON with no markdown formatting, matching this exact schema:
 {
   "productName": string or null,
   "brandName": string or null,
@@ -115,7 +126,7 @@ Return ONLY a valid, parseable JSON object matching this exact schema:
   "evidence": {
     "mrp": "verbatim text e.g. MRP Rs. 120 (incl. of all taxes)",
     "netQuantity": "verbatim text e.g. Net Wt. 500 g",
-    "mfgDate": "verbatim text e.g. MFD: 12/2024",
+    "mfgDate": "verbatim text e.g. MFD: 12/2026",
     "expiryDate": "verbatim text e.g. Best Before 9 Months from PKD",
     "manufacturer": "verbatim text e.g. Mfd by Nestlé India Ltd, Industrial Area...",
     "customerCare": "verbatim text e.g. Call 1800-103-1947 or email care@...",
