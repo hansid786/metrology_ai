@@ -81,15 +81,8 @@ export const LoginPage: React.FC = () => {
         {/* Government Identity Header */}
         <div className="text-center space-y-4">
 
-          {/* ── Brand Logo + Name ── */}
+          {/* ── Heading & Badges ── */}
           <div className="flex flex-col items-center gap-3">
-            <div className="relative">
-              <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-emerald-500 via-teal-500 to-indigo-600 opacity-30 blur-md animate-pulse" />
-              <div className="relative w-20 h-20 rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-600 to-indigo-700 flex items-center justify-center mx-auto shadow-2xl shadow-emerald-600/30 border-2 border-white">
-                <Shield className="w-10 h-10 text-white drop-shadow-md" />
-              </div>
-            </div>
-
             {/* Idea / Product Name */}
             <div className="space-y-2">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 border border-emerald-200/80 shadow-xs text-xs font-bold text-emerald-800">
