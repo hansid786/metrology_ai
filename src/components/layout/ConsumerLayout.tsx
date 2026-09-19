@@ -30,17 +30,23 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
   ];
 
   return (
-    <div className="min-h-screen flex flex-col font-sans selection:bg-emerald-600 selection:text-white"
-      style={{ background: 'linear-gradient(160deg, #f0fdf4 0%, #f1f5f9 45%, #eff6ff 100%)' }}>
+    <div className="min-h-screen flex flex-col font-sans selection:bg-amber-600 selection:text-white"
+      style={{
+        background: `
+          radial-gradient(circle at 10% 10%, rgba(245, 158, 11, 0.12) 0%, transparent 45%),
+          radial-gradient(circle at 90% 20%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
+          linear-gradient(160deg, #fffbeb 0%, #fefce8 35%, #fff7ed 70%, #fef3c7 100%)
+        `
+      }}>
 
       {/* ── Sticky Glass Header ── */}
       <div className="sticky top-0 z-40"
         style={{
-          background: 'rgba(255,255,255,0.82)',
+          background: 'rgba(255, 253, 247, 0.88)',
           backdropFilter: 'blur(24px) saturate(1.6)',
           WebkitBackdropFilter: 'blur(24px) saturate(1.6)',
-          borderBottom: '1px solid rgba(0,0,0,0.06)',
-          boxShadow: '0 1px 16px rgba(0,0,0,0.06)',
+          borderBottom: '1px solid rgba(245, 158, 11, 0.18)',
+          boxShadow: '0 1px 16px rgba(217, 119, 6, 0.06)',
         }}>
 
         {/* Tricolor strip */}
@@ -54,21 +60,21 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
           {/* Logo */}
           <div onClick={() => navigate('/consumer/scan')}
             className="flex items-center gap-2 cursor-pointer min-w-0 btn-press">
-            <div className="w-8 h-8 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white shadow-md shadow-emerald-500/25 shrink-0">
+            <div className="w-8 h-8 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 flex items-center justify-center text-white shadow-md shadow-amber-500/25 shrink-0">
               <ShoppingBag className="w-4 h-4" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
-                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 hidden md:inline-flex">
-                  <Landmark className="w-3.5 h-3.5 text-slate-600" />
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-800/80 hidden md:inline-flex">
+                  <Landmark className="w-3.5 h-3.5 text-amber-700" />
                   <span>{lang === 'hi' ? 'भारत सरकार' : 'Govt. of India'}</span>
                 </span>
-                <span className="text-slate-200 hidden md:inline">·</span>
+                <span className="text-amber-300 hidden md:inline">·</span>
                 <span className="text-sm font-black text-slate-900 tracking-tight whitespace-nowrap">
                   {lang === 'hi' ? 'जागो ग्राहक जागो' : 'Jago Grahak Jago'}
                 </span>
-                <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full whitespace-nowrap">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold bg-amber-100/80 text-amber-900 border border-amber-300/80 px-2 py-0.5 rounded-full whitespace-nowrap shadow-2xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
                   MetrologyLens AI
                 </span>
               </div>
@@ -80,9 +86,9 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
             <LanguageToggle />
 
             <a href="tel:1915"
-              className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 border border-amber-200/70 rounded-xl text-xs font-bold text-amber-800 transition-all duration-200 btn-press whitespace-nowrap">
-              <PhoneCall className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-              <span className="font-mono font-black text-amber-700">1915</span>
+              className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 bg-amber-100/70 hover:bg-amber-100 border border-amber-300/80 rounded-xl text-xs font-bold text-amber-900 transition-all duration-200 btn-press whitespace-nowrap">
+              <PhoneCall className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+              <span className="font-mono font-black text-amber-800">1915</span>
             </a>
 
             {/* Desktop nav tabs */}
@@ -93,8 +99,8 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
                 <button key={item.path} onClick={() => navigate(item.path)}
                   className={`hidden md:flex px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 items-center gap-1.5 cursor-pointer btn-press ${
                     active
-                      ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-500/30'
-                      : 'text-slate-600 hover:bg-slate-100 border border-slate-200/80'
+                      ? 'bg-amber-600 text-white shadow-sm shadow-amber-600/30 font-black'
+                      : 'text-slate-700 hover:bg-amber-50 border border-amber-200/80'
                   }`}>
                   <Icon className="w-3.5 h-3.5" />
                   <span>{item.label}</span>
@@ -121,12 +127,12 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
       </main>
 
       {/* ── App-Style Bottom Navigation Bar (Visible on All Devices with Floating Dock on Desktop) ── */}
-      <nav className="fixed bottom-0 sm:bottom-4 left-0 right-0 sm:left-1/2 sm:-translate-x-1/2 sm:max-w-md md:max-w-lg z-40 sm:rounded-3xl border-t sm:border border-slate-200/90 shadow-2xl transition-all duration-300"
+      <nav className="fixed bottom-0 sm:bottom-4 left-0 right-0 sm:left-1/2 sm:-translate-x-1/2 sm:max-w-md md:max-w-lg z-40 sm:rounded-3xl border-t sm:border border-amber-200/90 shadow-2xl transition-all duration-300"
         style={{
-          background: 'rgba(255,255,255,0.94)',
+          background: 'rgba(255, 254, 248, 0.96)',
           backdropFilter: 'blur(24px) saturate(1.8)',
           WebkitBackdropFilter: 'blur(24px) saturate(1.8)',
-          boxShadow: '0 10px 35px -5px rgba(0, 0, 0, 0.12), 0 0 1px 1px rgba(0,0,0,0.05)',
+          boxShadow: '0 10px 35px -5px rgba(217, 119, 6, 0.16), 0 0 1px 1px rgba(245, 158, 11, 0.10)',
           paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6px)',
         }}>
         <div className="flex items-center justify-around px-3 pt-2 pb-1">
@@ -136,12 +142,12 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
             className="flex-1 flex flex-col items-center gap-0.5 py-1 btn-press cursor-pointer group"
           >
             <div className={`p-1.5 rounded-2xl transition-all duration-200 ${
-              location.pathname === '/consumer/history' ? 'bg-emerald-100 text-emerald-700 shadow-xs' : 'text-slate-400 group-hover:text-slate-600'
+              location.pathname === '/consumer/history' ? 'bg-amber-100 text-amber-800 shadow-xs' : 'text-slate-400 group-hover:text-slate-600'
             }`}>
               <History className="w-5 h-5" />
             </div>
             <span className={`text-[10px] font-bold ${
-              location.pathname === '/consumer/history' ? 'text-emerald-700 font-black' : 'text-slate-500'
+              location.pathname === '/consumer/history' ? 'text-amber-800 font-black' : 'text-slate-500'
             }`}>
               {lang === 'hi' ? 'इतिहास' : 'History'}
             </span>
@@ -153,12 +159,12 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
             className="flex-1 flex flex-col items-center gap-0.5 py-1 btn-press cursor-pointer group"
           >
             <div className={`p-1.5 rounded-2xl transition-all duration-200 ${
-              location.pathname === '/consumer/rules' ? 'bg-emerald-100 text-emerald-700 shadow-xs' : 'text-slate-400 group-hover:text-slate-600'
+              location.pathname === '/consumer/rules' ? 'bg-amber-100 text-amber-800 shadow-xs' : 'text-slate-400 group-hover:text-slate-600'
             }`}>
               <BookOpen className="w-5 h-5" />
             </div>
             <span className={`text-[10px] font-bold ${
-              location.pathname === '/consumer/rules' ? 'text-emerald-700 font-black' : 'text-slate-500'
+              location.pathname === '/consumer/rules' ? 'text-amber-800 font-black' : 'text-slate-500'
             }`}>
               {lang === 'hi' ? 'नियम' : 'Rules'}
             </span>
@@ -168,14 +174,14 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
           <div className="flex-1 flex flex-col items-center justify-center -mt-6">
             <button
               onClick={() => navigate('/consumer/scan')}
-              className={`w-14 h-14 rounded-full bg-gradient-to-tr from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 text-white shadow-xl shadow-emerald-600/40 border-4 border-white flex flex-col items-center justify-center transition-all transform hover:scale-105 active:scale-95 cursor-pointer ${
-                location.pathname === '/consumer/scan' ? 'ring-2 ring-emerald-500 ring-offset-2' : ''
+              className={`w-14 h-14 rounded-full bg-gradient-to-tr from-amber-600 via-orange-500 to-amber-500 hover:from-amber-500 hover:to-orange-400 text-white shadow-xl shadow-amber-600/40 border-4 border-white flex flex-col items-center justify-center transition-all transform hover:scale-105 active:scale-95 cursor-pointer ${
+                location.pathname === '/consumer/scan' ? 'ring-2 ring-amber-500 ring-offset-2' : ''
               }`}
               title="Instant Scan Product"
             >
               <ScanLine className="w-6 h-6 animate-pulse" />
             </button>
-            <span className="text-[10px] font-black text-emerald-700 mt-0.5">
+            <span className="text-[10px] font-black text-amber-800 mt-0.5">
               {lang === 'hi' ? 'स्कैन करें' : 'Scan'}
             </span>
           </div>
@@ -183,9 +189,9 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
           {/* Tab 4: NCH 1915 Helpline */}
           <a
             href="tel:1915"
-            className="flex-1 flex flex-col items-center gap-0.5 py-1 btn-press cursor-pointer text-amber-700 group"
+            className="flex-1 flex flex-col items-center gap-0.5 py-1 btn-press cursor-pointer text-amber-800 group"
           >
-            <div className="p-1.5 rounded-2xl bg-amber-50 text-amber-600 transition-all group-hover:bg-amber-100">
+            <div className="p-1.5 rounded-2xl bg-amber-100/70 text-amber-700 transition-all group-hover:bg-amber-100">
               <PhoneCall className="w-5 h-5" />
             </div>
             <span className="text-[10px] font-black text-amber-800">1915</span>
@@ -194,12 +200,12 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
           {/* Tab 5: AI Legal Assistant (Sahayak) */}
           <button
             onClick={handleOpenChat}
-            className="flex-1 flex flex-col items-center gap-0.5 py-1 text-indigo-600 hover:text-indigo-800 btn-press cursor-pointer group"
+            className="flex-1 flex flex-col items-center gap-0.5 py-1 text-amber-800 hover:text-amber-900 btn-press cursor-pointer group"
           >
-            <div className="p-1.5 rounded-2xl bg-indigo-50 text-indigo-600 group-hover:bg-indigo-100 transition-all shadow-xs">
-              <Sparkles className="w-5 h-5 text-indigo-600" />
+            <div className="p-1.5 rounded-2xl bg-amber-50 text-amber-700 group-hover:bg-amber-100 transition-all shadow-xs">
+              <Sparkles className="w-5 h-5 text-amber-600" />
             </div>
-            <span className="text-[10px] font-bold text-indigo-700">
+            <span className="text-[10px] font-bold text-amber-800">
               {lang === 'hi' ? 'AI सहायक' : 'AI Help'}
             </span>
           </button>
