@@ -73,6 +73,12 @@ export const MetrologyChatBot: React.FC = () => {
   }, [messages]);
 
   useEffect(() => {
+    const handleOpen = () => setIsOpen(true);
+    window.addEventListener('open-metrology-chat', handleOpen);
+    return () => window.removeEventListener('open-metrology-chat', handleOpen);
+  }, []);
+
+  useEffect(() => {
     if (isOpen) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }

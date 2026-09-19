@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Shield, ShoppingBag, PhoneCall, History, BookOpen, ScanLine, Landmark, LogOut, ShieldAlert, X } from 'lucide-react';
+import {
+  Shield, ShoppingBag, PhoneCall, History, BookOpen, ScanLine,
+  Landmark, LogOut, ShieldAlert, X, Sparkles, Bot, MessageSquare
+} from 'lucide-react';
 import { authService } from '../../services/authService';
 import { useLanguage } from '../../context/LanguageContext';
 import { LanguageToggle } from '../common/LanguageToggle';
@@ -14,6 +17,10 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const handleOpenLogoutModal = () => {
     setShowLogoutModal(true);
+  };
+
+  const handleOpenChat = () => {
+    window.dispatchEvent(new CustomEvent('open-metrology-chat'));
   };
 
   const navItems = [
@@ -183,16 +190,16 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
             <span className="text-[10px] font-black text-amber-800">1915</span>
           </a>
 
-          {/* Tab 5: Switch to Officer Portal */}
+          {/* Tab 5: AI Legal Assistant (Sahayak) */}
           <button
-            onClick={handleOpenLogoutModal}
-            className="flex-1 flex flex-col items-center gap-0.5 py-1 text-slate-500 hover:text-slate-800 btn-press cursor-pointer group"
+            onClick={handleOpenChat}
+            className="flex-1 flex flex-col items-center gap-0.5 py-1 text-indigo-600 hover:text-indigo-800 btn-press cursor-pointer group"
           >
-            <div className="p-1.5 rounded-2xl text-slate-400 group-hover:bg-slate-100 transition-all">
-              <Shield className="w-5 h-5 text-indigo-600" />
+            <div className="p-1.5 rounded-2xl bg-indigo-50 text-indigo-600 group-hover:bg-indigo-100 transition-all shadow-xs">
+              <Sparkles className="w-5 h-5 text-indigo-600" />
             </div>
-            <span className="text-[10px] font-bold text-slate-600">
-              {lang === 'hi' ? 'अधिकारी' : 'Officer'}
+            <span className="text-[10px] font-bold text-indigo-700">
+              {lang === 'hi' ? 'AI सहायक' : 'AI Help'}
             </span>
           </button>
         </div>
