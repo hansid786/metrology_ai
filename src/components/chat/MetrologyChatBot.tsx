@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  MessageSquare, X, Send, Bot, User, Sparkles, PhoneCall,
-  ShieldCheck, HelpCircle, ChevronRight, Volume2, RotateCcw, Check, MessageCircle, Copy, Trash2, Mic, ThumbsUp, ThumbsDown, Camera, FileWarning
+  MessageSquare, X, Send, Bot, Sparkles,
+  Volume2, RotateCcw, MessageCircle, Copy, Mic, ThumbsUp, ThumbsDown, Camera, FileWarning
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { generateChatbotResponse, ChatInspectionContext } from '../../services/chatbotEngine';
@@ -41,6 +41,8 @@ function renderMessageText(text: string): React.ReactNode {
 export const MetrologyChatBot: React.FC = () => {
   const { lang } = useLanguage();
   const navigate = useNavigate();
+  const location = useLocation();
+
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>(() => {
     try {
@@ -75,6 +77,11 @@ export const MetrologyChatBot: React.FC = () => {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, isOpen, isTyping]);
+
+  // Do not render the chatbot (neither button nor modal) on login / gateway pages
+  if (location.pathname === '/login' || location.pathname === '/') {
+    return null;
+  }
 
   const copyMessage = async (text: string) => {
     try { await navigator.clipboard.writeText(text.replace(/\*\*/g, '')); } catch { /* clipboard may be unavailable */ }
@@ -199,10 +206,10 @@ export const MetrologyChatBot: React.FC = () => {
 
   return (
     <>
-      {/* Floating Circular Chat Bubble with Non-Overlapping Offset */}
+      {/* Floating Circular Chat Bubble */}
       <button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-3 right-3 sm:bottom-6 sm:right-6 z-30 p-2.5 sm:px-4 sm:py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 text-white rounded-full shadow-xl shadow-blue-900/40 flex items-center gap-2 cursor-pointer transition-all hover:scale-105 active:scale-95 group ${
+        className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-30 p-3 sm:px-5 sm:py-3.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 text-white rounded-full shadow-2xl shadow-blue-900/50 flex items-center gap-2.5 cursor-pointer transition-all hover:scale-105 active:scale-95 group ${
           isOpen ? 'hidden' : 'flex'
         }`}
         title="AI Legal Assistant"
@@ -217,167 +224,240 @@ export const MetrologyChatBot: React.FC = () => {
         </span>
       </button>
 
-      {/* Chat Window Modal */}
+      {/* Full-Page Dedicated Chat Modal View */}
       {isOpen && (
-        <div className="fixed bottom-2 sm:bottom-6 right-2 sm:right-6 z-50 w-[calc(100vw-16px)] sm:w-[430px] h-[560px] max-h-[88vh] bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 p-4 text-white flex items-center justify-between shadow-md">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-500/30 flex items-center justify-center shadow-inner">
-                <Bot className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="text-xs font-black flex items-center gap-1.5">
-                  <span>💬 AI Legal Assistant</span>
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                </h3>
-                <p className="text-[10px] text-blue-300 font-medium">
-                  {lang === 'hi' ? 'विधिक मापविज्ञान अधिनियम, 2009' : 'Legal Metrology Act, 2009 & PCR 2011'}
-                </p>
-                <span className="text-[9px] text-emerald-300 font-bold">{lang === 'hi' ? 'ऑफलाइन सहायता • चैट सेव है' : 'Offline assistant • chat saved'}</span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-1">
-              <button
-                onClick={handleResetChat}
-                title="Restart Chat"
-                className="p-1.5 text-slate-400 hover:text-white rounded-xl hover:bg-white/10 transition-colors cursor-pointer"
-              >
-                <RotateCcw className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => {
-                  window.speechSynthesis?.cancel();
-                  setSpeakingId(null);
-                  setIsOpen(false);
-                }}
-                className="p-1.5 text-slate-400 hover:text-white rounded-xl hover:bg-white/10 transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-
-          {/* Messages Feed */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50">
-            {messages.map(msg => (
-              <div
-                key={msg.id}
-                className={`flex gap-2.5 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                {msg.sender === 'bot' && (
-                  <div className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
-                    <Bot className="w-4 h-4" />
-                  </div>
-                )}
-
-                <div
-                  className={`max-w-[85%] p-3.5 rounded-2xl text-xs leading-relaxed ${
-                    msg.sender === 'user'
-                      ? 'bg-blue-600 text-white font-medium rounded-tr-xs shadow-xs'
-                      : 'bg-white text-slate-800 border border-slate-200 rounded-tl-xs shadow-xs'
-                  }`}
-                >
-                  <div className="font-normal">
-                    {renderMessageText(msg.text)}
-                  </div>
-
-                  <div className="flex items-center justify-between mt-2 pt-1 border-t border-slate-100/60 text-[9px]">
-                    <span className={msg.sender === 'user' ? 'text-blue-100 font-mono' : 'text-slate-400 font-mono'}>
-                      {msg.timestamp}
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center p-0 sm:p-4 md:p-6 animate-in fade-in duration-200">
+          <div className="w-full h-full max-w-5xl bg-white sm:rounded-3xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden">
+            {/* Top Bar Header */}
+            <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 px-5 py-4 text-white flex items-center justify-between shadow-md shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-blue-500/20 text-blue-400 border border-blue-500/30 flex items-center justify-center shadow-inner">
+                  <Bot className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black flex items-center gap-2">
+                    <span>AI Legal Metrology Assistant</span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold border border-emerald-500/30">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      Live AI
                     </span>
+                  </h3>
+                  <p className="text-xs text-blue-300 font-medium">
+                    {lang === 'hi' ? 'विधिक मापविज्ञान अधिनियम, 2009 एवं पीसीआर नियम 2011' : 'Legal Metrology Act, 2009 & Packaged Commodities Rules, 2011'}
+                  </p>
+                </div>
+              </div>
 
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleResetChat}
+                  title={lang === 'hi' ? 'चैट रीसेट करें' : 'Restart Chat'}
+                  className="px-3 py-1.5 text-xs text-slate-300 hover:text-white rounded-xl bg-white/10 hover:bg-white/20 transition-all flex items-center gap-1.5 cursor-pointer font-bold"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">{lang === 'hi' ? 'नई बातचीत' : 'New Chat'}</span>
+                </button>
+                <button
+                  onClick={() => {
+                    window.speechSynthesis?.cancel();
+                    setSpeakingId(null);
+                    setIsOpen(false);
+                  }}
+                  className="p-2 text-slate-300 hover:text-white rounded-xl bg-white/10 hover:bg-rose-500/80 transition-all cursor-pointer"
+                  title="Close Full Page Chat"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Navigation Strip */}
+            <div className="px-5 py-2.5 bg-slate-100/90 border-b border-slate-200 flex items-center justify-between gap-2 overflow-x-auto shrink-0">
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                <Sparkles className="w-4 h-4 text-indigo-600" />
+                <span>Quick Actions:</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    setIsOpen(false);
+                    navigate('/consumer/scan');
+                  }}
+                  className="shrink-0 px-3 py-1 rounded-xl bg-white hover:bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800 flex items-center gap-1.5 cursor-pointer shadow-2xs transition-all"
+                >
+                  <Camera className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Scan Product</span>
+                </button>
+                <button
+                  onClick={() => handleSend('Explain my latest scan')}
+                  disabled={!latestScan}
+                  className="shrink-0 px-3 py-1 rounded-xl bg-white hover:bg-blue-50 border border-blue-200 text-xs font-bold text-blue-800 flex items-center gap-1.5 cursor-pointer shadow-2xs transition-all disabled:opacity-40"
+                >
+                  <FileWarning className="w-3.5 h-3.5 text-blue-600" />
+                  <span>Explain Latest Scan</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setIsOpen(false);
+                    navigate('/consumer/history');
+                  }}
+                  className="shrink-0 px-3 py-1 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 flex items-center gap-1.5 cursor-pointer shadow-2xs transition-all"
+                >
+                  <MessageSquare className="w-3.5 h-3.5 text-slate-600" />
+                  <span>My Scans</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Messages Feed (Full Height Spacious Scroll) */}
+            <div className="flex-1 p-4 sm:p-6 overflow-y-auto bg-slate-50/70">
+              <div className="max-w-3xl w-full mx-auto space-y-4">
+                {messages.map(msg => (
+                  <div
+                    key={msg.id}
+                    className={`flex gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
                     {msg.sender === 'bot' && (
-                      <div className="flex items-center gap-2 ml-2">
-                        <button onClick={() => copyMessage(msg.text)} className="text-slate-400 hover:text-blue-600 cursor-pointer" title="Copy response"><Copy className="w-3 h-3" /></button>
-                        <button onClick={() => handleSpeak(msg.id, msg.text)} className="text-slate-400 hover:text-blue-600 flex items-center gap-1 cursor-pointer" title="Read out loud">
-                          <Volume2 className={`w-3 h-3 ${speakingId === msg.id ? 'text-blue-600 animate-pulse' : ''}`} />
-                          <span>{speakingId === msg.id ? (lang === 'hi' ? 'बोल रहा है...' : 'Speaking...') : (lang === 'hi' ? 'सुनें' : 'Listen')}</span>
-                        </button>
-                        <button onClick={() => handleFeedback(msg.id, 'up')} className={msg.feedback === 'up' ? 'text-emerald-600' : 'text-slate-400 hover:text-emerald-600'} title="Helpful"><ThumbsUp className="w-3 h-3" /></button>
-                        <button onClick={() => handleFeedback(msg.id, 'down')} className={msg.feedback === 'down' ? 'text-rose-600' : 'text-slate-400 hover:text-rose-600'} title="Not helpful"><ThumbsDown className="w-3 h-3" /></button>
+                      <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
+                        <Bot className="w-4 h-4" />
                       </div>
                     )}
-                  </div>
-                </div>
-              </div>
-            ))}
 
-            {isTyping && (
-              <div className="flex gap-2.5 justify-start items-center animate-in fade-in">
-                <div className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-                  <Bot className="w-4 h-4" />
-                </div>
-                <div className="bg-white border border-slate-200 px-3.5 py-2.5 rounded-2xl rounded-tl-xs text-xs text-slate-500 flex items-center gap-1.5 shadow-xs">
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-bounce" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-bounce [animation-delay:0.2s]" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-bounce [animation-delay:0.4s]" />
-                  <span className="text-[11px] font-medium text-slate-400 ml-1">
-                    {lang === 'hi' ? 'कानूनी धारा उद्धृत कर रहा है...' : 'Fetching statutory citation...'}
-                  </span>
+                    <div
+                      className={`max-w-[85%] p-4 rounded-2xl text-xs sm:text-sm leading-relaxed ${
+                        msg.sender === 'user'
+                          ? 'bg-blue-600 text-white font-medium rounded-tr-xs shadow-md'
+                          : 'bg-white text-slate-800 border border-slate-200/90 rounded-tl-xs shadow-sm'
+                      }`}
+                    >
+                      <div className="font-normal space-y-1">
+                        {renderMessageText(msg.text)}
+                      </div>
+
+                      <div className="flex items-center justify-between mt-3 pt-2 border-t border-slate-100 text-[10px]">
+                        <span className={msg.sender === 'user' ? 'text-blue-100 font-mono' : 'text-slate-400 font-mono'}>
+                          {msg.timestamp}
+                        </span>
+
+                        {msg.sender === 'bot' && (
+                          <div className="flex items-center gap-3 ml-2">
+                            <button onClick={() => copyMessage(msg.text)} className="text-slate-400 hover:text-blue-600 cursor-pointer flex items-center gap-1" title="Copy response">
+                              <Copy className="w-3.5 h-3.5" />
+                              <span className="hidden sm:inline">Copy</span>
+                            </button>
+                            <button onClick={() => handleSpeak(msg.id, msg.text)} className="text-slate-400 hover:text-blue-600 flex items-center gap-1 cursor-pointer" title="Read out loud">
+                              <Volume2 className={`w-3.5 h-3.5 ${speakingId === msg.id ? 'text-blue-600 animate-pulse' : ''}`} />
+                              <span>{speakingId === msg.id ? (lang === 'hi' ? 'बोल रहा है...' : 'Speaking...') : (lang === 'hi' ? 'सुनें' : 'Listen')}</span>
+                            </button>
+                            <button onClick={() => handleFeedback(msg.id, 'up')} className={msg.feedback === 'up' ? 'text-emerald-600' : 'text-slate-400 hover:text-emerald-600'} title="Helpful">
+                              <ThumbsUp className="w-3.5 h-3.5" />
+                            </button>
+                            <button onClick={() => handleFeedback(msg.id, 'down')} className={msg.feedback === 'down' ? 'text-rose-600' : 'text-slate-400 hover:text-rose-600'} title="Not helpful">
+                              <ThumbsDown className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {isTyping && (
+                  <div className="flex gap-3 justify-start items-center animate-in fade-in">
+                    <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                      <Bot className="w-4 h-4" />
+                    </div>
+                    <div className="bg-white border border-slate-200 px-4 py-3 rounded-2xl rounded-tl-xs text-xs text-slate-500 flex items-center gap-2 shadow-xs">
+                      <span className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" />
+                      <span className="w-2 h-2 rounded-full bg-blue-500 animate-bounce [animation-delay:0.2s]" />
+                      <span className="w-2 h-2 rounded-full bg-blue-500 animate-bounce [animation-delay:0.4s]" />
+                      <span className="text-xs font-medium text-slate-500 ml-1">
+                        {lang === 'hi' ? 'कानूनी धारा उद्धृत कर रहा है...' : 'Searching Legal Metrology Act & PCR 2011...'}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+            </div>
+
+            {/* Quick Prompt Citations Bar */}
+            {latestFollowups.length > 0 && !isTyping && (
+              <div className="px-5 py-2.5 bg-white border-t border-slate-200 shrink-0">
+                <div className="max-w-3xl w-full mx-auto">
+                  <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5">
+                    Suggested Legal Citations:
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {latestFollowups.map((q, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => handleSend(q)}
+                        className="px-3 py-1.5 bg-blue-50/80 hover:bg-blue-100 border border-blue-200/90 rounded-xl text-xs font-bold text-blue-900 text-left transition-all cursor-pointer hover:scale-[1.01] active:scale-98"
+                      >
+                        💡 {q}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
-            <div ref={messagesEndRef} />
-          </div>
 
-          {/* Pre-Set Quick Prompt Chips (Checklist Specification) */}
-          {latestFollowups.length > 0 && !isTyping && (
-            <div className="px-3 py-2 bg-white border-t border-slate-100 flex flex-col gap-1.5 max-h-36 overflow-y-auto">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-                Quick Legal Citations:
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {latestFollowups.map((q, idx) => (
+            {/* Bottom Input Dock */}
+            <div className="p-4 bg-white border-t border-slate-200 shrink-0">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSend();
+                }}
+                className="max-w-3xl w-full mx-auto space-y-2"
+              >
+                <div className="flex items-center gap-2 bg-slate-100 border border-slate-200 rounded-2xl p-1.5 focus-within:ring-2 focus-within:ring-blue-500/40 focus-within:border-blue-500 transition-all">
                   <button
-                    key={idx}
-                    onClick={() => handleSend(q)}
-                    className="px-2.5 py-1.5 bg-blue-50/70 hover:bg-blue-100 border border-blue-200/80 rounded-xl text-[11px] font-bold text-blue-900 text-left transition-all cursor-pointer hover:scale-[1.01] active:scale-98"
+                    type="button"
+                    onClick={handleVoiceInput}
+                    className={`p-2.5 rounded-xl transition-all cursor-pointer ${
+                      isListening
+                        ? 'bg-rose-500 text-white animate-pulse'
+                        : 'text-slate-500 hover:text-blue-600 hover:bg-white'
+                    }`}
+                    title="Voice Input (Hindi / English)"
                   >
-                    💡 {q}
+                    <Mic className="w-5 h-5" />
                   </button>
-                ))}
-              </div>
+
+                  <input
+                    type="text"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    placeholder={
+                      lang === 'hi'
+                        ? 'विधिक मापविज्ञान का कोई भी प्रश्न पूछें (उदा. MRP अधिक वसूली, Rule 6, Section 36)...'
+                        : 'Ask any legal metrology question (e.g. Rule 6 declarations, Section 36 penalties, USP rules)...'
+                    }
+                    className="flex-1 bg-transparent border-0 px-2 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none"
+                  />
+
+                  <button
+                    type="submit"
+                    disabled={!inputValue.trim()}
+                    className={`p-2.5 rounded-xl shadow-md transition-all flex items-center justify-center ${
+                      inputValue.trim()
+                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white cursor-pointer hover:scale-105 active:scale-95'
+                        : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                    }`}
+                  >
+                    <Send className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between text-[11px] text-slate-400 px-1 font-medium">
+                  <span>Press <kbd className="px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-mono text-[10px]">Enter</kbd> to ask</span>
+                  <span>Legal Metrology Act, 2009 • Knowledge Base Active</span>
+                </div>
+              </form>
             </div>
-          )}
-
-          <div className="px-3 py-2 bg-white border-t border-slate-100 flex gap-2 overflow-x-auto">
-            <button onClick={() => navigate('/consumer/scan')} className="shrink-0 px-2.5 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-[10px] font-bold text-emerald-800 flex items-center gap-1 cursor-pointer"><Camera className="w-3 h-3" /> Scan product</button>
-            <button onClick={() => handleSend('Explain my latest scan')} disabled={!latestScan} className="shrink-0 px-2.5 py-1.5 rounded-lg bg-blue-50 border border-blue-200 text-[10px] font-bold text-blue-800 flex items-center gap-1 cursor-pointer disabled:opacity-40"><FileWarning className="w-3 h-3" /> Explain latest</button>
-            <button onClick={() => navigate('/consumer/history')} className="shrink-0 px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-[10px] font-bold text-slate-700 flex items-center gap-1 cursor-pointer"><MessageCircle className="w-3 h-3" /> My scans</button>
           </div>
-
-          {/* Input Box */}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSend();
-            }}
-            className="p-3 bg-white border-t border-slate-200 flex items-center gap-2"
-          >
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder={lang === 'hi' ? 'कानूनी प्रश्न पूछें (उदा. Section 36 penalty)...' : 'Type legal query (e.g. Rule 6 overcharging)...'}
-              className="flex-1 bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-500"
-            />
-            <button type="button" onClick={handleVoiceInput} className={`p-2.5 rounded-xl border cursor-pointer ${isListening ? 'bg-rose-50 border-rose-300 text-rose-600' : 'bg-slate-100 border-slate-200 text-slate-500 hover:text-blue-600'}`} title="Voice input">
-              <Mic className={`w-4 h-4 ${isListening ? 'animate-pulse' : ''}`} />
-            </button>
-            <button
-              type="submit"
-              disabled={!inputValue.trim()}
-              className={`p-2.5 rounded-xl shadow-sm transition-all flex items-center justify-center ${
-                inputValue.trim()
-                  ? 'bg-blue-600 hover:bg-blue-500 text-white cursor-pointer hover:scale-105 active:scale-95'
-                  : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-              }`}
-            >
-              <Send className="w-4 h-4" />
-            </button>
-          </form>
         </div>
       )}
     </>
