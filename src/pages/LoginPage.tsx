@@ -124,39 +124,6 @@ export const LoginPage: React.FC = () => {
             </div>
           </div>
 
-          {/* 5-Step Process Pipeline Pill */}
-          <div className="bg-white/85 backdrop-blur-md border border-slate-200/80 rounded-2xl p-3.5 max-w-xl mx-auto shadow-sm">
-            <div className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest text-center mb-2.5">
-              {lang === 'hi' ? '5-चरणीय सत्यापन प्रक्रिया' : '5-Step Optical Verification Pipeline'}
-            </div>
-            <div className="flex items-center justify-between text-[11px] font-bold text-slate-700 flex-wrap gap-1">
-              <span className="flex items-center gap-1.5 text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-100">
-                <span className="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[9px] font-black">1</span>
-                {t('flowCapture')}
-              </span>
-              <span className="text-slate-300 font-black">→</span>
-              <span className="flex items-center gap-1.5 text-sky-700 bg-sky-50 px-2 py-0.5 rounded-lg border border-sky-100">
-                <span className="w-4 h-4 rounded-full bg-sky-600 text-white flex items-center justify-center text-[9px] font-black">2</span>
-                {t('flowExtract')}
-              </span>
-              <span className="text-slate-300 font-black">→</span>
-              <span className="flex items-center gap-1.5 text-amber-700 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-100">
-                <span className="w-4 h-4 rounded-full bg-amber-600 text-white flex items-center justify-center text-[9px] font-black">3</span>
-                {t('flowVerify')}
-              </span>
-              <span className="text-slate-300 font-black">→</span>
-              <span className="flex items-center gap-1.5 text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-lg border border-indigo-100">
-                <span className="w-4 h-4 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[9px] font-black">4</span>
-                {t('flowExplain')}
-              </span>
-              <span className="text-slate-300 font-black">→</span>
-              <span className="flex items-center gap-1.5 text-teal-700 bg-teal-50 px-2 py-0.5 rounded-lg border border-teal-100">
-                <span className="w-4 h-4 rounded-full bg-teal-600 text-white flex items-center justify-center text-[9px] font-black">5</span>
-                {t('flowReport')}
-              </span>
-            </div>
-          </div>
-
           {/* SIH Badge */}
           <div className="flex flex-wrap items-center justify-center gap-2">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-[11px] font-bold shadow-2xs">
