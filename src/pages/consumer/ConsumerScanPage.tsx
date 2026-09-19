@@ -35,6 +35,22 @@ export const ConsumerScanPage: React.FC = () => {
 
   useEffect(() => {
     prewarmTesseractWorker();
+
+    const handleOpenLiveCamera = () => {
+      setIsCameraOpen(true);
+    };
+
+    window.addEventListener('open-consumer-camera', handleOpenLiveCamera);
+
+    const searchParams = new URLSearchParams(window.location.search);
+    if (searchParams.get('openCamera') === 'true') {
+      setIsCameraOpen(true);
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+
+    return () => {
+      window.removeEventListener('open-consumer-camera', handleOpenLiveCamera);
+    };
   }, []);
 
   const [selectedCategory, setSelectedCategory] = useState<ProductCategory>('FOOD');

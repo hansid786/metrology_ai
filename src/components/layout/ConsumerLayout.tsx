@@ -25,6 +25,14 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
     window.dispatchEvent(new CustomEvent('open-metrology-chat'));
   };
 
+  const handleCenterScannerClick = () => {
+    if (location.pathname === '/consumer/scan') {
+      window.dispatchEvent(new CustomEvent('open-consumer-camera'));
+    } else {
+      navigate('/consumer/scan?openCamera=true');
+    }
+  };
+
   const navItems = [
     { path: '/consumer/scan',    icon: ScanLine, label: lang === 'hi' ? 'स्कैन'   : 'Scan'    },
     { path: '/consumer/history', icon: History,  label: lang === 'hi' ? 'इतिहास' : 'History'  },
@@ -84,12 +92,21 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
               const Icon = item.icon;
               const active = location.pathname === item.path;
               return (
-                <button key={item.path} onClick={() => navigate(item.path)}
+                <button
+                  key={item.path}
+                  onClick={() => {
+                    if (item.path === '/consumer/scan' && location.pathname === '/consumer/scan') {
+                      handleCenterScannerClick();
+                    } else {
+                      navigate(item.path);
+                    }
+                  }}
                   className={`hidden md:flex px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 items-center gap-1.5 cursor-pointer btn-press ${
                     active
                       ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/25 font-black'
                       : 'text-slate-600 hover:bg-slate-100 border border-slate-200/80'
-                  }`}>
+                  }`}
+                >
                   <Icon className="w-3.5 h-3.5" />
                   <span>{item.label}</span>
                 </button>
@@ -161,7 +178,7 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
           {/* Tab 3: Center Elevated SCAN Hero Button (Like Instagram Reels / Camera) */}
           <div className="flex-1 flex flex-col items-center justify-center -mt-6">
             <button
-              onClick={() => navigate('/consumer/scan')}
+              onClick={handleCenterScannerClick}
               className={`w-14 h-14 rounded-full bg-gradient-to-tr from-emerald-600 via-teal-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white shadow-xl shadow-emerald-600/35 border-4 border-white flex flex-col items-center justify-center transition-all transform hover:scale-105 active:scale-95 cursor-pointer ${
                 location.pathname === '/consumer/scan' ? 'ring-2 ring-emerald-500 ring-offset-2' : ''
               }`}
