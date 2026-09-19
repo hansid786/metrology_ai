@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Shield, Lock, Mail, ArrowRight, UserCheck, AlertCircle,
-  Building2, ShoppingBag, CheckCircle2, PhoneCall, Sparkles, Landmark
+  Building2, ShoppingBag, CheckCircle2, PhoneCall, Sparkles, Landmark,
+  Scale, ScanLine
 } from 'lucide-react';
 import { authService } from '../services/authService';
 import { useLanguage } from '../context/LanguageContext';
@@ -80,6 +81,31 @@ export const LoginPage: React.FC = () => {
       <div className="w-full max-w-2xl space-y-6 pt-4 page-enter">
         {/* Government Identity Header */}
         <div className="text-center space-y-4">
+
+          {/* ── Official Government & MetrologyLens Brand Logo ── */}
+          <div className="flex flex-col items-center justify-center gap-2">
+            <div className="relative flex items-center justify-center">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-indigo-600 flex items-center justify-center text-white shadow-xl shadow-emerald-600/30 border-2 border-white ring-8 ring-emerald-500/10 transform hover:scale-105 transition-transform">
+                <div className="relative flex items-center justify-center">
+                  <Scale className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-amber-400 rounded-full border-2 border-white flex items-center justify-center shadow-xs">
+                    <ScanLine className="w-3 h-3 text-slate-950 font-black" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
+              <span className="flex items-center gap-1">
+                <Landmark className="w-3.5 h-3.5 text-amber-600" />
+                <span>{lang === 'hi' ? 'भारत सरकार' : 'GOVT. OF INDIA'}</span>
+              </span>
+              <span>•</span>
+              <span className="text-indigo-700 font-extrabold uppercase tracking-wider text-[11px]">
+                {lang === 'hi' ? 'विधिक मापविज्ञान प्रभाग' : 'LEGAL METROLOGY DIVISION'}
+              </span>
+            </div>
+          </div>
 
           {/* ── Heading & Badges ── */}
           <div className="flex flex-col items-center gap-3">
