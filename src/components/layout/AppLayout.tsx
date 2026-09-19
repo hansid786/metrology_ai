@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Plus, ClipboardList, BarChart2, ShieldCheck,
   FileText, Settings, LogOut, Menu, X, ChevronRight, Activity, Shield,
-  ArrowLeftRight, UserCheck, Sparkles
+  ArrowLeftRight, UserCheck, Sparkles, ShieldAlert
 } from 'lucide-react';
 import { authService } from '../../services/authService';
 import { useLanguage } from '../../context/LanguageContext';
@@ -13,6 +13,7 @@ import { OfficialGovFooter } from '../common/OfficialGovFooter';
 const OFFICER_NAV_ITEMS = [
   { path: '/dashboard', labelEn: 'Dashboard Overview', labelHi: 'डैशबोर्ड अवलोकन', icon: LayoutDashboard },
   { path: '/inspect/new', labelEn: 'New Field Inspection', labelHi: 'नया क्षेत्रीय निरीक्षण', icon: Plus, highlight: true },
+  { path: '/complaints', labelEn: 'Consumer Grievances', labelHi: 'उपभोक्ता शिकायतें (NCH)', icon: ShieldAlert, alertBadge: true },
   { path: '/history', labelEn: 'Inspection Records', labelHi: 'निरीक्षण रिकॉर्ड्स', icon: ClipboardList },
   { path: '/analytics', labelEn: 'National Analytics', labelHi: 'राष्ट्रीय विश्लेषण', icon: BarChart2 },
   { path: '/rules', labelEn: 'Compliance Rule Matrix', labelHi: 'अनुपालन नियम मैट्रिक्स', icon: ShieldCheck },
@@ -77,7 +78,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
 
         {/* Navigation Items */}
         <nav className="flex-1 py-4 px-2.5 space-y-1.5 overflow-y-auto">
-          {OFFICER_NAV_ITEMS.map(({ path, labelEn, labelHi, icon: Icon, highlight }) => {
+          {OFFICER_NAV_ITEMS.map(({ path, labelEn, labelHi, icon: Icon, highlight, alertBadge }) => {
             const isActive = location.pathname === path || (path !== '/dashboard' && location.pathname.startsWith(path));
             const label = lang === 'hi' ? labelHi : labelEn;
             return (
@@ -93,16 +94,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
                     ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-md shadow-indigo-600/25 font-black'
                     : highlight
                     ? 'text-indigo-700 hover:bg-indigo-50 border border-indigo-200/80 bg-indigo-50/50'
+                    : alertBadge
+                    ? 'text-rose-700 hover:bg-rose-50 border border-rose-200/80 bg-rose-50/30'
                     : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
                 }`}
               >
-                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : highlight ? 'text-indigo-600' : 'text-slate-500'}`} />
+                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : highlight ? 'text-indigo-600' : alertBadge ? 'text-rose-600' : 'text-slate-500'}`} />
                 {!collapsed && (
                   <>
                     <span className="flex-1 text-left truncate">{label}</span>
                     {highlight && (
                       <span className="bg-indigo-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow-2xs">
                         NEW
+                      </span>
+                    )}
+                    {alertBadge && (
+                      <span className="bg-rose-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow-2xs animate-pulse">
+                        LIVE
                       </span>
                     )}
                     {isActive && <ChevronRight className="w-3.5 h-3.5 shrink-0 opacity-80" />}

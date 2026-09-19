@@ -14,6 +14,7 @@ import { SavedInspection, MandatoryDeclaration } from '../../types/inspection';
 import { useLanguage } from '../../context/LanguageContext';
 import { OCRBoundingBoxes } from '../../components/LeftPanel/OCRBoundingBoxes';
 import { RawOcrModal } from '../../components/Modals/RawOcrModal';
+import { FileComplaintModal } from '../../components/Modals/FileComplaintModal';
 
 export const ConsumerResultPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -25,6 +26,7 @@ export const ConsumerResultPage: React.FC = () => {
   const [expandedDeclId, setExpandedDeclId] = useState<string | null>(null);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [isRawOcrOpen, setIsRawOcrOpen] = useState(false);
+  const [isFileComplaintOpen, setIsFileComplaintOpen] = useState(false);
 
   // Quick Fine-Tune State
   const [isEditing, setIsEditing] = useState(false);
@@ -201,6 +203,13 @@ Reported via MetrologyLens AI (Govt of India SIH Initiative)`;
         result={result}
       />
 
+      {/* File Complaint Modal (Routes to Officer Portal) */}
+      <FileComplaintModal
+        isOpen={isFileComplaintOpen}
+        onClose={() => setIsFileComplaintOpen(false)}
+        inspection={inspection}
+      />
+
       {/* Top Controls Bar */}
 
       <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-3xl border border-slate-200 shadow-xs">
@@ -213,6 +222,16 @@ Reported via MetrologyLens AI (Govt of India SIH Initiative)`;
         </button>
 
         <div className="flex items-center gap-2 flex-wrap">
+          {/* File Grievance directly to Legal Metrology Officer */}
+          <button
+            type="button"
+            onClick={() => setIsFileComplaintOpen(true)}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-rose-600 via-pink-600 to-indigo-600 hover:from-rose-500 hover:to-indigo-500 text-white text-xs font-black transition-all cursor-pointer shadow-md shadow-rose-600/25 btn-press"
+          >
+            <ShieldAlert className="w-3.5 h-3.5 animate-pulse" />
+            <span>{lang === 'hi' ? 'अधिकारी को शिकायत भेजें' : 'Report to Officer'}</span>
+          </button>
+
           {/* WhatsApp / NCH 1915 Share Button */}
           <button
             type="button"

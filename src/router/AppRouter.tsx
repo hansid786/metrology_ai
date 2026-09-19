@@ -18,6 +18,7 @@ const AnalyticsPage = lazy(() => import('../pages/AnalyticsPage').then(module =>
 const RulesPage = lazy(() => import('../pages/RulesPage').then(module => ({ default: module.RulesPage })));
 const ReportsPage = lazy(() => import('../pages/ReportsPage').then(module => ({ default: module.ReportsPage })));
 const SettingsPage = lazy(() => import('../pages/SettingsPage').then(module => ({ default: module.SettingsPage })));
+const OfficerComplaintsPage = lazy(() => import('../pages/OfficerComplaintsPage').then(module => ({ default: module.OfficerComplaintsPage })));
 
 const RouteLoading: React.FC = () => (
   <div className="min-h-[40vh] flex items-center justify-center text-sm font-semibold text-slate-500">
@@ -154,6 +155,14 @@ export const AppRouter: React.FC = () => {
           element={
             <OfficerRoute>
               <ReportsPage />
+            </OfficerRoute>
+          }
+        />
+        <Route
+          path="/complaints"
+          element={
+            <OfficerRoute>
+              <OfficerComplaintsPage />
             </OfficerRoute>
           }
         />
