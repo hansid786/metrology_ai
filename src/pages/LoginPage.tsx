@@ -37,7 +37,7 @@ export const LoginPage: React.FC = () => {
     }
   };
 
-  // Custom Email/Passcode Login
+  // Custom Email/Passcode Login (Supabase or demo fallback)
   const handleCustomOfficerLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -57,7 +57,12 @@ export const LoginPage: React.FC = () => {
     <div
       className="min-h-screen flex flex-col justify-center items-center p-4 sm:p-6 text-slate-800 selection:bg-emerald-600 selection:text-white relative overflow-hidden"
       style={{
-        background: 'linear-gradient(145deg, #f0fdf4 0%, #f8fafc 40%, #eff6ff 75%, #fdf4ff 100%)'
+        background: `
+          radial-gradient(circle at 10% 15%, rgba(16, 185, 129, 0.16) 0%, transparent 40%),
+          radial-gradient(circle at 90% 12%, rgba(99, 102, 241, 0.16) 0%, transparent 42%),
+          radial-gradient(circle at 50% 85%, rgba(244, 63, 94, 0.10) 0%, transparent 45%),
+          linear-gradient(145deg, #f8fafc 0%, #f0fdf4 35%, #eff6ff 70%, #faf5ff 100%)
+        `
       }}
     >
       {/* Tricolor Government Top Strip */}
@@ -72,84 +77,92 @@ export const LoginPage: React.FC = () => {
         <LanguageToggle variant="light" />
       </div>
 
-      <div className="w-full max-w-2xl space-y-6 pt-6 pb-8 relative z-10 page-enter">
+      <div className="w-full max-w-2xl space-y-6 pt-4 page-enter">
         {/* Government Identity Header */}
-        <div className="text-center space-y-3.5">
+        <div className="text-center space-y-4">
 
-          {/* Top Pill Badge */}
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/90 text-emerald-800 text-xs font-bold shadow-2xs">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-            <span>AI-Powered Legal Metrology Verification Engine</span>
+          {/* ── Brand Logo + Name ── */}
+          <div className="flex flex-col items-center gap-3">
+            <div className="relative">
+              <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-emerald-500 via-teal-500 to-indigo-600 opacity-30 blur-md animate-pulse" />
+              <div className="relative w-20 h-20 rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-600 to-indigo-700 flex items-center justify-center mx-auto shadow-2xl shadow-emerald-600/30 border-2 border-white">
+                <Shield className="w-10 h-10 text-white drop-shadow-md" />
+              </div>
+            </div>
+
+            {/* Idea / Product Name */}
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 border border-emerald-200/80 shadow-xs text-xs font-bold text-emerald-800">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                <span>AI-Powered Legal Metrology Verification Engine</span>
+              </div>
+              <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-slate-900 leading-tight">
+                {t('landingMainHeading')}
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-600 font-medium max-w-xl mx-auto leading-relaxed">
+                {t('landingSubHeading')}
+              </p>
+            </div>
           </div>
 
-          {/* Main Heading & Subtitle */}
-          <div className="space-y-2">
-            <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-slate-900 leading-tight">
-              {t('landingMainHeading')}
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-600 font-medium max-w-xl mx-auto leading-relaxed">
-              {t('landingSubHeading')}
-            </p>
-          </div>
-
-          {/* 5-Step Process Pipeline Card */}
-          <div className="bg-white/80 backdrop-blur-md border border-slate-200/90 rounded-2xl p-3.5 max-w-xl mx-auto shadow-xs">
-            <div className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest text-center mb-2">
+          {/* 5-Step Process Pipeline Pill */}
+          <div className="bg-white/85 backdrop-blur-md border border-slate-200/80 rounded-2xl p-3.5 max-w-xl mx-auto shadow-sm">
+            <div className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest text-center mb-2.5">
               {lang === 'hi' ? '5-चरणीय सत्यापन प्रक्रिया' : '5-Step Optical Verification Pipeline'}
             </div>
-            <div className="flex items-center justify-between text-[11px] font-bold text-slate-700 flex-wrap gap-1 px-1">
-              <span className="flex items-center gap-1.5 text-emerald-700">
-                <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[9px] font-black border border-emerald-300">1</span>
+            <div className="flex items-center justify-between text-[11px] font-bold text-slate-700 flex-wrap gap-1">
+              <span className="flex items-center gap-1.5 text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-100">
+                <span className="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[9px] font-black">1</span>
                 {t('flowCapture')}
               </span>
-              <span className="text-slate-300">→</span>
-              <span className="flex items-center gap-1.5 text-sky-700">
-                <span className="w-4 h-4 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center text-[9px] font-black border border-sky-300">2</span>
+              <span className="text-slate-300 font-black">→</span>
+              <span className="flex items-center gap-1.5 text-sky-700 bg-sky-50 px-2 py-0.5 rounded-lg border border-sky-100">
+                <span className="w-4 h-4 rounded-full bg-sky-600 text-white flex items-center justify-center text-[9px] font-black">2</span>
                 {t('flowExtract')}
               </span>
-              <span className="text-slate-300">→</span>
-              <span className="flex items-center gap-1.5 text-amber-700">
-                <span className="w-4 h-4 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-[9px] font-black border border-amber-300">3</span>
+              <span className="text-slate-300 font-black">→</span>
+              <span className="flex items-center gap-1.5 text-amber-700 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-100">
+                <span className="w-4 h-4 rounded-full bg-amber-600 text-white flex items-center justify-center text-[9px] font-black">3</span>
                 {t('flowVerify')}
               </span>
-              <span className="text-slate-300">→</span>
-              <span className="flex items-center gap-1.5 text-indigo-700">
-                <span className="w-4 h-4 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-[9px] font-black border border-indigo-300">4</span>
+              <span className="text-slate-300 font-black">→</span>
+              <span className="flex items-center gap-1.5 text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-lg border border-indigo-100">
+                <span className="w-4 h-4 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[9px] font-black">4</span>
                 {t('flowExplain')}
               </span>
-              <span className="text-slate-300">→</span>
-              <span className="flex items-center gap-1.5 text-teal-700">
-                <span className="w-4 h-4 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-[9px] font-black border border-teal-300">5</span>
+              <span className="text-slate-300 font-black">→</span>
+              <span className="flex items-center gap-1.5 text-teal-700 bg-teal-50 px-2 py-0.5 rounded-lg border border-teal-100">
+                <span className="w-4 h-4 rounded-full bg-teal-600 text-white flex items-center justify-center text-[9px] font-black">5</span>
                 {t('flowReport')}
               </span>
             </div>
           </div>
 
-          {/* Badges */}
+          {/* SIH Badge */}
           <div className="flex flex-wrap items-center justify-center gap-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200/80 text-indigo-700 text-[11px] font-bold shadow-2xs">
-              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-[11px] font-bold shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
               <span>Smart India Hackathon 2026 • PS: 26034</span>
             </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-[11px] font-bold shadow-2xs">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-bold shadow-2xs">
               <span>🇮🇳</span>
               <span>{t('deptName')}</span>
             </div>
           </div>
         </div>
 
-        {/* ── Main Gateway Box ── */}
-        <div className="bg-white/90 backdrop-blur-xl border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-lg shadow-slate-200/50 space-y-6">
+        {/* Profile Selection Gateway Box */}
+        <div className="bg-white/90 backdrop-blur-xl border border-white/80 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/50 space-y-6">
           <div className="text-center space-y-1">
             <h2 className="text-lg sm:text-xl font-black text-slate-900">{t('selectProfile')}</h2>
             <p className="text-xs text-slate-500 font-medium">{t('selectProfileSubtitle')}</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* ── Card 1: Consumer Card ── */}
-            <div className="p-5 rounded-2xl border-2 border-emerald-400/80 bg-gradient-to-b from-emerald-50/70 via-white to-white hover:border-emerald-500 transition-all duration-200 space-y-3 flex flex-col justify-between shadow-xs hover:shadow-md card-hover">
+            {/* Card 1: Consumer Card */}
+            <div className="p-5 rounded-2xl border-2 border-emerald-400/80 bg-gradient-to-b from-emerald-50/80 via-white to-white hover:border-emerald-500 transition-all duration-200 space-y-3 flex flex-col justify-between shadow-md shadow-emerald-500/10 card-hover">
               <div className="space-y-2">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 border border-emerald-200 flex items-center justify-center shadow-2xs">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-md shadow-emerald-500/30">
                   <ShoppingBag className="w-6 h-6" />
                 </div>
                 <div>
@@ -179,17 +192,17 @@ export const LoginPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleCitizenProceed}
-                className="w-full mt-4 py-3.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-black shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 transition-all cursor-pointer btn-press"
+                className="w-full mt-4 py-3.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-black shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 transition-all cursor-pointer btn-press"
               >
                 <span>{t('startVerification')}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
 
-            {/* ── Card 2: Officer Card ── */}
-            <div className="p-5 rounded-2xl border-2 border-indigo-300 bg-gradient-to-b from-indigo-50/70 via-white to-white hover:border-indigo-400 transition-all duration-200 space-y-3 flex flex-col justify-between shadow-xs hover:shadow-md card-hover">
+            {/* Card 2: Officer Card */}
+            <div className="p-5 rounded-2xl border-2 border-indigo-400/80 bg-gradient-to-b from-indigo-50/80 via-white to-white hover:border-indigo-500 transition-all duration-200 space-y-3 flex flex-col justify-between shadow-md shadow-indigo-500/10 card-hover">
               <div className="space-y-2">
-                <div className="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-700 border border-indigo-200 flex items-center justify-center shadow-2xs">
+                <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-600/30">
                   <Building2 className="w-6 h-6" />
                 </div>
                 <div>
@@ -220,7 +233,7 @@ export const LoginPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleOfficerProceed}
-                  className="w-full py-3.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black shadow-md shadow-indigo-600/20 flex items-center justify-center gap-2 transition-all cursor-pointer btn-press"
+                  className="w-full py-3.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 transition-all cursor-pointer btn-press"
                 >
                   <UserCheck className="w-4 h-4" />
                   <span>{t('loginAsOfficer')}</span>
@@ -264,9 +277,9 @@ export const LoginPage: React.FC = () => {
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     {[
-                      { role: 'INSPECTOR', label: '👮 Officer Ravi (LMO)', email: 'ravi.kumar@metrologylens.gov.in', pass: 'inspector123', color: 'border-emerald-200 bg-emerald-50 text-emerald-900 hover:bg-emerald-100' },
-                      { role: 'SUPERVISOR', label: '👩‍💼 Priya Nair (CLM)', email: 'priya.nair@metrologylens.gov.in', pass: 'supervisor123', color: 'border-indigo-200 bg-indigo-50 text-indigo-900 hover:bg-indigo-100' },
-                      { role: 'ADMIN', label: '🛡️ National Admin', email: 'admin@metrologylens.gov.in', pass: 'admin123', color: 'border-purple-200 bg-purple-50 text-purple-900 hover:bg-purple-100' }
+                      { role: 'INSPECTOR', label: '👮 Officer Ravi (LMO)', email: 'ravi.kumar@metrologylens.gov.in', pass: 'inspector123', color: 'border-emerald-200 bg-emerald-50/60 text-emerald-900 hover:bg-emerald-100' },
+                      { role: 'SUPERVISOR', label: '👩‍💼 Priya Nair (CLM)', email: 'priya.nair@metrologylens.gov.in', pass: 'supervisor123', color: 'border-indigo-200 bg-indigo-50/60 text-indigo-900 hover:bg-indigo-100' },
+                      { role: 'ADMIN', label: '🛡️ National Admin', email: 'admin@metrologylens.gov.in', pass: 'admin123', color: 'border-purple-200 bg-purple-50/60 text-purple-900 hover:bg-purple-100' }
                     ].map((item) => (
                       <button
                         key={item.role}
