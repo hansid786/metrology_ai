@@ -1,14 +1,15 @@
 /**
  * MetrologyLens Image Utility
  * Handles:
- * 1. HEIC/HEIF → JPEG conversion (iOS Safari compatibility)
- * 2. Canvas-based contrast & glare preprocessing for OCR
- * 3. Safe base64 extraction from any image source
+ * 1. HEIC/HEIF/PNG/WebP → JPEG conversion (iOS Safari & Cross-Platform compatibility)
+ * 2. High-resolution preservation for small statutory text (up to 2048px)
+ * 3. Canvas-based contrast & specular glare normalization for OCR
+ * 4. Safe base64 extraction from any image source
  */
 
 /**
- * Converts any image (including HEIC) to a JPEG data URL via Canvas.
- * This works by drawing the image onto a canvas element and exporting as JPEG.
+ * Converts any image (including HEIC, WebP, PNG) to a JPEG data URL via Canvas.
+ * Preserves high resolution (up to 2048px) to protect small statutory text (MRP, Expiry, Batch No).
  */
 export async function convertToJpegDataUrl(imageDataUrl: string): Promise<string> {
   return new Promise((resolve) => {
@@ -21,10 +22,11 @@ export async function convertToJpegDataUrl(imageDataUrl: string): Promise<string
 
     img.onload = () => {
       try {
-        const origW = img.naturalWidth || img.width || 1000;
-        const origH = img.naturalHeight || img.height || 800;
+        const origW = img.naturalWidth || img.width || 1200;
+        const origH = img.naturalHeight || img.height || 900;
 
-        const maxDim = 1280;
+        // Preserve higher resolution ceiling (up to 2048px) so 1mm-2mm printed dates/MRP are sharp
+        const maxDim = 2048;
         let targetW = origW;
         let targetH = origH;
         if (origW > maxDim || origH > maxDim) {
@@ -43,8 +45,10 @@ export async function convertToJpegDataUrl(imageDataUrl: string): Promise<string
         const ctx = canvas.getContext('2d');
         if (!ctx) { resolve(imageDataUrl); return; }
 
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, 0, 0, targetW, targetH);
-        const jpeg = canvas.toDataURL('image/jpeg', 0.85);
+        const jpeg = canvas.toDataURL('image/jpeg', 0.92);
         resolve(jpeg);
       } catch {
         resolve(imageDataUrl);
@@ -68,13 +72,13 @@ export interface PreprocessedImageResult {
 
 /**
  * Full OCR preprocessing pipeline:
- * 1. Convert HEIC/HEIF → JPEG
- * 2. Adaptive grayscale + specular glare suppression
- * 3. Dynamic contrast stretching (+35%)
- * 4. Dot-matrix inkjet dilation kernel (3×3 min)
+ * 1. Convert format → JPEG
+ * 2. Adaptive luminance balance
+ * 3. Specular glare suppression (soft clamp on overexposed reflections)
+ * 4. Contrast normalization with edge preservation
  */
 export async function preprocessImageForOCR(imageDataUrl: string): Promise<PreprocessedImageResult> {
-  // Step 1: Normalise to JPEG (handles HEIC)
+  // Step 1: Normalise to JPEG
   const jpegUrl = await convertToJpegDataUrl(imageDataUrl);
 
   return new Promise((resolve) => {
@@ -85,8 +89,8 @@ export async function preprocessImageForOCR(imageDataUrl: string): Promise<Prepr
 
     img.onload = () => {
       try {
-        const origW = img.naturalWidth || img.width || 800;
-        const origH = img.naturalHeight || img.height || 600;
+        const origW = img.naturalWidth || img.width || 1000;
+        const origH = img.naturalHeight || img.height || 800;
 
         const canvas = document.createElement('canvas');
         canvas.width = origW;
@@ -94,55 +98,55 @@ export async function preprocessImageForOCR(imageDataUrl: string): Promise<Prepr
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
         if (!ctx) {
-          resolve({ processedDataUrl: jpegUrl, originalWidth: origW, originalHeight: origH, enhancementApplied: ['jpeg-only'] });
+          resolve({ processedDataUrl: jpegUrl, originalWidth: origW, originalHeight: origH, enhancementApplied: ['jpeg-standard'] });
           return;
         }
 
-      ctx.drawImage(img, 0, 0);
-      const imageData = ctx.getImageData(0, 0, origW, origH);
-      const data = imageData.data;
-      const len = data.length;
+        ctx.drawImage(img, 0, 0);
+        const imageData = ctx.getImageData(0, 0, origW, origH);
+        const data = imageData.data;
+        const len = data.length;
 
-      // Calculate average luminance
-      let sumLum = 0;
-      for (let i = 0; i < len; i += 4) {
-        sumLum += 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+        // Calculate average luminance
+        let sumLum = 0;
+        for (let i = 0; i < len; i += 4) {
+          sumLum += 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+        }
+        const avgLum = sumLum / (len / 4);
+        const brightnessShift = avgLum < 80 ? 18 : avgLum > 210 ? -12 : 0;
+        const contrastFactor = 1.12; // Gentle contrast boost without pixel clipping
+
+        for (let i = 0; i < len; i += 4) {
+          let r = data[i], g = data[i + 1], b = data[i + 2];
+
+          // Soft glare suppression for shiny foil packaging
+          if (r > 248 && g > 248 && b > 248) {
+            r = g = b = 232;
+          }
+
+          const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+          let enhanced = (gray - 128) * contrastFactor + 128 + brightnessShift;
+          enhanced = Math.max(0, Math.min(255, enhanced));
+
+          data[i] = data[i + 1] = data[i + 2] = Math.round(enhanced);
+        }
+
+        ctx.putImageData(imageData, 0, 0);
+        resolve({
+          processedDataUrl: canvas.toDataURL('image/jpeg', 0.94),
+          originalWidth: origW,
+          originalHeight: origH,
+          enhancementApplied: ['Resolution Preservation (2048px)', 'Glare Softening', 'Adaptive Contrast']
+        });
+      } catch {
+        resolve({ processedDataUrl: jpegUrl, originalWidth: 800, originalHeight: 800, enhancementApplied: ['safe-fallback'] });
       }
-      const avgLum = sumLum / (len / 4);
-      const brightnessShift = avgLum < 90 ? 15 : avgLum > 200 ? -10 : 0;
-      const contrastFactor = 1.15; // Gentle contrast boost
+    };
 
-      // Gentle contrast enhancement without destroying pixel boundaries
-      for (let i = 0; i < len; i += 4) {
-        let r = data[i], g = data[i + 1], b = data[i + 2];
-        
-        // Gentle highlight clipping for glare
-        if (r > 250 && g > 250 && b > 250) { r = g = b = 230; }
+    img.onerror = () => {
+      resolve({ processedDataUrl: jpegUrl, originalWidth: 800, originalHeight: 800, enhancementApplied: ['jpeg-fallback'] });
+    };
 
-        let gray = 0.299 * r + 0.587 * g + 0.114 * b;
-        let enhanced = (gray - 128) * contrastFactor + 128 + brightnessShift;
-        enhanced = Math.max(0, Math.min(255, enhanced));
-
-        // Mild blend to maintain stroke definition
-        data[i] = data[i + 1] = data[i + 2] = Math.round(enhanced);
-      }
-
-      ctx.putImageData(imageData, 0, 0);
-      resolve({
-        processedDataUrl: canvas.toDataURL('image/jpeg', 0.95),
-        originalWidth: origW,
-        originalHeight: origH,
-        enhancementApplied: ['HEIC→JPEG', 'Contrast Normalization', 'Sharpness Preservation']
-      });
-    } catch {
-      resolve({ processedDataUrl: jpegUrl, originalWidth: 800, originalHeight: 800, enhancementApplied: ['safe-fallback'] });
-    }
-  };
-
-  img.onerror = () => {
-    resolve({ processedDataUrl: jpegUrl, originalWidth: 800, originalHeight: 800, enhancementApplied: ['jpeg-fallback'] });
-  };
-
-  img.src = jpegUrl;
-});
+    img.src = jpegUrl;
+  });
 }

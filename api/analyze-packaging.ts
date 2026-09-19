@@ -3,10 +3,36 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: '10mb',
+      sizeLimit: '15mb',
     },
   },
 };
+
+export interface PackagingVisionResponse {
+  productName: string | null;
+  brandName: string | null;
+  genericProductName: string | null;
+  mrp: number | null;
+  currency?: string;
+  netQuantityValue: number | null;
+  netQuantityUnit: string | null;
+  printedUSP: string | null;
+  mfgDate: string | null;
+  expiryDate: string | null;
+  bestBefore: string | null;
+  manufacturer: string | null;
+  packer: string | null;
+  importer: string | null;
+  countryOfOrigin: string | null;
+  customerCare: string | null;
+  category: 'FOOD' | 'PHARMA' | 'ELECTRONICS' | 'COSMETICS' | 'GENERAL' | null;
+  fssaiLicense?: string | null;
+  drugLicense?: string | null;
+  bisMark?: string | null;
+  batchNo?: string | null;
+  rawText: string[];
+  evidence: Record<string, string>;
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Set CORS headers
@@ -28,7 +54,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  const { imageBase64, mimeType = 'image/jpeg', category = 'FOOD' } = req.body || {};
+  const { imageBase64, mimeType = 'image/jpeg', categoryHint = 'FOOD' } = req.body || {};
 
   if (!imageBase64) {
     res.status(400).json({ error: 'Missing imageBase64 in request body.' });
@@ -40,107 +66,179 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!apiKey) {
     res.status(503).json({
       error: 'GEMINI_API_KEY is not configured on server.',
-      fallbackToClient: true
+      fallbackToClient: false,
+      code: 'SERVER_KEY_MISSING'
     });
     return;
   }
 
-  const prompt = `You are a certified Legal Metrology optical inspector enforcing Legal Metrology (Packaged Commodities) Rules, 2011 & FSSAI regulations in India.
+  const systemPrompt = `You are a certified Legal Metrology Optical Inspector enforcing the Legal Metrology (Packaged Commodities) Rules, 2011 & FSSAI standards in India.
+Packaging Category Hint: ${categoryHint || 'GENERAL'}.
 
-CRITICAL INSTRUCTION:
-Extract ONLY the verbatim text visibly present on this packaging image.
-NEVER invent, assume, or guess any value. If a value is missing or unreadable, return null.
+CRITICAL INSTRUCTIONS:
+1. Extract ONLY text that is visibly printed on this product packaging image.
+2. NEVER guess, assume, estimate, calculate, or hallucinate any field. If a field is not clearly visible in the image, return null.
+3. For every non-null field you extract, you MUST populate the "evidence" object with the EXACT, verbatim supporting visible text line where you saw that value.
+4. Distinguish between:
+   - "manufacturer": Look for "Manufactured by", "Mfd by", "Mfg by".
+   - "packer": Look for "Packed by", "Pkd by".
+   - "importer": Look for "Imported by".
+   - "brandName": The commercial brand (e.g. "Maggi", "Lay's", "Parle-G").
+   - "genericProductName": The common commodity name (e.g. "Instant Noodles", "Potato Chips", "Biscuits").
+   - "mfgDate": The manufacture or packaging date (e.g. "08/2024", "15/09/2024").
+   - "expiryDate" / "bestBefore": The expiry or best before declaration.
+5. In "rawText", return an array of all distinct visible text lines from top to bottom.
 
-Return ONLY a valid JSON object matching this schema:
+Return ONLY a valid, parseable JSON object matching this exact schema:
 {
-  "productName": "exact commodity name printed on package or null",
-  "brandName": "exact brand printed on package or null",
-  "mrp": <exact numeric MRP amount without currency symbol or null>,
-  "currency": "₹",
-  "netQuantityValue": <exact numeric quantity or null>,
-  "netQuantityUnit": "exact unit e.g. g, kg, ml, L, Unit, NOS, Tablets, Pages or null",
-  "hasPrintedUSP": <true if printed on package else false>,
-  "printedUSP": "exact printed unit sale price text or null",
-  "printedUSPAmount": <exact printed USP number or null>,
-  "printedUSPUnit": <exact printed unit e.g. g, ml, kg or null>,
-  "mfgDate": "exact printed mfg/pkd date or null",
-  "expiryDate": "exact printed expiry/best before date or null",
-  "manufacturer": "exact printed manufacturer legal entity and address with PIN or null",
-  "marketer": "exact marketed by entity if separate or null",
-  "fssaiLicense": "14-digit FSSAI registration number or null",
-  "drugLicense": "drug or AYUSH license number or null",
-  "bisMark": "BIS ISI registration number or null",
-  "batchNo": "exact batch number or null",
-  "countryOfOrigin": "exact country of origin e.g. INDIA or null",
-  "customerCare": "exact consumer care phone or email or null",
-  "ingredientsList": "verbatim text printed under Ingredients/सामग्री block or null",
-  "rawText": "verbatim text lines visible in image"
+  "productName": string or null,
+  "brandName": string or null,
+  "genericProductName": string or null,
+  "mrp": number or null,
+  "netQuantityValue": number or null,
+  "netQuantityUnit": string or null,
+  "printedUSP": string or null,
+  "mfgDate": string or null,
+  "expiryDate": string or null,
+  "bestBefore": string or null,
+  "manufacturer": string or null,
+  "packer": string or null,
+  "importer": string or null,
+  "countryOfOrigin": string or null,
+  "customerCare": string or null,
+  "category": "FOOD" | "PHARMA" | "ELECTRONICS" | "COSMETICS" | "GENERAL" | null,
+  "fssaiLicense": string or null,
+  "drugLicense": string or null,
+  "bisMark": string or null,
+  "batchNo": string or null,
+  "rawText": [string],
+  "evidence": {
+    "mrp": "verbatim text e.g. MRP Rs. 120 (incl. of all taxes)",
+    "netQuantity": "verbatim text e.g. Net Wt. 500 g",
+    "mfgDate": "verbatim text e.g. MFD: 12/2024",
+    "expiryDate": "verbatim text e.g. Best Before 9 Months from PKD",
+    "manufacturer": "verbatim text e.g. Mfd by Nestlé India Ltd, Industrial Area...",
+    "customerCare": "verbatim text e.g. Call 1800-103-1947 or email care@...",
+    "countryOfOrigin": "verbatim text e.g. Made in India"
+  }
 }`;
 
   try {
     const cleanBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, '');
 
-    const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-    const requestVision = (modelName: string) => fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`,
-      {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{
-          parts: [
-            { text: prompt },
-            { inline_data: { mime_type: mimeType, data: cleanBase64 } }
-          ]
-        }],
-        generationConfig: {
-          temperature: 0.0,
-          maxOutputTokens: 1024
+    const candidateModels = [
+      process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+      'gemini-2.5-flash-lite',
+      'gemini-2.0-flash',
+      'gemini-2.0-flash-001',
+      'gemini-2.0-flash-lite',
+      'gemini-1.5-flash'
+    ];
+
+    let lastError: any = null;
+    let parsedData: PackagingVisionResponse | null = null;
+    let successfulModel = '';
+
+    for (const modelName of candidateModels) {
+      if (!modelName) continue;
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 25000); // 25s timeout for vision AI
+
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal,
+            body: JSON.stringify({
+              contents: [{
+                parts: [
+                  { text: systemPrompt },
+                  { inline_data: { mime_type: mimeType, data: cleanBase64 } }
+                ]
+              }],
+              generationConfig: {
+                temperature: 0.0,
+                maxOutputTokens: 2048,
+                responseMimeType: 'application/json'
+              }
+            })
+          }
+        );
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          const errStatus = response.status;
+          const errText = await response.text();
+          lastError = { status: errStatus, message: errText, model: modelName };
+          if (errStatus === 429 || errStatus >= 500) {
+            continue; // try fallback model
+          }
+          continue;
         }
-      })
+
+        const resJson: any = await response.json();
+        const rawContent = resJson?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        if (!rawContent) {
+          lastError = { status: 502, message: 'Empty vision response part', model: modelName };
+          continue;
+        }
+
+        const cleaned = rawContent
+          .replace(/^```(?:json)?\s*/i, '')
+          .replace(/\s*```$/g, '')
+          .trim();
+
+        const jsonStart = cleaned.indexOf('{');
+        const jsonEnd = cleaned.lastIndexOf('}');
+        if (jsonStart === -1 || jsonEnd === -1) {
+          lastError = { status: 502, message: 'Malformed JSON response', raw: rawContent, model: modelName };
+          continue;
+        }
+
+        const jsonStr = cleaned.slice(jsonStart, jsonEnd + 1);
+        parsedData = JSON.parse(jsonStr);
+        successfulModel = modelName;
+        break;
+      } catch (callErr: any) {
+        lastError = { status: 500, message: callErr?.message || 'Network/timeout exception', model: modelName };
+        continue;
       }
-    );
-
-    let response = await requestVision(model);
-    for (const fallbackModel of ['gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-001', 'gemini-2.0-flash-lite', 'gemini-1.5-flash']) {
-      if (response.ok) break;
-      response = await requestVision(fallbackModel);
     }
 
-    if (!response.ok) {
-      const errText = await response.text();
-      res.status(502).json({ error: 'Gemini Vision API error', details: errText, fallbackToClient: true });
+    if (!parsedData) {
+      res.status(lastError?.status || 502).json({
+        error: 'Gemini Vision AI failed across all models',
+        details: lastError,
+        fallbackToLocalOcr: true
+      });
       return;
     }
 
-    const data = await response.json();
-    const rawContent = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-
-    if (!rawContent) {
-      res.status(502).json({ error: 'Empty vision AI response', fallbackToClient: true });
-      return;
+    // Ensure rawText is an array
+    if (typeof parsedData.rawText === 'string') {
+      parsedData.rawText = (parsedData.rawText as string).split('\n').map(s => s.trim()).filter(Boolean);
+    } else if (!Array.isArray(parsedData.rawText)) {
+      parsedData.rawText = [];
     }
 
-    const cleaned = rawContent.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
-    const jsonStart = cleaned.indexOf('{');
-    const jsonEnd = cleaned.lastIndexOf('}');
-    if (jsonStart === -1 || jsonEnd === -1) {
-      res.status(502).json({ error: 'Invalid JSON from vision model', raw: rawContent, fallbackToClient: true });
-      return;
+    // Ensure evidence is an object
+    if (!parsedData.evidence || typeof parsedData.evidence !== 'object') {
+      parsedData.evidence = {};
     }
-
-    const parsed = JSON.parse(cleaned.slice(jsonStart, jsonEnd + 1));
 
     res.status(200).json({
       success: true,
-      data: parsed,
-      engine: 'MetrologyLens Cloud Vision AI (Grounded 1.5 Flash)'
+      data: parsedData,
+      modelUsed: successfulModel,
+      engine: `MetrologyLens Vision AI (${successfulModel})`
     });
   } catch (err: any) {
     res.status(500).json({
-      error: 'Server error processing packaging image',
+      error: 'Internal server error processing packaging image',
       message: err?.message || 'Unknown error',
-      fallbackToClient: true
+      fallbackToLocalOcr: true
     });
   }
 }
