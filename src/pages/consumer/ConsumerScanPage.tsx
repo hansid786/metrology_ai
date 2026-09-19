@@ -342,7 +342,7 @@ export const ConsumerScanPage: React.FC = () => {
 
       <div
         ref={scanBoxRef}
-        className="scroll-mt-4 bg-white rounded-3xl p-5 sm:p-8 border-2 border-emerald-500/40 shadow-xl shadow-emerald-600/5 space-y-6 relative overflow-hidden"
+        className="scroll-mt-4 glass-card p-5 sm:p-8 space-y-6 relative overflow-hidden card-hover"
       >
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
           <div className="flex items-center gap-2.5">
