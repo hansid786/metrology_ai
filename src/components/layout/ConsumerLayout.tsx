@@ -108,28 +108,27 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
       </div>
 
       {/* ── Main Content ── */}
-      <main className="flex-1 max-w-5xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6 pb-24 md:pb-6 page-enter">
+      <main className="flex-1 max-w-5xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6 pb-28 md:pb-28 page-enter">
         {children}
       </main>
 
-      {/* ── App-Style Mobile Bottom Navigation Bar ── */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden"
+      {/* ── App-Style Bottom Navigation Bar (Visible on All Devices with Floating Dock on Desktop) ── */}
+      <nav className="fixed bottom-0 sm:bottom-4 left-0 right-0 sm:left-1/2 sm:-translate-x-1/2 sm:max-w-md md:max-w-lg z-40 sm:rounded-3xl border-t sm:border border-slate-200/90 shadow-2xl transition-all duration-300"
         style={{
-          background: 'rgba(255,255,255,0.92)',
+          background: 'rgba(255,255,255,0.94)',
           backdropFilter: 'blur(24px) saturate(1.8)',
           WebkitBackdropFilter: 'blur(24px) saturate(1.8)',
-          borderTop: '1px solid rgba(0,0,0,0.08)',
-          boxShadow: '0 -4px 28px rgba(0,0,0,0.08)',
-          paddingBottom: 'env(safe-area-inset-bottom, 8px)',
+          boxShadow: '0 10px 35px -5px rgba(0, 0, 0, 0.12), 0 0 1px 1px rgba(0,0,0,0.05)',
+          paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6px)',
         }}>
-        <div className="flex items-center justify-around px-2 pt-1 pb-1">
+        <div className="flex items-center justify-around px-3 pt-2 pb-1">
           {/* Tab 1: History */}
           <button
             onClick={() => navigate('/consumer/history')}
-            className="flex-1 flex flex-col items-center gap-0.5 py-1 btn-press cursor-pointer"
+            className="flex-1 flex flex-col items-center gap-0.5 py-1 btn-press cursor-pointer group"
           >
             <div className={`p-1.5 rounded-2xl transition-all duration-200 ${
-              location.pathname === '/consumer/history' ? 'bg-emerald-100 text-emerald-700' : 'text-slate-400'
+              location.pathname === '/consumer/history' ? 'bg-emerald-100 text-emerald-700 shadow-xs' : 'text-slate-400 group-hover:text-slate-600'
             }`}>
               <History className="w-5 h-5" />
             </div>
@@ -143,10 +142,10 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
           {/* Tab 2: Legal Rules */}
           <button
             onClick={() => navigate('/consumer/rules')}
-            className="flex-1 flex flex-col items-center gap-0.5 py-1 btn-press cursor-pointer"
+            className="flex-1 flex flex-col items-center gap-0.5 py-1 btn-press cursor-pointer group"
           >
             <div className={`p-1.5 rounded-2xl transition-all duration-200 ${
-              location.pathname === '/consumer/rules' ? 'bg-emerald-100 text-emerald-700' : 'text-slate-400'
+              location.pathname === '/consumer/rules' ? 'bg-emerald-100 text-emerald-700 shadow-xs' : 'text-slate-400 group-hover:text-slate-600'
             }`}>
               <BookOpen className="w-5 h-5" />
             </div>
@@ -158,10 +157,10 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
           </button>
 
           {/* Tab 3: Center Elevated SCAN Hero Button (Like Instagram Reels / Camera) */}
-          <div className="flex-1 flex flex-col items-center justify-center -mt-5">
+          <div className="flex-1 flex flex-col items-center justify-center -mt-6">
             <button
               onClick={() => navigate('/consumer/scan')}
-              className={`w-13 h-13 rounded-full bg-gradient-to-tr from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 text-white shadow-xl shadow-emerald-600/40 border-4 border-white flex flex-col items-center justify-center transition-all transform active:scale-90 cursor-pointer ${
+              className={`w-14 h-14 rounded-full bg-gradient-to-tr from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 text-white shadow-xl shadow-emerald-600/40 border-4 border-white flex flex-col items-center justify-center transition-all transform hover:scale-105 active:scale-95 cursor-pointer ${
                 location.pathname === '/consumer/scan' ? 'ring-2 ring-emerald-500 ring-offset-2' : ''
               }`}
               title="Instant Scan Product"
@@ -176,9 +175,9 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
           {/* Tab 4: NCH 1915 Helpline */}
           <a
             href="tel:1915"
-            className="flex-1 flex flex-col items-center gap-0.5 py-1 btn-press cursor-pointer text-amber-700"
+            className="flex-1 flex flex-col items-center gap-0.5 py-1 btn-press cursor-pointer text-amber-700 group"
           >
-            <div className="p-1.5 rounded-2xl bg-amber-50 text-amber-600 transition-all">
+            <div className="p-1.5 rounded-2xl bg-amber-50 text-amber-600 transition-all group-hover:bg-amber-100">
               <PhoneCall className="w-5 h-5" />
             </div>
             <span className="text-[10px] font-black text-amber-800">1915</span>
@@ -187,9 +186,9 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
           {/* Tab 5: Switch to Officer Portal */}
           <button
             onClick={handleOpenLogoutModal}
-            className="flex-1 flex flex-col items-center gap-0.5 py-1 text-slate-500 hover:text-slate-800 btn-press cursor-pointer"
+            className="flex-1 flex flex-col items-center gap-0.5 py-1 text-slate-500 hover:text-slate-800 btn-press cursor-pointer group"
           >
-            <div className="p-1.5 rounded-2xl text-slate-400 hover:bg-slate-100 transition-all">
+            <div className="p-1.5 rounded-2xl text-slate-400 group-hover:bg-slate-100 transition-all">
               <Shield className="w-5 h-5 text-indigo-600" />
             </div>
             <span className="text-[10px] font-bold text-slate-600">

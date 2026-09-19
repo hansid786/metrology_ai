@@ -268,7 +268,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(c => !c)} />
       <TopBar onMenuToggle={() => setSidebarCollapsed(c => !c)} sidebarCollapsed={sidebarCollapsed} />
       <main
-        className={`pt-16 min-h-screen transition-all duration-300 pb-24 lg:pb-8 ${
+        className={`pt-16 min-h-screen transition-all duration-300 pb-28 lg:pb-28 ${
           sidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'
         }`}
       >
@@ -279,19 +279,18 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         </div>
       </main>
 
-      {/* ── App-Style Officer Mobile Bottom Navigation Bar (Phone & Tablet) ── */}
+      {/* ── App-Style Officer Bottom Navigation Bar (Visible on All Devices with Floating Dock on Desktop) ── */}
       <nav
-        className="fixed bottom-0 left-0 right-0 z-40 lg:hidden"
+        className="fixed bottom-0 sm:bottom-4 left-0 right-0 sm:left-1/2 sm:-translate-x-1/2 sm:max-w-lg md:max-w-xl z-40 sm:rounded-3xl border-t sm:border border-slate-200/90 shadow-2xl transition-all duration-300"
         style={{
-          background: 'rgba(255,255,255,0.92)',
+          background: 'rgba(255,255,255,0.95)',
           backdropFilter: 'blur(24px) saturate(1.8)',
           WebkitBackdropFilter: 'blur(24px) saturate(1.8)',
-          borderTop: '1px solid rgba(0,0,0,0.08)',
-          boxShadow: '0 -4px 28px rgba(0,0,0,0.08)',
-          paddingBottom: 'env(safe-area-inset-bottom, 8px)',
+          boxShadow: '0 10px 35px -5px rgba(0, 0, 0, 0.12), 0 0 1px 1px rgba(0,0,0,0.05)',
+          paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6px)',
         }}
       >
-        <div className="flex items-center justify-around px-2 pt-1 pb-1">
+        <div className="flex items-center justify-around px-3 pt-2 pb-1">
           {officerMobileTabs.map(tab => {
             const Icon = tab.icon;
             const active = location.pathname === tab.path || (tab.path !== '/dashboard' && location.pathname.startsWith(tab.path));
@@ -299,10 +298,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
             if (tab.isHero) {
               return (
-                <div key={tab.path} className="flex-1 flex flex-col items-center justify-center -mt-5">
+                <div key={tab.path} className="flex-1 flex flex-col items-center justify-center -mt-6">
                   <button
                     onClick={() => navigate(tab.path)}
-                    className={`w-13 h-13 rounded-full bg-gradient-to-tr from-indigo-600 via-blue-600 to-indigo-700 hover:from-indigo-500 hover:to-blue-500 text-white shadow-xl shadow-indigo-600/40 border-4 border-white flex flex-col items-center justify-center transition-all transform active:scale-90 cursor-pointer ${
+                    className={`w-14 h-14 rounded-full bg-gradient-to-tr from-indigo-600 via-blue-600 to-indigo-700 hover:from-indigo-500 hover:to-blue-500 text-white shadow-xl shadow-indigo-600/40 border-4 border-white flex flex-col items-center justify-center transition-all transform hover:scale-105 active:scale-95 cursor-pointer ${
                       active ? 'ring-2 ring-indigo-500 ring-offset-2' : ''
                     }`}
                     title="New Statutory Inspection"
@@ -320,10 +319,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               <button
                 key={tab.path}
                 onClick={() => navigate(tab.path)}
-                className="flex-1 flex flex-col items-center gap-0.5 py-1 btn-press cursor-pointer"
+                className="flex-1 flex flex-col items-center gap-0.5 py-1 btn-press cursor-pointer group"
               >
                 <div className={`p-1.5 rounded-2xl transition-all duration-200 ${
-                  active ? 'bg-indigo-100 text-indigo-700' : 'text-slate-400'
+                  active ? 'bg-indigo-100 text-indigo-700 shadow-xs' : 'text-slate-400 group-hover:text-slate-600'
                 }`}>
                   <Icon className="w-5 h-5" />
                 </div>
