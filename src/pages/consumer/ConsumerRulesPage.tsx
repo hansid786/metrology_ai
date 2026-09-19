@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, BookOpen, Copy, Check, PhoneCall, ShoppingBag, Sparkles, Scale } from 'lucide-react';
+import {
+  Search, BookOpen, Copy, Check, PhoneCall, ShoppingBag,
+  Sparkles, Scale, Utensils, Cpu, Heart, Pill, PackageCheck, Layers
+} from 'lucide-react';
 import { COMPLIANCE_RULES, ComplianceRule } from '../../data/complianceRules';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -39,13 +42,66 @@ export const ConsumerRulesPage: React.FC = () => {
   });
 
   const categories = [
-    { key: 'ALL', labelEn: 'All Rules (24)', labelHi: 'सभी नियम (24)' },
-    { key: 'FOOD', labelEn: 'Food & FMCG', labelHi: 'खाद्य एवं FMCG' },
-    { key: 'ELECTRONICS', labelEn: 'Electronics & IT', labelHi: 'इलेक्ट्रॉनिक्स' },
-    { key: 'COSMETICS', labelEn: 'Cosmetics', labelHi: 'सौंदर्य प्रसाधन' },
-    { key: 'PHARMA', labelEn: 'Pharma & Ayush', labelHi: 'दवाएं व आयुष' },
-    { key: 'GENERAL', labelEn: 'General & Apparel', labelHi: 'वस्त्र व सामान्य' },
+    { key: 'ALL', labelEn: 'All Rules (24)', labelHi: 'सभी 24 नियम', icon: Layers, activeBg: 'from-indigo-600 to-blue-600', activeText: 'text-white', badge: 'bg-indigo-100 text-indigo-800' },
+    { key: 'FOOD', labelEn: 'Food & FMCG', labelHi: 'खाद्य एवं FMCG', icon: Utensils, activeBg: 'from-emerald-600 to-teal-600', activeText: 'text-white', badge: 'bg-emerald-100 text-emerald-800' },
+    { key: 'ELECTRONICS', labelEn: 'Electronics & IT', labelHi: 'इलेक्ट्रॉनिक्स', icon: Cpu, activeBg: 'from-blue-600 to-cyan-600', activeText: 'text-white', badge: 'bg-blue-100 text-blue-800' },
+    { key: 'COSMETICS', labelEn: 'Cosmetics', labelHi: 'सौंदर्य प्रसाधन', icon: Heart, activeBg: 'from-rose-600 to-pink-600', activeText: 'text-white', badge: 'bg-rose-100 text-rose-800' },
+    { key: 'PHARMA', labelEn: 'Pharma & Ayush', labelHi: 'दवाएं व आयुष', icon: Pill, activeBg: 'from-amber-600 to-orange-600', activeText: 'text-white', badge: 'bg-amber-100 text-amber-800' },
+    { key: 'GENERAL', labelEn: 'General & Apparel', labelHi: 'वस्त्र व सामान्य', icon: PackageCheck, activeBg: 'from-purple-600 to-violet-600', activeText: 'text-white', badge: 'bg-purple-100 text-purple-800' },
   ];
+
+  const getCategoryColorConfig = (category: string) => {
+    switch (category) {
+      case 'FOOD':
+        return {
+          border: 'border-l-4 border-l-emerald-500',
+          bgTint: 'bg-gradient-to-br from-emerald-50/50 via-white to-white',
+          tagBg: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+          iconColor: 'text-emerald-600',
+          label: lang === 'hi' ? 'खाद्य एवं FMCG' : 'Food & FMCG',
+        };
+      case 'ELECTRONICS':
+        return {
+          border: 'border-l-4 border-l-blue-500',
+          bgTint: 'bg-gradient-to-br from-blue-50/50 via-white to-white',
+          tagBg: 'bg-blue-100 text-blue-800 border-blue-200',
+          iconColor: 'text-blue-600',
+          label: lang === 'hi' ? 'इलेक्ट्रॉनिक्स' : 'Electronics & IT',
+        };
+      case 'COSMETICS':
+        return {
+          border: 'border-l-4 border-l-rose-500',
+          bgTint: 'bg-gradient-to-br from-rose-50/50 via-white to-white',
+          tagBg: 'bg-rose-100 text-rose-800 border-rose-200',
+          iconColor: 'text-rose-600',
+          label: lang === 'hi' ? 'सौंदर्य प्रसाधन' : 'Cosmetics',
+        };
+      case 'PHARMA':
+        return {
+          border: 'border-l-4 border-l-amber-500',
+          bgTint: 'bg-gradient-to-br from-amber-50/50 via-white to-white',
+          tagBg: 'bg-amber-100 text-amber-800 border-amber-200',
+          iconColor: 'text-amber-600',
+          label: lang === 'hi' ? 'दवाएं व आयुष' : 'Pharma & Ayush',
+        };
+      case 'GENERAL':
+        return {
+          border: 'border-l-4 border-l-purple-500',
+          bgTint: 'bg-gradient-to-br from-purple-50/50 via-white to-white',
+          tagBg: 'bg-purple-100 text-purple-800 border-purple-200',
+          iconColor: 'text-purple-600',
+          label: lang === 'hi' ? 'वस्त्र व सामान्य' : 'General & Apparel',
+        };
+      default:
+        return {
+          border: 'border-l-4 border-l-indigo-500',
+          bgTint: 'bg-gradient-to-br from-indigo-50/50 via-white to-white',
+          tagBg: 'bg-indigo-100 text-indigo-800 border-indigo-200',
+          iconColor: 'text-indigo-600',
+          label: lang === 'hi' ? 'सभी उत्पाद' : 'Universal Rule',
+        };
+    }
+  };
 
   return (
     <div className="space-y-6 page-enter">
@@ -55,9 +111,9 @@ export const ConsumerRulesPage: React.FC = () => {
         <div className="absolute left-1/2 bottom-0 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 space-y-3 max-w-2xl">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-emerald-200 text-xs font-black backdrop-blur-xs">
-            <BookOpen className="w-3.5 h-3.5 text-emerald-300" />
-            <span>{lang === 'hi' ? 'उपभोक्ता अधिकार एवं नियम पुस्तिका' : 'Consumer Rights & Packaging Rulebook'}</span>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-emerald-200 text-xs font-black backdrop-blur-xs">
+            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            <span>{lang === 'hi' ? 'उपभोक्ता अधिकार एवं नियम निर्देशिका' : 'Official Consumer Rights & Legal Rulebook'}</span>
           </div>
 
           <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white">
@@ -93,8 +149,8 @@ export const ConsumerRulesPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Search & Category Filter */}
-      <div className="glass-card p-4 sm:p-5 space-y-3.5">
+      {/* Search & Colorful Category Filter */}
+      <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-xs space-y-3.5">
         {/* Search Bar */}
         <div className="relative">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -107,25 +163,30 @@ export const ConsumerRulesPage: React.FC = () => {
                 ? 'नियम, MRP, USP, फॉन्ट साइज, एक्सपायरी, वजन खोजें...'
                 : 'Search rules by keyword (e.g. MRP, USP, font size, expiry, weight)...'
             }
-            className="w-full pl-10 pr-4 py-2.5 bg-white/80 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-400/40 focus:border-emerald-400 transition-all"
+            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-400/40 focus:border-emerald-400 transition-all"
           />
         </div>
 
-        {/* Category Pills */}
-        <div className="flex flex-wrap gap-1.5">
-          {categories.map((cat) => (
-            <button
-              key={cat.key}
-              onClick={() => setCategoryFilter(cat.key)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer btn-press ${
-                categoryFilter === cat.key
-                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-sm shadow-emerald-600/25 font-black'
-                  : 'bg-white border border-slate-200/80 hover:bg-slate-50 text-slate-700'
-              }`}
-            >
-              {lang === 'hi' ? cat.labelHi : cat.labelEn}
-            </button>
-          ))}
+        {/* Colorful Category Pills */}
+        <div className="flex flex-wrap gap-2">
+          {categories.map((cat) => {
+            const Icon = cat.icon;
+            const isSelected = categoryFilter === cat.key;
+            return (
+              <button
+                key={cat.key}
+                onClick={() => setCategoryFilter(cat.key)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer btn-press flex items-center gap-1.5 ${
+                  isSelected
+                    ? `bg-gradient-to-r ${cat.activeBg} ${cat.activeText} shadow-md shadow-indigo-600/20 font-black scale-[1.02]`
+                    : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/90'
+                }`}
+              >
+                <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-slate-500'}`} />
+                <span>{lang === 'hi' ? cat.labelHi : cat.labelEn}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -136,32 +197,39 @@ export const ConsumerRulesPage: React.FC = () => {
           const displayTitle = lang === 'hi' && rule.nameHi ? rule.nameHi : rule.name;
           const displayDesc = lang === 'hi' && rule.descriptionHi ? rule.descriptionHi : rule.description;
           const displayRef = lang === 'hi' && rule.legalReferenceHi ? rule.legalReferenceHi : rule.legalReference;
+          const colorConfig = getCategoryColorConfig(rule.category);
 
           return (
             <div
               key={rule.id}
-              className="glass-card p-5 flex flex-col justify-between space-y-3 card-hover"
+              className={`bg-white rounded-2xl p-5 flex flex-col justify-between space-y-3.5 border border-slate-200/90 shadow-xs card-hover ${colorConfig.border} ${colorConfig.bgTint}`}
             >
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {/* Header Badge */}
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-[10px] font-mono font-black text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                    {rule.id}
-                  </span>
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] font-mono font-black text-slate-900 bg-slate-100 px-2 py-0.5 rounded-lg border border-slate-300">
+                      {rule.id}
+                    </span>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${colorConfig.tagBg}`}>
+                      {colorConfig.label}
+                    </span>
+                  </div>
+
                   <span
-                    className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full border ${
+                    className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full border shadow-2xs ${
                       rule.severity === 'CRITICAL'
-                        ? 'bg-rose-50 text-rose-700 border-rose-200'
+                        ? 'bg-rose-100 text-rose-800 border-rose-300'
                         : rule.severity === 'WARNING'
-                        ? 'bg-amber-50 text-amber-700 border-amber-200'
-                        : 'bg-blue-50 text-blue-700 border-blue-200'
+                        ? 'bg-amber-100 text-amber-800 border-amber-300'
+                        : 'bg-blue-100 text-blue-800 border-blue-300'
                     }`}
                   >
                     {rule.severity === 'CRITICAL'
-                      ? (lang === 'hi' ? 'अनिवार्य नियम' : 'Mandatory')
+                      ? (lang === 'hi' ? 'अनिवार्य नियम (Mandatory)' : 'Mandatory')
                       : rule.severity === 'WARNING'
-                      ? (lang === 'hi' ? 'चेतावनी' : 'Standard')
-                      : (lang === 'hi' ? 'सूचना' : 'Guideline')}
+                      ? (lang === 'hi' ? 'वैधानिक मानक (Standard)' : 'Standard')
+                      : (lang === 'hi' ? 'दिशानिर्देश (Guideline)' : 'Guideline')}
                   </span>
                 </div>
 
@@ -177,10 +245,10 @@ export const ConsumerRulesPage: React.FC = () => {
               </div>
 
               {/* Legal Reference Footer */}
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
-                <div className="text-[10px] font-mono text-slate-500 truncate flex items-center gap-1" title={displayRef}>
-                  <Scale className="w-3 h-3 text-slate-400 shrink-0" />
-                  <span>{displayRef}</span>
+              <div className="pt-3 border-t border-slate-200/80 flex items-center justify-between gap-2 text-xs">
+                <div className="text-[10px] font-mono text-slate-600 truncate flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-lg border border-slate-200" title={displayRef}>
+                  <Scale className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                  <span className="font-semibold">{displayRef}</span>
                 </div>
 
                 <button
@@ -188,13 +256,13 @@ export const ConsumerRulesPage: React.FC = () => {
                   onClick={() => handleCopyCitation(rule)}
                   className={`p-1.5 rounded-xl border transition-all flex items-center gap-1 cursor-pointer shrink-0 btn-press ${
                     isCopied
-                      ? 'bg-emerald-600 text-white border-emerald-600 font-bold text-[10px] px-2 shadow-xs'
-                      : 'bg-white hover:bg-emerald-50 text-slate-600 hover:text-emerald-800 border-slate-200'
+                      ? 'bg-emerald-600 text-white border-emerald-600 font-bold text-[10px] px-2.5 shadow-xs'
+                      : 'bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 border-slate-200/90 shadow-2xs'
                   }`}
                   title="Copy legal clause citation"
                 >
-                  {isCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                  <span className="text-[10px]">{isCopied ? (lang === 'hi' ? 'कॉपी हुआ' : 'Copied') : (lang === 'hi' ? 'कॉपी' : 'Copy')}</span>
+                  {isCopied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span className="text-[10px] font-bold">{isCopied ? (lang === 'hi' ? 'कॉपी हुआ' : 'Copied') : (lang === 'hi' ? 'कॉपी' : 'Copy')}</span>
                 </button>
               </div>
             </div>
@@ -203,7 +271,7 @@ export const ConsumerRulesPage: React.FC = () => {
       </div>
 
       {filteredRules.length === 0 && (
-        <div className="p-8 text-center glass-card text-slate-500 text-xs">
+        <div className="p-8 text-center bg-white rounded-3xl border border-slate-200 text-slate-500 text-xs">
           {lang === 'hi' ? 'कोई नियम नहीं मिला। कृपया अन्य शब्द खोजें।' : 'No rules match your search. Try another keyword.'}
         </div>
       )}
