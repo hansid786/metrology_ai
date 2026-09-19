@@ -218,10 +218,25 @@ export async function performRealImageOCR(
     )
   ]);
 
-  const geminiPromise: Promise<{ data: any | null; durationMs: number }> =
-    Promise.resolve({ data: null, durationMs: 0 });
+  // ─── Gemini Vision (PRIMARY engine) ───────────────────────────────────────
+  const apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY
+    || localStorage.getItem('gemini_api_key') || '';
 
-  // ─── Run OCR and optional vision result in parallel ────────────────────────
+  console.log('[MetrologyLens OCR] apiKey present:', Boolean(apiKey), apiKey ? `(...${apiKey.slice(-6)})` : 'MISSING — add in Settings');
+
+  let geminiPromise: Promise<{ data: any | null; durationMs: number }>;
+  if (!base64Data) {
+    console.error('[MetrologyLens OCR] base64Data empty — image not converted to data URL. Gemini skipped.');
+    geminiPromise = Promise.resolve({ data: null, durationMs: 0 });
+  } else if (!apiKey) {
+    console.warn('[MetrologyLens OCR] No Gemini API key. Add in Settings → Gemini API Key. Falling back to Tesseract only.');
+    geminiPromise = Promise.resolve({ data: null, durationMs: 0 });
+  } else {
+    console.log('[MetrologyLens OCR] Calling Gemini Vision API...');
+    geminiPromise = callGeminiVisionStrict(base64Data, mimeType);
+  }
+
+  // ─── Run both in parallel ─────────────────────────────────────────────────
   const [tesseractSettled, geminiSettled] = await Promise.allSettled([
     tesseractWithTimeout,
     geminiPromise
