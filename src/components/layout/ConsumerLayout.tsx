@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   ShoppingBag, PhoneCall, History, BookOpen, ScanLine,
-  Landmark, LogOut, Sparkles
+  Landmark, LogOut, Sparkles, X, ShieldAlert
 } from 'lucide-react';
 import { authService } from '../../services/authService';
 import { useLanguage } from '../../context/LanguageContext';
@@ -13,9 +13,11 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
   const navigate = useNavigate();
   const location = useLocation();
   const { lang } = useLanguage();
+  const [showSignOutModal, setShowSignOutModal] = useState(false);
 
-  const handleDirectLogout = () => {
+  const handleConfirmLogout = () => {
     authService.logout();
+    setShowSignOutModal(false);
     navigate('/login');
   };
 
@@ -108,11 +110,11 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
               );
             })}
 
-            {/* Direct Sign Out Button */}
+            {/* Sign Out Button - triggers confirmation modal */}
             <button
-              onClick={handleDirectLogout}
+              onClick={() => setShowSignOutModal(true)}
               title={lang === 'hi' ? 'साइन आउट करें' : 'Sign Out'}
-              className="px-2.5 sm:px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 hover:text-rose-800 border border-rose-200/80 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all duration-200 btn-press"
+              className="px-2.5 sm:px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 hover:text-rose-800 border border-rose-200/80 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all duration-200 btn-press shadow-2xs"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">{lang === 'hi' ? 'साइन आउट' : 'Sign Out'}</span>
@@ -211,6 +213,55 @@ export const ConsumerLayout: React.FC<{ children: React.ReactNode }> = ({ childr
           </button>
         </div>
       </nav>
+
+      {/* ── Sign Out Confirmation Modal Dialog ── */}
+      {showSignOutModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-sm bg-white rounded-3xl shadow-2xl border border-slate-200/90 p-6 space-y-4 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between">
+              <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center shadow-xs">
+                <LogOut className="w-6 h-6" />
+              </div>
+              <button
+                onClick={() => setShowSignOutModal(false)}
+                className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-1.5">
+              <h3 className="text-base sm:text-lg font-black text-slate-900">
+                {lang === 'hi' ? 'साइन आउट की पुष्टि' : 'Confirm Sign Out'}
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
+                {lang === 'hi'
+                  ? 'क्या आप वाकई अपने उपभोक्ता सत्र से साइन आउट करके लॉगिन स्क्रीन पर जाना चाहते हैं?'
+                  : 'Are you sure you want to sign out of your verification session and return to the login screen?'}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowSignOutModal(false)}
+                className="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer text-center"
+              >
+                {lang === 'hi' ? 'रद्द करें' : 'Cancel'}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleConfirmLogout}
+                className="py-2.5 px-4 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white rounded-xl text-xs font-black shadow-md shadow-rose-600/20 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>{lang === 'hi' ? 'साइन आउट' : 'Sign Out'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <OfficialGovFooter />
     </div>
