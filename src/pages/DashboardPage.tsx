@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ClipboardCheck, CheckCircle2, AlertOctagon, Clock, Plus, FileText,
-  TrendingUp, PieChart as PieIcon, ChevronRight, Download, ShieldCheck
+  TrendingUp, PieChart as PieIcon, ChevronRight, Download, ShieldCheck, Sparkles
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -61,16 +61,16 @@ export const DashboardPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Officer Welcome & Quick Actions Hero */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative overflow-hidden">
+      <div className="bg-gradient-to-r from-indigo-900 via-indigo-800 to-blue-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-indigo-950/20 flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative overflow-hidden">
         <div className="space-y-2 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-bold">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-indigo-200 text-xs font-bold backdrop-blur-xs">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span>{lang === 'hi' ? 'राष्ट्रीय विधिक मापविज्ञान प्रवर्तन प्रभाग' : 'National Metrology Enforcement Division'}</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-black tracking-tight">
             {t('officerDashboard')} · {user?.name || 'Officer Ravi Kumar'}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-300 max-w-xl font-medium leading-relaxed">
+          <p className="text-xs sm:text-sm text-indigo-100/80 max-w-xl font-medium leading-relaxed">
             {user?.designation || 'Legal Metrology Officer'} • Zone: {user?.zone || 'NCT of Delhi'}. {lang === 'hi' ? 'वास्तविक समय अनुपालन निगरानी एवं वैधानिक साक्ष्य मैट्रिक्स।' : 'Real-time compliance monitoring & statutory evidence matrix.'}
           </p>
         </div>
@@ -79,7 +79,7 @@ export const DashboardPage: React.FC = () => {
         <div className="flex flex-wrap items-center gap-3 relative z-10">
           <button
             onClick={() => navigate('/inspect/new')}
-            className="px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-xs rounded-2xl shadow-lg shadow-blue-600/30 flex items-center gap-2 transition-all cursor-pointer hover:scale-105 active:scale-95"
+            className="px-5 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-black text-xs rounded-2xl shadow-lg shadow-emerald-950/30 flex items-center gap-2 transition-all cursor-pointer btn-press"
           >
             <Plus className="w-4 h-4" />
             <span>{t('startNewInspection')}</span>
@@ -87,14 +87,15 @@ export const DashboardPage: React.FC = () => {
 
           <button
             onClick={() => navigate('/reports')}
-            className="px-4 py-3 bg-slate-800/90 hover:bg-slate-700 text-slate-200 font-bold text-xs rounded-2xl border border-slate-700 shadow-sm flex items-center gap-2 transition-all cursor-pointer"
+            className="px-4 py-3 bg-white/10 hover:bg-white/20 text-white font-bold text-xs rounded-2xl border border-white/20 shadow-sm flex items-center gap-2 transition-all cursor-pointer btn-press"
           >
-            <FileText className="w-4 h-4 text-slate-400" />
+            <FileText className="w-4 h-4 text-indigo-300" />
             <span>{t('formPC1Reports')}</span>
           </button>
         </div>
 
-        <div className="absolute right-0 top-0 -mt-8 -mr-8 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute right-0 top-0 -mt-8 -mr-8 w-64 h-64 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute left-1/3 bottom-0 -mb-8 w-48 h-48 bg-indigo-500/20 rounded-full blur-2xl pointer-events-none" />
       </div>
 
       {/* 4 Big KPI Cards */}
@@ -132,7 +133,7 @@ export const DashboardPage: React.FC = () => {
       {/* Analytics Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Inspection Velocity Trend (8 cols) */}
-        <div className="lg:col-span-8 bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-4">
+        <div className="lg:col-span-8 glass-card p-5 sm:p-6 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <h2 className="text-sm sm:text-base font-extrabold text-slate-900">{t('enforcementVelocity')}</h2>
@@ -141,16 +142,16 @@ export const DashboardPage: React.FC = () => {
               </p>
             </div>
             <div className="flex items-center gap-3 text-xs">
-              <span className="flex items-center gap-1.5 font-bold text-blue-600">
-                <span className="w-2.5 h-2.5 rounded-full bg-blue-600" />
+              <span className="flex items-center gap-1.5 font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">
+                <span className="w-2 h-2 rounded-full bg-indigo-600" />
                 {lang === 'hi' ? 'कुल' : 'Total'}
               </span>
-              <span className="flex items-center gap-1.5 font-bold text-emerald-600">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+              <span className="flex items-center gap-1.5 font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
                 {lang === 'hi' ? 'मान्य' : 'Passed'}
               </span>
-              <span className="flex items-center gap-1.5 font-bold text-rose-600">
-                <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
+              <span className="flex items-center gap-1.5 font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md">
+                <span className="w-2 h-2 rounded-full bg-rose-500" />
                 {lang === 'hi' ? 'उल्लंघन' : 'Violations'}
               </span>
             </div>
@@ -161,8 +162,8 @@ export const DashboardPage: React.FC = () => {
               <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="colorPass" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
@@ -175,7 +176,7 @@ export const DashboardPage: React.FC = () => {
                 <Tooltip
                   contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '12px', color: '#fff', fontSize: '11px' }}
                 />
-                <Area type="monotone" dataKey="count" name={lang === 'hi' ? 'कुल' : 'Total'} stroke="#3b82f6" strokeWidth={2.5} fillOpacity={1} fill="url(#colorTotal)" />
+                <Area type="monotone" dataKey="count" name={lang === 'hi' ? 'कुल' : 'Total'} stroke="#6366f1" strokeWidth={2.5} fillOpacity={1} fill="url(#colorTotal)" />
                 <Area type="monotone" dataKey="passed" name={lang === 'hi' ? 'मान्य' : 'Passed'} stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorPass)" />
               </AreaChart>
             </ResponsiveContainer>
@@ -183,7 +184,7 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Violations by Category (4 cols) */}
-        <div className="lg:col-span-4 bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-4">
+        <div className="lg:col-span-4 glass-card p-5 sm:p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-sm sm:text-base font-extrabold text-slate-900">{t('violationsBySector')}</h2>
@@ -191,7 +192,9 @@ export const DashboardPage: React.FC = () => {
                 {lang === 'hi' ? 'उत्पाद वर्ग अनुसार गैर-अनुपालन' : 'Non-compliance by product class'}
               </p>
             </div>
-            <PieIcon className="w-4 h-4 text-slate-400" />
+            <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+              <PieIcon className="w-4 h-4" />
+            </div>
           </div>
 
           <div className="h-44 w-full">
@@ -220,12 +223,12 @@ export const DashboardPage: React.FC = () => {
 
           <div className="space-y-1.5 pt-2 border-t border-slate-100">
             {(violationsByCategory.length ? violationsByCategory : sectorFallback).map((item, idx) => (
-              <div key={item.category} className="flex items-center justify-between text-xs">
+              <div key={item.category} className="flex items-center justify-between text-xs p-1 rounded-lg hover:bg-slate-50 transition-colors">
                 <span className="flex items-center gap-2 text-slate-600 font-medium truncate">
                   <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: PIE_COLORS[idx % PIE_COLORS.length] }} />
                   <span className="truncate">{item.category}</span>
                 </span>
-                <span className="font-bold text-slate-900 shrink-0">{item.count} {lang === 'hi' ? 'मामले' : 'issues'}</span>
+                <span className="font-bold text-slate-900 shrink-0 bg-slate-100 px-2 py-0.5 rounded-md">{item.count} {lang === 'hi' ? 'मामले' : 'issues'}</span>
               </div>
             ))}
           </div>
@@ -235,7 +238,7 @@ export const DashboardPage: React.FC = () => {
       {/* Recent Inspections & Common Breach Patterns */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Recent Inspections Table (8 cols) */}
-        <div className="lg:col-span-8 bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-4">
+        <div className="lg:col-span-8 glass-card p-5 sm:p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-sm sm:text-base font-extrabold text-slate-900">{t('recentDockets')}</h2>
@@ -243,7 +246,7 @@ export const DashboardPage: React.FC = () => {
             </div>
             <button
               onClick={() => navigate('/history')}
-              className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer"
+              className="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 cursor-pointer btn-press"
             >
               <span>{t('viewAll')} ({stats.total})</span>
               <ChevronRight className="w-3.5 h-3.5" />
@@ -255,11 +258,11 @@ export const DashboardPage: React.FC = () => {
               <div
                 key={insp.id}
                 onClick={() => navigate(`/history/${insp.id}`)}
-                className="py-3 flex items-center justify-between gap-3 hover:bg-slate-50 rounded-2xl px-2 transition-colors cursor-pointer group"
+                className="py-3 flex items-center justify-between gap-3 hover:bg-indigo-50/40 rounded-2xl px-2.5 transition-all duration-200 cursor-pointer group card-hover"
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                    <span className="font-mono text-[11px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
                       {insp.metadata.inspectionId}
                     </span>
                     <span className="text-[10px] text-slate-400 font-medium">
@@ -278,12 +281,12 @@ export const DashboardPage: React.FC = () => {
                   <StatusBadge status={insp.result.overallStatus} size="sm" />
                   <button
                     onClick={(e) => handleDownloadPDF(insp, e)}
-                    className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+                    className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
                     title={lang === 'hi' ? 'फॉर्म PC-1 डाउनलोड करें' : 'Download Form PC-1 PDF'}
                   >
                     <Download className="w-3.5 h-3.5" />
                   </button>
-                  <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-600 transition-colors" />
+                  <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-indigo-600 transition-colors" />
                 </div>
               </div>
             ))}
@@ -291,7 +294,7 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Top Breached Clauses Summary (4 cols) */}
-        <div className="lg:col-span-4 bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-4">
+        <div className="lg:col-span-4 glass-card p-5 sm:p-6 space-y-4">
           <div>
             <h2 className="text-sm sm:text-base font-extrabold text-slate-900">{t('commonBreachClauses')}</h2>
             <p className="text-xs text-slate-500 font-medium">
@@ -306,7 +309,7 @@ export const DashboardPage: React.FC = () => {
               { name: lang === 'hi' ? 'फॉन्ट आकार उल्लंघन (नियम 7(3))' : 'Font Size Under 1mm (Rule 7(3))', count: 2 },
               { name: lang === 'hi' ? 'अमान्य FSSAI / BIS घोषणा' : 'Invalid FSSAI / BIS Declaration', count: 1 }
             ]).map((v, idx) => (
-              <div key={idx} className="p-3 bg-slate-50 border border-slate-200/80 rounded-2xl flex items-center justify-between gap-3 text-xs">
+              <div key={idx} className="p-3 bg-white border border-slate-200/80 rounded-2xl flex items-center justify-between gap-3 text-xs shadow-2xs card-hover">
                 <span className="font-bold text-slate-800 truncate">{v.name}</span>
                 <span className="font-mono font-black text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200 shrink-0">
                   {v.count}
@@ -330,17 +333,17 @@ interface StatsCardProps {
 
 const StatsCard: React.FC<StatsCardProps> = ({ title, value, subtitle, icon: Icon, colorScheme }) => {
   const styles = {
-    blue: { bg: 'bg-blue-50/80 border-blue-200', text: 'text-blue-600', valText: 'text-blue-950' },
-    emerald: { bg: 'bg-emerald-50/80 border-emerald-200', text: 'text-emerald-600', valText: 'text-emerald-950' },
-    rose: { bg: 'bg-rose-50/80 border-rose-200', text: 'text-rose-600', valText: 'text-rose-950' },
-    amber: { bg: 'bg-amber-50/80 border-amber-200', text: 'text-amber-600', valText: 'text-amber-950' },
+    blue: { bg: 'from-indigo-50/90 to-white/90 border-indigo-200/80', text: 'text-indigo-600 bg-indigo-50 border-indigo-100', valText: 'text-indigo-950' },
+    emerald: { bg: 'from-emerald-50/90 to-white/90 border-emerald-200/80', text: 'text-emerald-600 bg-emerald-50 border-emerald-100', valText: 'text-emerald-950' },
+    rose: { bg: 'from-rose-50/90 to-white/90 border-rose-200/80', text: 'text-rose-600 bg-rose-50 border-rose-100', valText: 'text-rose-950' },
+    amber: { bg: 'from-amber-50/90 to-white/90 border-amber-200/80', text: 'text-amber-600 bg-amber-50 border-amber-100', valText: 'text-amber-950' },
   }[colorScheme];
 
   return (
-    <div className={`p-4 sm:p-5 rounded-3xl border ${styles.bg} shadow-sm space-y-2 transition-all hover:scale-[1.02]`}>
+    <div className={`p-4 sm:p-5 rounded-3xl border bg-gradient-to-b ${styles.bg} shadow-sm space-y-2 card-hover`}>
       <div className="flex items-center justify-between">
         <span className="text-xs font-black text-slate-700 tracking-tight">{title}</span>
-        <div className={`p-2 rounded-xl bg-white shadow-2xs ${styles.text}`}>
+        <div className={`p-2 rounded-xl border ${styles.text}`}>
           <Icon className="w-4 h-4" />
         </div>
       </div>

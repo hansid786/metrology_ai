@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, BookOpen, Copy, Check, PhoneCall, ShoppingBag } from 'lucide-react';
+import { Search, BookOpen, Copy, Check, PhoneCall, ShoppingBag, Sparkles } from 'lucide-react';
 import { COMPLIANCE_RULES, ComplianceRule } from '../../data/complianceRules';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -48,14 +48,15 @@ export const ConsumerRulesPage: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-200">
+    <div className="space-y-6 page-enter">
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl border border-emerald-500/20 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="bg-gradient-to-r from-emerald-800 via-teal-800 to-indigo-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-emerald-950/20 border border-emerald-400/20 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-400/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute left-1/2 bottom-0 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 space-y-3 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-black">
-            <BookOpen className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-emerald-200 text-xs font-black backdrop-blur-xs">
+            <BookOpen className="w-3.5 h-3.5 text-emerald-300" />
             <span>{lang === 'hi' ? 'उपभोक्ता अधिकार एवं नियम पुस्तिका' : 'Consumer Rights & Packaging Rulebook'}</span>
           </div>
 
@@ -75,7 +76,7 @@ export const ConsumerRulesPage: React.FC = () => {
           <div className="pt-2 flex flex-wrap gap-2 text-xs">
             <a
               href="tel:1915"
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-amber-400 text-slate-950 font-black rounded-xl hover:bg-amber-300 transition-colors shadow-md"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-gradient-to-r from-amber-400 to-orange-400 text-slate-950 font-black rounded-xl hover:from-amber-300 hover:to-orange-300 transition-all shadow-md btn-press"
             >
               <PhoneCall className="w-3.5 h-3.5" />
               <span>{lang === 'hi' ? 'शिकायत हेल्पलाइन: 1915 (टोल-फ्री)' : 'Helpline: 1915 (Toll-Free)'}</span>
@@ -83,9 +84,9 @@ export const ConsumerRulesPage: React.FC = () => {
 
             <button
               onClick={() => navigate('/consumer/scan')}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold rounded-xl transition-colors"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white/15 hover:bg-white/25 border border-white/25 text-white font-bold rounded-xl transition-all btn-press cursor-pointer"
             >
-              <ShoppingBag className="w-3.5 h-3.5 text-emerald-400" />
+              <ShoppingBag className="w-3.5 h-3.5 text-emerald-300" />
               <span>{lang === 'hi' ? 'उत्पाद स्कैन करें' : 'Scan Product Now'}</span>
             </button>
           </div>
@@ -93,7 +94,7 @@ export const ConsumerRulesPage: React.FC = () => {
       </div>
 
       {/* Search & Category Filter */}
-      <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs space-y-3">
+      <div className="glass-card p-4 sm:p-5 space-y-3.5">
         {/* Search Bar */}
         <div className="relative">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -106,7 +107,7 @@ export const ConsumerRulesPage: React.FC = () => {
                 ? 'नियम, MRP, USP, फॉन्ट साइज, एक्सपायरी, वजन खोजें...'
                 : 'Search rules by keyword (e.g. MRP, USP, font size, expiry, weight)...'
             }
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-emerald-500"
+            className="w-full pl-10 pr-4 py-2.5 bg-white/80 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-400/40 focus:border-emerald-400 transition-all"
           />
         </div>
 
@@ -116,10 +117,10 @@ export const ConsumerRulesPage: React.FC = () => {
             <button
               key={cat.key}
               onClick={() => setCategoryFilter(cat.key)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer btn-press ${
                 categoryFilter === cat.key
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-sm shadow-emerald-600/25 font-black'
+                  : 'bg-white border border-slate-200/80 hover:bg-slate-50 text-slate-700'
               }`}
             >
               {lang === 'hi' ? cat.labelHi : cat.labelEn}
@@ -129,7 +130,7 @@ export const ConsumerRulesPage: React.FC = () => {
       </div>
 
       {/* Rules Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 stagger">
         {filteredRules.map((rule) => {
           const isCopied = copiedId === rule.id;
           const displayTitle = lang === 'hi' && rule.nameHi ? rule.nameHi : rule.name;
@@ -139,12 +140,12 @@ export const ConsumerRulesPage: React.FC = () => {
           return (
             <div
               key={rule.id}
-              className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs hover:border-emerald-500/60 hover:shadow-md transition-all flex flex-col justify-between space-y-3"
+              className="glass-card p-5 flex flex-col justify-between space-y-3 card-hover"
             >
               <div className="space-y-2">
                 {/* Header Badge */}
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-[10px] font-mono font-black text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  <span className="text-[10px] font-mono font-black text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
                     {rule.id}
                   </span>
                   <span
@@ -184,10 +185,10 @@ export const ConsumerRulesPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => handleCopyCitation(rule)}
-                  className={`p-1.5 rounded-lg border transition-all flex items-center gap-1 cursor-pointer shrink-0 ${
+                  className={`p-1.5 rounded-xl border transition-all flex items-center gap-1 cursor-pointer shrink-0 btn-press ${
                     isCopied
-                      ? 'bg-emerald-600 text-white border-emerald-600 font-bold text-[10px] px-2'
-                      : 'bg-slate-50 hover:bg-emerald-50 text-slate-600 hover:text-emerald-800 border-slate-200'
+                      ? 'bg-emerald-600 text-white border-emerald-600 font-bold text-[10px] px-2 shadow-xs'
+                      : 'bg-white hover:bg-emerald-50 text-slate-600 hover:text-emerald-800 border-slate-200'
                   }`}
                   title="Copy legal clause citation"
                 >
@@ -201,7 +202,7 @@ export const ConsumerRulesPage: React.FC = () => {
       </div>
 
       {filteredRules.length === 0 && (
-        <div className="p-8 text-center bg-white rounded-3xl border border-slate-200 text-slate-500 text-xs">
+        <div className="p-8 text-center glass-card text-slate-500 text-xs">
           {lang === 'hi' ? 'कोई नियम नहीं मिला। कृपया अन्य शब्द खोजें।' : 'No rules match your search. Try another keyword.'}
         </div>
       )}
