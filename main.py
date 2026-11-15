@@ -28,7 +28,12 @@ ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY", "sk_44b011434f02fe684d596a4
 # DEFAULT CUSTOM ELEVENLABS VOICE ID
 DEFAULT_CUSTOM_VOICE_ID = os.getenv("ELEVENLABS_CUSTOM_VOICE_ID", os.getenv("ELEVENLABS_VOICE_ID", "VqAu8TkWL4Lc2TMTxuxk")).strip(' "\'')
 
-genai.configure(api_key=GEMINI_API_KEY)
+try:
+    import google.generativeai as genai
+    if GEMINI_API_KEY and GEMINI_API_KEY != "YOUR_ACTUAL_GEMINI_API_KEY_HERE":
+        genai.configure(api_key=GEMINI_API_KEY)
+except Exception:
+    genai = None
 
 # ELEVENLABS DEDICATED CUSTOM JARVIS VOICE PROFILE
 ELEVENLABS_VOICES = {
