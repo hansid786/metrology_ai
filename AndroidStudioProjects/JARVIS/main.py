@@ -23,10 +23,10 @@ app.add_middleware(
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "YOUR_ACTUAL_GEMINI_API_KEY_HERE").strip(' "\'')
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip(' "\'')
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "").strip(' "\'')
-ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY", "").strip(' "\'')
+ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY", "sk_44b011434f02fe684d596a4242cbc233331fdc550d408293").strip(' "\'')
 
-# DEFAULT CUSTOM ELEVENLABS VOICE ID (Can be set in .env or Render Env Variables)
-DEFAULT_CUSTOM_VOICE_ID = os.getenv("ELEVENLABS_CUSTOM_VOICE_ID", os.getenv("ELEVENLABS_VOICE_ID", "pNInz6obpgDQGcFmaJgB")).strip(' "\'')
+# DEFAULT CUSTOM ELEVENLABS VOICE ID
+DEFAULT_CUSTOM_VOICE_ID = os.getenv("ELEVENLABS_CUSTOM_VOICE_ID", os.getenv("ELEVENLABS_VOICE_ID", "VqAu8TkWL4Lc2TMTxuxk")).strip(' "\'')
 
 genai.configure(api_key=GEMINI_API_KEY)
 
@@ -216,6 +216,36 @@ async def chat(request: ChatRequest):
             "model_used": "system_error"
         }
 
+def detect_speaking_style(text: str, user_style: Optional[str] = "auto") -> tuple:
+    style_pref = (user_style or "auto").lower().strip()
+    t = text.lower()
+
+    if style_pref in ["professional", "cinematic", "alert", "normal"]:
+        detected = style_pref
+    else:
+        # Automatic Context-Aware Intent Detection
+        alert_keywords = ["warning", "error", "failed", "alert", "battery low", "offline", "denied", "critical", "stop"]
+        pro_keywords = ["report", "diagnostics", "code", "function", "telemetry", "status", "system", "model", "database"]
+        cine_keywords = ["protocol", "operating system", "jarvis", "stark", "welcome", "good day", "pleasure"]
+
+        if any(k in t for k in alert_keywords):
+            detected = "alert"
+        elif any(k in t for k in pro_keywords):
+            detected = "professional"
+        elif any(k in t for k in cine_keywords):
+            detected = "cinematic"
+        else:
+            detected = "normal"
+
+    if detected == "professional":
+        return detected, 0.78, 0.85, 0.05
+    elif detected == "cinematic":
+        return detected, 0.60, 0.85, 0.20
+    elif detected == "alert":
+        return detected, 0.50, 0.90, 0.25
+    else:
+        return "normal", 0.68, 0.85, 0.10
+
 @app.post("/tts")
 async def generate_neural_tts(request: TtsRequest):
     global total_chars_used, tts_audio_cache
@@ -230,18 +260,22 @@ async def generate_neural_tts(request: TtsRequest):
     if not clean_text:
         raise HTTPException(status_code=400, detail="Text cannot be empty")
 
+    # Adaptive Context-Aware Speaking Style & Settings
+    detected_style, stability, similarity_boost, style_exag = detect_speaking_style(clean_text, request.style)
+
     v_key = (request.voice_key or "jarvis").lower().strip()
     voice_id = ELEVENLABS_VOICES.get(v_key, DEFAULT_CUSTOM_VOICE_ID)
 
-    # Check Audio Cache with unique voice key
-    cache_key = f"{v_key}_{voice_id}_{request.style}_{clean_text}"
+    # Check Audio Cache with unique voice key and detected style
+    cache_key = f"{v_key}_{voice_id}_{detected_style}_{clean_text}"
     cache_hash = hashlib.md5(cache_key.encode("utf-8")).hexdigest()
 
     if cache_hash in tts_audio_cache:
-        print(f"⚡ TTS Cache Hit for: '{clean_text[:30]}...'")
+        print(f"⚡ TTS Cache Hit for: '{clean_text[:30]}...' (Style: {detected_style})")
         return {
             "status": "success",
             "audio_base64": tts_audio_cache[cache_hash],
+            "style_used": detected_style,
             "cached": True,
             "chars_used": total_chars_used
         }
@@ -252,27 +286,14 @@ async def generate_neural_tts(request: TtsRequest):
 
         url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
 
-        # Precision Refined Baritone Settings (30-40 Age Perceived Profile)
-        stability = 0.68          # Composed, intelligent, non-monotone stability
-        similarity_boost = 0.85   # Rich baritone fidelity & clarity
-        style_exaggeration = 0.10 # Controlled, natural human speech without movie trailer drama
-
-        if request.style == "professional":
-            stability = 0.75
-            style_exaggeration = 0.05
-        elif request.style == "cinematic":
-            stability = 0.60
-            style_exaggeration = 0.20
-        elif request.style == "alert":
-            stability = 0.50
-            style_exaggeration = 0.25
-
         payload = {
             "text": clean_text,
             "model_id": "eleven_multilingual_v2",
             "voice_settings": {
-                "stability": 0.65,
-                "similarity_boost": 0.85
+                "stability": stability,
+                "similarity_boost": similarity_boost,
+                "style": style_exag,
+                "use_speaker_boost": True
             }
         }
 
@@ -294,11 +315,12 @@ async def generate_neural_tts(request: TtsRequest):
             tts_audio_cache[cache_hash] = audio_base64
             total_chars_used += len(clean_text)
 
-            print(f"🔊 Generated ElevenLabs Neural Audio ({len(clean_text)} chars, Voice: {request.voice_key})")
+            print(f"🔊 Generated ElevenLabs Audio ({len(clean_text)} chars, Style: {detected_style})")
 
             return {
                 "status": "success",
                 "audio_base64": audio_base64,
+                "style_used": detected_style,
                 "cached": False,
                 "chars_used": total_chars_used
             }
